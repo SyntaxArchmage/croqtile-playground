@@ -10,6 +10,8 @@ interface Props {
   onCompile: () => void;
   onDumpAST: () => void;
   onLoadCode: (code: string) => void;
+  onTogglePanel: () => void;
+  panelOpen: boolean;
   status: WorkerStatus;
 }
 
@@ -20,12 +22,25 @@ export function Toolbar({
   onCompile,
   onDumpAST,
   onLoadCode,
+  onTogglePanel,
+  panelOpen,
   status,
 }: Props) {
   const busy = status === "running";
 
   return (
     <div className="flex items-center gap-2 px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
+      <button
+        onClick={onTogglePanel}
+        className="p-1.5 rounded hover:bg-[var(--bg-surface)] transition-colors text-[var(--text-muted)]"
+        title={panelOpen ? "Close tutorial panel" : "Open tutorial panel"}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <line x1="9" y1="3" x2="9" y2="21" />
+        </svg>
+      </button>
+
       <span className="text-sm font-semibold text-[var(--accent)]">Croqtile</span>
       <span className="text-xs text-[var(--text-muted)]">Playground</span>
 
