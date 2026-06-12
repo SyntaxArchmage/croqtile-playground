@@ -6,14 +6,17 @@ import { Toolbar } from "./Toolbar";
 import { OutputPanel } from "./OutputPanel";
 import { StatusBar } from "./StatusBar";
 import { TutorialPanel } from "./TutorialPanel";
+import { ChallengePanel } from "./ChallengePanel";
 import { ResizableSplit } from "./ResizableSplit";
 import { useChoreoWorker } from "@/lib/useChoreoWorker";
 import { EXAMPLES } from "@/lib/examples";
 
+type PanelMode = "closed" | "tutorial" | "challenge";
+
 export function Playground() {
   const [source, setSource] = useState<string>(EXAMPLES[0].code);
   const [target, setTarget] = useState("cc");
-  const [panelOpen, setPanelOpen] = useState(false);
+  const [panelMode, setPanelMode] = useState<PanelMode>("closed");
   const editorRef = useRef<{ getValue: () => string }>(null);
 
   const { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST } =
@@ -34,8 +37,8 @@ export function Playground() {
         onCompile={handleCompile}
         onDumpAST={handleDumpAST}
         onLoadCode={setSource}
-        onTogglePanel={() => setPanelOpen((p) => !p)}
-        panelOpen={panelOpen}
+        onTogglePanel={(mode) => setPanelMode((p) => p === mode ? "closed" : mode)}
+        panelMode={panelMode}
         status={status}
       />
       <div className="flex-1 min-h-0 flex flex-col">
@@ -52,21 +55,26 @@ export function Playground() {
     </div>
   );
 
-  if (!panelOpen) {
+  if (panelMode === "closed") {
     return <div className="h-screen">{idePanel}</div>;
   }
 
+  const leftPanel = panelMode === "tutorial" ? (
+    <TutorialPanel
+      onLoadCode={setSource}
+      onClose={() => setPanelMode("closed")}
+    />
+  ) : (
+    <ChallengePanel
+      onLoadCode={setSource}
+      onClose={() => setPanelMode("closed")}
+      lastOutput={output}
+    />
+  );
+
   return (
     <div className="h-screen">
-      <ResizableSplit
-        left={
-          <TutorialPanel
-            onLoadCode={setSource}
-            onClose={() => setPanelOpen(false)}
-          />
-        }
-        right={idePanel}
-      />
+      <ResizableSplit left={leftPanel} right={idePanel} />
     </div>
   );
 }
