@@ -1,0 +1,36 @@
+"use client";
+
+import type { WorkerStatus, BuildManifest } from "@/lib/useChoreoWorker";
+
+interface Props {
+  status: WorkerStatus;
+  compilerVersion?: string | null;
+  buildManifest?: BuildManifest | null;
+}
+
+const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
+  loading: { label: "Loading WASM...", color: "text-yellow-500" },
+  ready: { label: "Ready", color: "text-[var(--success)]" },
+  running: { label: "Running...", color: "text-blue-400" },
+  error: { label: "Error", color: "text-[var(--error)]" },
+};
+
+export function StatusBar({ status, compilerVersion, buildManifest }: Props) {
+  const { label, color } = statusConfig[status];
+  const version = compilerVersion ?? buildManifest?.version ?? null;
+  const commit = buildManifest?.commit_short ?? null;
+
+  return (
+    <div className="flex items-center gap-2 px-4 py-1 border-t border-[var(--border)] bg-[var(--bg-secondary)] text-xs text-[var(--text-muted)]">
+      <span className={`flex items-center gap-1 ${color}`}>
+        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+        {label}
+      </span>
+      <span className="text-[var(--border)]">|</span>
+      <span>
+        Croqtile {version ?? "—"}
+        {commit && <span className="ml-1 opacity-60">({commit})</span>}
+      </span>
+    </div>
+  );
+}

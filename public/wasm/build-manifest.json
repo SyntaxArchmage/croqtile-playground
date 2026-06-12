@@ -1,0 +1,10 @@
+{
+  "artifact": "co-web",
+  "version": null,
+  "commit": null,
+  "commit_short": null,
+  "built_at": null,
+  "builder": "scripts/build-wasm.sh",
+  "source_repo": "github.com/LancerLab/croqtile",
+  "note": "Placeholder — run scripts/build-wasm.sh to populate"
+}

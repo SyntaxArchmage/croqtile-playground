@@ -1,0 +1,74 @@
+export interface Example {
+  id: string;
+  name: string;
+  code: string;
+}
+
+export const EXAMPLES: Example[] = [
+  {
+    id: "hello",
+    name: "Hello World",
+    code: `__co__ void hello() {
+  println("Hello from Croqtile!");
+}
+`,
+  },
+  {
+    id: "parallel",
+    name: "Parallel Loop",
+    code: `__co__ void parallel_demo() {
+  parallel {i} by [4] {
+    println("thread", i);
+  }
+}
+`,
+  },
+  {
+    id: "dma",
+    name: "DMA Transfer",
+    code: `__co__ void dma_demo() {
+  global float A[16];
+  shared float B[16];
+
+  parallel {i} by [16] {
+    A[i] = (float)i;
+  }
+
+  dma(A[0:16], B[0:16]);
+
+  parallel {i} by [16] {
+    println("B[", i, "] =", B[i]);
+  }
+}
+`,
+  },
+  {
+    id: "matmul",
+    name: "Matrix Multiply",
+    code: `__co__ void matmul() {
+  global float A[4, 4];
+  global float B[4, 4];
+  global float C[4, 4];
+
+  // Initialize
+  parallel {i, j} by [4, 4] {
+    A[i, j] = (float)(i + j);
+    B[i, j] = (float)(i * j);
+    C[i, j] = 0.0f;
+  }
+
+  // Compute C = A * B
+  parallel {i, j} by [4, 4] {
+    float sum = 0.0f;
+    foreach k in [0:4] {
+      sum = sum + A[i, k] * B[k, j];
+    }
+    C[i, j] = sum;
+  }
+
+  println("C[0,0] =", C[0, 0]);
+  println("C[1,1] =", C[1, 1]);
+}
+`,
+  },
+];
