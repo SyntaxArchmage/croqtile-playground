@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TUTORIALS, type Tutorial, type TutorialStep } from "@/lib/tutorials";
+import { getTutorialProgress, markTutorialStep } from "@/lib/progress";
 
 interface Props {
   onLoadCode: (code: string) => void;
@@ -30,14 +31,23 @@ export function TutorialPanel({ onLoadCode, onClose }: Props) {
               key={t.id}
               onClick={() => {
                 setSelectedTutorial(t);
-                setStepIndex(0);
-                onLoadCode(t.steps[0].code);
+                const resumeStep = Math.min(getTutorialProgress(t.id) + 1, t.steps.length - 1);
+                setStepIndex(resumeStep);
+                onLoadCode(t.steps[resumeStep].code);
+                markTutorialStep(t.id, resumeStep);
               }}
               className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
             >
-              <div className="text-sm font-medium text-[var(--text-primary)]">{t.title}</div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-[var(--text-primary)]">{t.title}</span>
+                {getTutorialProgress(t.id) >= t.steps.length - 1 && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900 text-green-300 border border-green-800">done</span>
+                )}
+              </div>
               <div className="text-xs text-[var(--text-muted)] mt-1">{t.description}</div>
-              <div className="text-xs text-[var(--text-muted)] mt-1">{t.steps.length} steps</div>
+              <div className="text-xs text-[var(--text-muted)] mt-1">
+                {Math.min(getTutorialProgress(t.id) + 1, t.steps.length)}/{t.steps.length} steps
+              </div>
             </button>
           ))}
         </div>
@@ -83,6 +93,7 @@ export function TutorialPanel({ onLoadCode, onClose }: Props) {
             const prev = Math.max(0, stepIndex - 1);
             setStepIndex(prev);
             onLoadCode(selectedTutorial.steps[prev].code);
+            markTutorialStep(selectedTutorial.id, prev);
           }}
           disabled={stepIndex === 0}
           className="px-3 py-1 text-xs rounded border border-[var(--border)] disabled:opacity-30 hover:bg-[var(--bg-surface)]"
@@ -101,6 +112,7 @@ export function TutorialPanel({ onLoadCode, onClose }: Props) {
             const next = Math.min(totalSteps - 1, stepIndex + 1);
             setStepIndex(next);
             onLoadCode(selectedTutorial.steps[next].code);
+            markTutorialStep(selectedTutorial.id, next);
           }}
           disabled={stepIndex === totalSteps - 1}
           className="px-3 py-1 text-xs rounded border border-[var(--border)] disabled:opacity-30 hover:bg-[var(--bg-surface)]"

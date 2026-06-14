@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import { checkTests } from "@/lib/checkTests";
+import { isChallengePassed, markChallengePassed } from "@/lib/progress";
 
 interface Props {
   onLoadCode: (code: string) => void;
@@ -42,6 +43,9 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput }: Props) {
                   {c.title}
                 </span>
                 <DifficultyBadge difficulty={c.difficulty} />
+                {isChallengePassed(c.id) && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900 text-green-300 border border-green-800">passed</span>
+                )}
               </div>
               <div className="text-xs text-[var(--text-muted)] mt-1">
                 {c.tests.length} test{c.tests.length > 1 ? "s" : ""}
@@ -55,6 +59,12 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput }: Props) {
 
   const testResults = checkTests(selectedChallenge, lastOutput);
   const allPassed = testResults.every((r) => r.passed);
+
+  useEffect(() => {
+    if (allPassed && lastOutput) {
+      markChallengePassed(selectedChallenge.id);
+    }
+  }, [allPassed, lastOutput, selectedChallenge.id]);
 
   return (
     <div className="h-full flex flex-col">

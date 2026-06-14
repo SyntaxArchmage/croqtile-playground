@@ -1,0 +1,55 @@
+const STORAGE_KEY = "croqtile-playground-progress";
+
+export interface Progress {
+  tutorialSteps: Record<string, number>;
+  challengesPassed: string[];
+}
+
+function getDefault(): Progress {
+  return { tutorialSteps: {}, challengesPassed: [] };
+}
+
+export function loadProgress(): Progress {
+  if (typeof window === "undefined") return getDefault();
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return getDefault();
+    return { ...getDefault(), ...JSON.parse(raw) };
+  } catch {
+    return getDefault();
+  }
+}
+
+export function saveProgress(progress: Progress): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  } catch {
+    // localStorage full or unavailable
+  }
+}
+
+export function markTutorialStep(tutorialId: string, stepIndex: number): void {
+  const p = loadProgress();
+  const current = p.tutorialSteps[tutorialId] ?? -1;
+  if (stepIndex > current) {
+    p.tutorialSteps[tutorialId] = stepIndex;
+    saveProgress(p);
+  }
+}
+
+export function markChallengePassed(challengeId: string): void {
+  const p = loadProgress();
+  if (!p.challengesPassed.includes(challengeId)) {
+    p.challengesPassed.push(challengeId);
+    saveProgress(p);
+  }
+}
+
+export function getTutorialProgress(tutorialId: string): number {
+  return loadProgress().tutorialSteps[tutorialId] ?? -1;
+}
+
+export function isChallengePassed(challengeId: string): boolean {
+  return loadProgress().challengesPassed.includes(challengeId);
+}
