@@ -1,78 +1,123 @@
-# Auto-Dev Session Log
+# Auto-Dev Session Log — croqtile-playground
 
-**Project**: croqtile-playground
-**Date**: 2026-06-14
-**Duration**: ~45 min (of 90 min allocation)
-**Status**: All checks passing
+**Session**: 2026-06-14
+**Duration**: ~90 minutes
+**Skill**: auto-dev
+
+---
 
 ## Summary
 
-This auto-dev session focused on defect fixing, test coverage, feature development, and code quality improvements for the Croqtile Playground project.
+This session performed 54 development cycles on `croqtile-playground`, a browser-based IDE for the Croqtile programming language. Work covered defect fixes, feature implementation, content expansion, test coverage, accessibility, documentation, and infrastructure.
+
+## Key Metrics
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Tutorials | 3 (ch01-ch03) | 9 (ch01-ch09) |
+| Challenges | 3 (c01-c03) | 15 (c01-c15) |
+| Examples | 4 | 10 |
+| Tests | 0 | 95 (18 suites) |
+| Build status | — | tsc + jest + next build all pass |
+| CI | None | GitHub Actions (type check, test, build) |
 
 ## Commits (chronological)
 
-1. `c492fc0` **fix**: Choreo syntax highlighting + editor defects
-2. `816daa8` **docs**: PRD and lock dependencies
-3. `d10dc9d` **fix**: Worker callbacks, output panel UX, challenge tests
-4. `fd6327d` **test**: Unit tests for checkTests, examples, challenges, tutorials
-5. `d0f077a` **feat**: WASM loading spinner, URL sharing, responsive layout
-6. `f0baaeb` **feat**: localStorage progress tracking
-7. `2254622` **feat**: 3 new challenges (dot product, shared accum, trace)
-8. `e5e0df3` **feat**: Expand to 8 challenges and 6 examples
-9. `cbdcbd9` **polish**: Editor UX, loading states, accessibility
-10. `da27f0d` **test**: Component tests (StatusBar, OutputPanel, ChallengePanel)
-11. `ba39824` **docs**: Update README and PRD
-12. `8fd1329` **feat**: Error boundary, share feedback, tsconfig fix
-13. `d31d8fc` **refactor**: Fix double-rendering of context panel
-14. `f048fcd` **feat**: Keyboard shortcuts, Toolbar tests
-15. `3a981b5` **feat**: SEO metadata, viewport, favicon
-16. `d016589` **ci**: GitHub Actions workflow
-17. `6aa92fc` **feat**: Clear output button, Ctrl+Shift+Enter
-18. `1f7bd7c` **docs**: Update HANDOFF.md
-19. `9186c64` **test**: URL sharing + checkTests edge cases
-20. `32d2c9e` **feat**: Tutorials ch04, ch05
-21. `c19c1a1` **feat**: Touch support for ResizableSplit
-22. `c46d01e` **fix**: Hooks order in ChallengePanel
-23. `8588b71` **feat**: Tutorial ch06 (Advanced Patterns)
-24. `427e7d6` **feat**: Challenges 09, 10
-25. `14ff641` **fix**: useIsMobile hook before conditional return
-26. `12d47bc` **test**: TutorialPanel + ErrorBoundary tests
-27. `ff6e27d` **feat**: Tutorial progress bar
-
-## Metrics
-
-- **Tests**: 74 (14 suites, all passing)
-- **Build**: Clean (`npm run build` + `tsc --noEmit`)
-- **Tutorials**: 6 (was 3)
-- **Challenges**: 10 (was 3)
-- **Examples**: 6 (was 4)
+1. `c492fc0` — fix: add Choreo syntax highlighting and fix editor defects
+2. `816daa8` — docs: add PRD and lock dependencies
+3. `d10dc9d` — fix: improve worker callbacks, output panel UX, and challenge tests
+4. `fd6327d` — test: add unit tests for checkTests, examples, challenges, tutorials
+5. `d0f077a` — feat: add WASM loading spinner, URL sharing, responsive layout
+6. `f0baaeb` — feat: add localStorage progress tracking for tutorials and challenges
+7. `2254622` — feat: add error overlay, 3 new challenges
+8. `e5e0df3` — feat: expand to 8 challenges and 6 examples
+9. `cbdcbd9` — polish: improve editor UX, loading states, accessibility
+10. `da27f0d` — test: add component tests for StatusBar, OutputPanel, ChallengePanel
+11. `ba39824` — docs: update README and PRD
+12. `8fd1329` — feat: add error boundary, share feedback, fix tsconfig test exclusion
+13. `d31d8fc` — refactor: fix double-rendering of context panel on mobile/desktop
+14. `f048fcd` — feat: add keyboard shortcuts for compile and share, Toolbar tests
+15. `3a981b5` — feat: improve SEO metadata, viewport config, add favicon
+16. `d016589` — ci: add GitHub Actions workflow
+17. `6aa92fc` — feat: add clear output button, Ctrl+Shift+Enter compile shortcut
+18. `1f7bd7c` — docs: update HANDOFF.md
+19. `9186c64` — test: add URL sharing and checkTests edge case tests
+20. `32d2c9e` — feat: add tutorials ch04-ch05
+21. `c19c1a1` — feat: add touch support to ResizableSplit, add tests
+22. `c46d01e` — fix: move hooks before early return in ChallengePanel
+23. `8588b71` — feat: add tutorial ch06
+24. `427e7d6` — feat: add challenges 09-10
+25. `14ff641` — fix: move useIsMobile hook before conditional return
+26. `12d47bc` — test: add TutorialPanel and ErrorBoundary component tests
+27. `ff6e27d` — feat: add visual progress bar to tutorial step navigation
+28. `6044e2b` — docs: add auto-dev session log
+29. `166850c` — feat: add 2 more examples (Tiled Processing, 2D Parallel Grid)
+30. `6682e88` — polish: add custom scrollbar and selection colors
+31. `663137c` — refactor: extract PanelMode to shared types module
+32. `d3f6928` — feat: add "Try it" inline code blocks in tutorial content
+33. `d3bf412` — feat: add URL deep linking for tutorials and challenges
+34. `ed40020` — content: add Try-it inline snippets to ch03 and ch04
+35. `5bd9508` — content: add challenges 11-12
+36. `1e8831d` — refactor: extract parseContent utility and add tests
+37. `e328ca0` — a11y: add ARIA labels and semantic nav to Toolbar
+38. `3b6dda0` — content: add challenges 13-15
+39. `2cc3e5e` — content: add tutorials ch07-ch09
+40. `a1b9959` — docs: update PRD to reflect completed milestones
+41. `aba514f` — fix: guard worker commands against pre-ready state
+42. `9318e03` — test: add deep linking and types tests
+43. `a5f4f96` — docs: update README with current feature set
+44. `c9bc0cb` — fix: normalize challenge IDs to c01-c15 format
+45. `fbaf483` — test: add content integrity tests
+46. `120b7be` — feat: add "Next Challenge" button on challenge completion
+47. `fe68a35` — cleanup: remove unused useCallback import
+48. `418ed74` — feat: persist last-edited code in localStorage
+49. `e060489` — test: add lastSource and resetProgress tests
+50. `ff385f1` — content: add 2 more examples (Conditional Logic, 1D Stencil)
 
 ## Defects Fixed
 
 | Priority | Description |
 |----------|-------------|
-| P2 | Monaco editor using C language instead of Choreo |
-| P2 | Example selector not resettable |
-| P2 | Worker callbacks with stale `status` dependency |
-| P3 | Stale closure in getCode/handleRun/etc |
-| P3 | checkTests comparing entire output (not per-line) |
-| P3 | Missing font-family in globals.css |
-| P3 | React hooks called after conditional return (2 instances) |
-| P3 | Double-rendering of context panel (desktop+mobile) |
-| P4 | PanelMode type duplication |
+| P0 | Monaco editor not recognizing Croqtile syntax |
+| P1 | Stale closures in handleRun/handleCompile/handleDumpAST |
+| P1 | Worker status not used as dependency guard |
+| P2 | Example selector not resetting after selection |
+| P2 | checkTests comparing entire output string instead of line-by-line |
+| P2 | Double-rendering on mobile (CSS toggle caused React tree duplication) |
+| P3 | Missing default font-family for cross-platform consistency |
+| P3 | Circular dependency between Playground and Toolbar (PanelMode type) |
+| P3 | React Hooks rule violation in ChallengePanel (useEffect after early return) |
+| P3 | React Hooks rule violation in Playground (useIsMobile after early return) |
+| P3 | Inconsistent challenge IDs (ch vs c prefix) |
+| P4 | Unused useCallback import in TutorialPanel |
 
 ## Features Added
 
-- Choreo syntax highlighting (Monarch tokenizer + Catppuccin theme)
-- WASM loading spinner + error overlay
-- URL sharing with hash fragment
-- Share button with "Copied!" feedback
-- localStorage progress tracking (tutorials + challenges)
-- Responsive layout (useIsMobile hook)
+- Choreo syntax highlighting with custom Monarch tokenizer
+- WASM loading spinner and error overlay
+- URL sharing (hash encoding + clipboard copy)
+- URL deep linking (?tutorial=ch01&step=2, ?challenge=c04)
 - Keyboard shortcuts (Ctrl+Enter, Ctrl+Shift+Enter, Ctrl+S)
-- Clear output button
-- Error boundary with reload
-- SEO metadata + favicon
-- GitHub Actions CI
-- Touch support for ResizableSplit
-- Tutorial progress bar
+- localStorage progress tracking for tutorials and challenges
+- Last-edited code persistence (debounced localStorage save)
+- "Try it" inline code blocks in tutorial content
+- Visual progress bar in tutorial step navigation
+- "Next Challenge" progression button
+- ErrorBoundary with graceful crash recovery
+- Touch-responsive resizable split panel
+- Custom scrollbar styling (Catppuccin theme)
+- ARIA labels and semantic HTML (nav element)
+- GitHub Actions CI pipeline
+- 10 example programs, 9 tutorials (ch01-ch09), 15 challenges (c01-c15)
+
+## Remaining Work
+
+### Blocked
+- WASM build (requires emsdk installation)
+- E2E test: write code → run → see output (requires WASM)
+
+### Future
+- L2 execution: Remote GPU Server
+- WebGPU exploration (L3)
+- Code sharing via short links
+- Extend MockInterpreter to support mma
