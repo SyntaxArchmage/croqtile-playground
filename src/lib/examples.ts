@@ -71,4 +71,43 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "shared-mem",
+    name: "Shared Memory",
+    code: `__co__ void shared_demo() {
+  global float src[8];
+  shared float tile[4];
+
+  parallel {i} by [8] {
+    src[i] = (float)(i * 10);
+  }
+
+  // DMA first 4 elements to shared tile
+  dma(src[0:4], tile[0:4]);
+
+  parallel {i} by [4] {
+    println("tile[", i, "] =", tile[i]);
+  }
+}
+`,
+  },
+  {
+    id: "reduction",
+    name: "Sum Reduction",
+    code: `__co__ void sum_reduction() {
+  global float data[8];
+
+  parallel {i} by [8] {
+    data[i] = (float)(i + 1);
+  }
+
+  float total = 0.0f;
+  foreach i in [0:8] {
+    total = total + data[i];
+  }
+
+  println("sum =", total);
+}
+`,
+  },
 ];

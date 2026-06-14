@@ -20,6 +20,8 @@ export { challenge03 } from "./03-dma-reverse";
 export { challenge04 } from "./04-dot-product";
 export { challenge05 } from "./05-shared-accumulate";
 export { challenge06 } from "./06-matrix-trace";
+export { challenge07 } from "./07-pipeline-stages";
+export { challenge08 } from "./08-nested-parallel";
 
 import { challenge01 } from "./01-hello";
 import { challenge02 } from "./02-parallel-sum";
@@ -27,5 +29,10 @@ import { challenge03 } from "./03-dma-reverse";
 import { challenge04 } from "./04-dot-product";
 import { challenge05 } from "./05-shared-accumulate";
 import { challenge06 } from "./06-matrix-trace";
+import { challenge07 } from "./07-pipeline-stages";
+import { challenge08 } from "./08-nested-parallel";
 
-export const CHALLENGES: Challenge[] = [challenge01, challenge02, challenge03, challenge04, challenge05, challenge06];
+export const CHALLENGES: Challenge[] = [
+  challenge01, challenge02, challenge03, challenge04,
+  challenge05, challenge06, challenge07, challenge08,
+];
