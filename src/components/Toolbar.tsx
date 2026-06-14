@@ -39,7 +39,7 @@ export function Toolbar({
   }, [onShare]);
 
   return (
-    <div className="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
+    <nav className="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]" aria-label="Playground toolbar">
       <button
         onClick={() => onTogglePanel("tutorial")}
         className={`p-1.5 rounded transition-colors ${
@@ -48,6 +48,8 @@ export function Toolbar({
             : "hover:bg-[var(--bg-surface)] text-[var(--text-muted)]"
         }`}
         title="Tutorial"
+        aria-label="Toggle tutorial panel"
+        aria-pressed={panelMode === "tutorial"}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
@@ -62,6 +64,8 @@ export function Toolbar({
             : "hover:bg-[var(--bg-surface)] text-[var(--text-muted)]"
         }`}
         title="Challenge"
+        aria-label="Toggle challenge panel"
+        aria-pressed={panelMode === "challenge"}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -77,6 +81,7 @@ export function Toolbar({
         value={target}
         onChange={(e) => onTargetChange(e.target.value)}
         className="px-2 py-1 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)]"
+        aria-label="Compilation target"
       >
         <option value="cc">cc (C++ CPU)</option>
         <option value="cute">cute (CUDA)</option>
@@ -96,7 +101,8 @@ export function Toolbar({
         onClick={onCompile}
         disabled={busy}
         className="px-3 py-1 text-xs font-medium rounded bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
-        title="View generated C++/CUDA source code"
+        title="View generated C++/CUDA source code (Ctrl+Shift+Enter)"
+        aria-label="Compile code"
       >
         Compile
       </button>
@@ -105,6 +111,7 @@ export function Toolbar({
         onClick={onDumpAST}
         disabled={busy}
         className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)] disabled:opacity-50"
+        aria-label="Dump AST"
       >
         AST
       </button>
@@ -116,7 +123,8 @@ export function Toolbar({
             ? "border-green-600 bg-green-900/30 text-green-300"
             : "border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
         }`}
-        title="Copy shareable link"
+        title="Copy shareable link (Ctrl+S)"
+        aria-label="Share code"
       >
         {copied ? "Copied!" : "Share"}
       </button>
@@ -131,6 +139,7 @@ export function Toolbar({
         }}
         value=""
         className="px-2 py-1 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)]"
+        aria-label="Load example code"
       >
         <option value="" disabled>
           Examples...
@@ -141,6 +150,6 @@ export function Toolbar({
           </option>
         ))}
       </select>
-    </div>
+    </nav>
   );
 }
