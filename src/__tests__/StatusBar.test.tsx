@@ -1,0 +1,45 @@
+import { render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
+import { StatusBar } from "@/components/StatusBar";
+
+describe("StatusBar", () => {
+  it("shows loading state", () => {
+    render(<StatusBar status="loading" />);
+    expect(screen.getByText("Loading WASM...")).toBeInTheDocument();
+  });
+
+  it("shows ready state", () => {
+    render(<StatusBar status="ready" />);
+    expect(screen.getByText("Ready")).toBeInTheDocument();
+  });
+
+  it("shows running state", () => {
+    render(<StatusBar status="running" />);
+    expect(screen.getByText("Running...")).toBeInTheDocument();
+  });
+
+  it("shows error state", () => {
+    render(<StatusBar status="error" />);
+    expect(screen.getByText("Error")).toBeInTheDocument();
+  });
+
+  it("displays compiler version", () => {
+    render(<StatusBar status="ready" compilerVersion="1.2.3" />);
+    expect(screen.getByText(/1\.2\.3/)).toBeInTheDocument();
+  });
+
+  it("displays build manifest commit", () => {
+    render(
+      <StatusBar
+        status="ready"
+        buildManifest={{ version: "1.0", commit: "abc123", commit_short: "abc", built_at: null }}
+      />
+    );
+    expect(screen.getByText(/abc/)).toBeInTheDocument();
+  });
+
+  it("shows dash when no version available", () => {
+    render(<StatusBar status="ready" />);
+    expect(screen.getByText(/—/)).toBeInTheDocument();
+  });
+});
