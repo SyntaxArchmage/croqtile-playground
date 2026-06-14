@@ -43,7 +43,19 @@ Use \`foreach\` when you need a sequential accumulation (like summing values) th
     },
     {
       title: "Max reduction",
-      content: `Finding the maximum value follows the same pattern — sequential scan with a running maximum:`,
+      content: `Finding the maximum value follows the same pattern — sequential scan with a running maximum.
+
+Try computing the product instead:
+
+\`\`\`croqtile
+__co__ void product() {
+  global float data[5];
+  parallel {i} by [5] { data[i] = (float)(i + 1); }
+  float prod = 1.0f;
+  foreach i in [0:5] { prod = prod * data[i]; }
+  println("product =", prod);
+}
+\`\`\``,
       code: `__co__ void max_reduction() {
   global float data[6];
 

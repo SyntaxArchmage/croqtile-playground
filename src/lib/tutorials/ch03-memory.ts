@@ -51,7 +51,21 @@ Use \`dma()\` to copy data from global to shared memory:`,
 
 The syntax \`A[start:end]\` selects a slice. DMA is how you efficiently move data between global and shared memory on a GPU.
 
-In real hardware, DMA uses dedicated copy engines that work asynchronously. The mock interpreter simulates this synchronously.`,
+In real hardware, DMA uses dedicated copy engines that work asynchronously. The mock interpreter simulates this synchronously.
+
+Try loading a different slice:
+
+\`\`\`croqtile
+__co__ void dma_slice() {
+  global float data[16];
+  shared float buf[4];
+  parallel {i} by [16] { data[i] = (float)(i * 10); }
+  dma(data[8:12], buf[0:4]);
+  parallel {i} by [4] {
+    println("buf[", i, "] =", buf[i]);
+  }
+}
+\`\`\``,
       code: `__co__ void dma_demo() {
   global float input[16];
   shared float tile[4];
