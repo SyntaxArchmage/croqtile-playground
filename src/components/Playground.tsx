@@ -67,6 +67,17 @@ export function Playground() {
           </div>
         </div>
       )}
+      {status === "error" && !errors && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/90">
+          <div className="max-w-sm p-6 rounded-lg border border-red-800 bg-red-950/30 text-center">
+            <div className="text-lg text-red-400 mb-2">WASM Load Failed</div>
+            <p className="text-sm text-[var(--text-muted)]">
+              The compiler could not be loaded. WASM files may not be built yet.
+              You can still edit code, but Run / Compile will not work.
+            </p>
+          </div>
+        </div>
+      )}
       <Toolbar
         target={target}
         onTargetChange={setTarget}
