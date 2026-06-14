@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TUTORIALS, type Tutorial, type TutorialStep } from "@/lib/tutorials";
 import { getTutorialProgress, markTutorialStep } from "@/lib/progress";
 import { parseContent } from "@/lib/parseContent";
@@ -55,6 +55,14 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
     }
     return 0;
   });
+
+  useEffect(() => {
+    if (initialId && selectedTutorial) {
+      onLoadCode(selectedTutorial.steps[stepIndex].code);
+    }
+    // Only on mount with deep link
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!selectedTutorial) {
     return (

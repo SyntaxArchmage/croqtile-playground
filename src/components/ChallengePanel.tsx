@@ -30,6 +30,14 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
     }
   }, [selectedChallenge, allPassed, lastOutput]);
 
+  useEffect(() => {
+    if (initialId && selectedChallenge) {
+      onLoadCode(selectedChallenge.starterCode);
+    }
+    // Only on mount with deep link
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (!selectedChallenge) {
     return (
       <div className="h-full flex flex-col">
