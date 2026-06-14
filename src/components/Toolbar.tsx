@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import type { WorkerStatus } from "@/lib/useChoreoWorker";
 import type { PanelMode } from "./Playground";
 import { EXAMPLES } from "@/lib/examples";
@@ -30,6 +31,12 @@ export function Toolbar({
   status,
 }: Props) {
   const busy = status === "running";
+  const [copied, setCopied] = useState(false);
+  const handleShareClick = useCallback(() => {
+    onShare();
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [onShare]);
 
   return (
     <div className="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
@@ -103,11 +110,15 @@ export function Toolbar({
       </button>
 
       <button
-        onClick={onShare}
-        className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
+        onClick={handleShareClick}
+        className={`px-3 py-1 text-xs font-medium rounded border transition-colors ${
+          copied
+            ? "border-green-600 bg-green-900/30 text-green-300"
+            : "border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
+        }`}
         title="Copy shareable link"
       >
-        Share
+        {copied ? "Copied!" : "Share"}
       </button>
 
       <div className="flex-1" />
