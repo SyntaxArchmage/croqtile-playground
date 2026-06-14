@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import type { WorkerStatus } from "@/lib/useChoreoWorker";
-import type { PanelMode } from "./Playground";
+import type { PanelMode } from "@/lib/types";
 import { EXAMPLES } from "@/lib/examples";
 
 interface Props {

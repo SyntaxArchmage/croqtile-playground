@@ -10,8 +10,7 @@ import { ChallengePanel } from "./ChallengePanel";
 import { ResizableSplit } from "./ResizableSplit";
 import { useChoreoWorker } from "@/lib/useChoreoWorker";
 import { EXAMPLES } from "@/lib/examples";
-
-export type PanelMode = "closed" | "tutorial" | "challenge";
+import type { PanelMode } from "@/lib/types";
 
 function useIsMobile(breakpoint = 768): boolean {
   const [isMobile, setIsMobile] = useState(false);
