@@ -156,4 +156,51 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "conditional",
+    name: "Conditional Logic",
+    code: `__co__ void classify() {
+  global float data[8];
+
+  parallel {i} by [8] {
+    data[i] = (float)((i * 7 + 3) % 20);
+  }
+
+  parallel {i} by [8] {
+    if (data[i] < 5.0f) {
+      println("data[", i, "] =", data[i], "-> LOW");
+    } else if (data[i] < 15.0f) {
+      println("data[", i, "] =", data[i], "-> MID");
+    } else {
+      println("data[", i, "] =", data[i], "-> HIGH");
+    }
+  }
+}
+`,
+  },
+  {
+    id: "stencil",
+    name: "1D Stencil",
+    code: `__co__ void stencil_1d() {
+  global float input[8];
+  global float output[8];
+
+  parallel {i} by [8] {
+    input[i] = (float)(i * 10);
+  }
+
+  parallel {i} by [8] {
+    if (i == 0 || i == 7) {
+      output[i] = input[i];
+    } else {
+      output[i] = (input[i-1] + input[i] + input[i+1]) / 3.0f;
+    }
+  }
+
+  parallel {i} by [8] {
+    println("smoothed[", i, "] =", output[i]);
+  }
+}
+`,
+  },
 ];
