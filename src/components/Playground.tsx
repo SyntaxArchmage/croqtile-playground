@@ -11,6 +11,7 @@ import { ResizableSplit } from "./ResizableSplit";
 import { useChoreoWorker } from "@/lib/useChoreoWorker";
 import { EXAMPLES } from "@/lib/examples";
 import type { PanelMode } from "@/lib/types";
+import { saveLastSource, loadLastSource } from "@/lib/progress";
 
 function useIsMobile(breakpoint = 768): boolean {
   const [isMobile, setIsMobile] = useState(false);
@@ -32,6 +33,8 @@ function getInitialSource(): string {
       // fall through
     }
   }
+  const saved = loadLastSource();
+  if (saved) return saved;
   return EXAMPLES[0].code;
 }
 
@@ -53,6 +56,11 @@ export function Playground() {
     useChoreoWorker();
 
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    const timer = setTimeout(() => saveLastSource(source), 1000);
+    return () => clearTimeout(timer);
+  }, [source]);
 
   const getCode = useCallback(() => editorRef.current?.getValue() ?? source, [source]);
 

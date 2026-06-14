@@ -58,7 +58,28 @@ export function resetProgress(): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(LAST_SOURCE_KEY);
   } catch {
     // noop
+  }
+}
+
+const LAST_SOURCE_KEY = "croqtile-playground-last-source";
+
+export function saveLastSource(source: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(LAST_SOURCE_KEY, source);
+  } catch {
+    // noop
+  }
+}
+
+export function loadLastSource(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return localStorage.getItem(LAST_SOURCE_KEY);
+  } catch {
+    return null;
   }
 }
