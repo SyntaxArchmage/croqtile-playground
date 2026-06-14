@@ -11,6 +11,7 @@ interface Props {
   onCompile: () => void;
   onDumpAST: () => void;
   onLoadCode: (code: string) => void;
+  onShare: () => void;
   onTogglePanel: (mode: PanelMode) => void;
   panelMode: PanelMode;
   status: WorkerStatus;
@@ -23,6 +24,7 @@ export function Toolbar({
   onCompile,
   onDumpAST,
   onLoadCode,
+  onShare,
   onTogglePanel,
   panelMode,
   status,
@@ -30,7 +32,7 @@ export function Toolbar({
   const busy = status === "running";
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
+    <div className="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
       <button
         onClick={() => onTogglePanel("tutorial")}
         className={`p-1.5 rounded transition-colors ${
@@ -97,6 +99,14 @@ export function Toolbar({
         className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)] disabled:opacity-50"
       >
         AST
+      </button>
+
+      <button
+        onClick={onShare}
+        className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
+        title="Copy shareable link"
+      >
+        Share
       </button>
 
       <div className="flex-1" />
