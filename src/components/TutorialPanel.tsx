@@ -3,40 +3,35 @@
 import { useState, useCallback } from "react";
 import { TUTORIALS, type Tutorial, type TutorialStep } from "@/lib/tutorials";
 import { getTutorialProgress, markTutorialStep } from "@/lib/progress";
+import { parseContent } from "@/lib/parseContent";
 
 function renderContent(
   content: string,
   onTryIt: (code: string) => void,
 ): React.ReactNode[] {
-  const parts = content.split(/```(\w*)\n([\s\S]*?)```/);
-  const nodes: React.ReactNode[] = [];
-  for (let i = 0; i < parts.length; i++) {
-    if (i % 3 === 0) {
-      if (parts[i]) {
-        nodes.push(
-          <span key={i} className="whitespace-pre-wrap">
-            {parts[i]}
-          </span>,
-        );
-      }
-    } else if (i % 3 === 2) {
-      const code = parts[i];
-      nodes.push(
-        <div key={i} className="my-2 rounded border border-[var(--border)] bg-[var(--bg-primary)] overflow-hidden">
-          <pre className="p-3 text-xs font-mono overflow-x-auto text-[var(--text-secondary)]">
-            {code}
-          </pre>
-          <button
-            onClick={() => onTryIt(code)}
-            className="w-full px-3 py-1.5 text-xs font-medium bg-[var(--accent)] text-[var(--bg-primary)] hover:opacity-90 transition-opacity"
-          >
-            Try it →
-          </button>
-        </div>,
+  const parts = parseContent(content);
+  return parts.map((part, i) => {
+    if (part.type === "text") {
+      return (
+        <span key={i} className="whitespace-pre-wrap">
+          {part.content}
+        </span>
       );
     }
-  }
-  return nodes;
+    return (
+      <div key={i} className="my-2 rounded border border-[var(--border)] bg-[var(--bg-primary)] overflow-hidden">
+        <pre className="p-3 text-xs font-mono overflow-x-auto text-[var(--text-secondary)]">
+          {part.content}
+        </pre>
+        <button
+          onClick={() => onTryIt(part.content)}
+          className="w-full px-3 py-1.5 text-xs font-medium bg-[var(--accent)] text-[var(--bg-primary)] hover:opacity-90 transition-opacity"
+        >
+          Try it →
+        </button>
+      </div>
+    );
+  });
 }
 
 interface Props {
