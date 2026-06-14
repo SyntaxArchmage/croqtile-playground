@@ -1,69 +1,71 @@
-# Croqtile Playground — Handoff
+# Croqtile Playground — Session Handoff
 
-## Session: 2026-06-12
+**Date**: 2026-06-14
+**Session**: auto-dev cycle (ongoing)
 
-### What was done
+## What Was Done This Session
 
-1. **Created independent repo** (`/home/albert/workspace/croqtile-playground/`)
-   - From scratch, not copied from website
-   - Remote set: `git@github.com:LancerLab/croqtile-playground.git` (push pending)
-   - Tech stack: Next.js 16 + Tailwind 4 + Monaco Editor + WASM worker
+### Defect Fixes (Priority Order)
+1. **Choreo syntax highlighting** — Monaco editor now registers a custom "choreo" language with Monarch tokenizer for `__co__`, `parallel`, `dma`, `mma`, `shared`, `global`, `println`, type keywords (`f16`, `f32`, etc.), and Catppuccin dark theme
+2. **Example selector reset** — Fixed `<select>` not resettable after choosing an example (controlled value + reset)
+3. **Stale closure fix** — Refactored `getCode` into `useCallback`, updated handler dependencies
+4. **Worker callback stability** — Removed stale `status` dependency from `run`/`compile`/`dumpAST` callbacks
+5. **Challenge test logic** — Fixed `checkTests` to use line-by-line matching instead of full-output equality
+6. **Output panel auto-switch** — Automatically switches to Errors tab when new errors arrive
+7. **Output panel auto-scroll** — Scrolls to bottom on new content
+8. **Type deduplication** — Extracted shared `PanelMode` type
+9. **Font family** — Added system font stack to globals.css
+10. **Double-render fix** — Context panel no longer mounted twice (desktop/mobile)
 
-2. **Cleaned croqtile-website**
-   - `git reset --hard b977b76` (removed all playground commits)
-   - Force push pending (network down)
+### New Features
+- **WASM loading spinner** — Animated overlay while compiler initializes
+- **WASM error overlay** — Informative message when WASM fails to load
+- **URL sharing** — Source code encoded in URL hash; Share button copies link
+- **Share feedback** — Button shows "Copied!" for 2 seconds
+- **Responsive layout** — Mobile devices get stacked panels via `useIsMobile` hook
+- **Keyboard shortcuts** — Ctrl+Enter (Run), Ctrl+Shift+Enter (Compile), Ctrl+S (Share)
+- **localStorage progress tracking** — Tutorial step progress and challenge completion
+- **Clear output button** — Clears output/errors panel
+- **Error boundary** — Graceful crash recovery with reload button
+- **SVG favicon** — Catppuccin-themed "C" icon
+- **SEO metadata** — Keywords, authors, viewport, theme-color
 
-3. **Playground features implemented**:
-   - Editor (Monaco, vs-dark theme)
-   - Toolbar (target selector, Run/Compile/AST, panel toggles)
-   - Output panel (tabbed: output/errors)
-   - Status bar (compiler version + build manifest)
-   - **Tutorial panel** (3 chapters: Hello, Parallel, Memory)
-   - **Challenge panel** (3 challenges with test verification)
-   - Resizable split layout (left=context, right=IDE)
-   - WASM worker architecture (ready to bind to co-web.wasm)
-   - Version tracking (build-manifest.json)
+### Content Expansion
+- **8 challenges** (was 3): Hello Threads, Parallel Init, DMA Reverse, Dot Product, Shared Memory Accumulate, Matrix Trace, Two-Stage Pipeline, Nested Parallel
+- **6 examples** (was 4): Added Shared Memory demo, Sum Reduction
 
-4. **TypeScript**: zero errors (tsc --noEmit passes)
+### Testing
+- **53 unit tests** across 9 test suites (all passing)
+- Tests cover: `checkTests` logic, data integrity (examples/challenges/tutorials), progress module, StatusBar, OutputPanel, ChallengePanel, Toolbar
+- Jest + ts-jest + jsdom environment
 
-### Commits (local, unpushed)
+### Infrastructure
+- GitHub Actions CI workflow (type check, test, build)
+- Updated README with full feature list and project structure
+- Updated PRD with completed items
+- All commits pushed to `SyntaxArchmage/croqtile-playground`
 
-| Hash | Message |
-|------|---------|
-| c1a0bfa | Initial scaffold |
-| 255038d | Tutorial panel |
-| 9ca81b2 | Pin dependency versions |
-| 0716ac6 | Challenge panel + test verification |
+## Current State
 
-### Blocking
+- `npm install` ✅
+- `npm test` ✅ (53 tests)
+- `npx tsc --noEmit` ✅
+- `npm run build` ✅
+- Dev server boots ✅ (port 3001)
 
-- **Network completely down**: cannot `npm install`, `next build`, `git push`, or `emsdk install`
-- node_modules symlinked from croqtile-website for tsc (build fails due to internal Next.js version mismatch in those modules — needs fresh install)
+## Remaining Work (from PRD)
 
-### Next steps (when network returns)
+### Near-term
+- [ ] "Try it" inline buttons in tutorial content
+- [ ] Deep link: URL param for tutorial chapter
+- [ ] More challenges (9-15 total)
+- [ ] Additional tutorials (ch04-ch09)
 
-```bash
-# 1. Create GitHub repo
-# Go to github.com/LancerLab → New repo → croqtile-playground → private
+### Blocked
+- [ ] WASM build (requires emsdk installation)
+- [ ] E2E test: write code → run → see output (requires WASM)
 
-# 2. Push
-cd /home/albert/workspace/croqtile-playground
-npm install   # fresh install
-git push -u origin main
-
-# 3. Clean website remote
-cd /home/albert/workspace/croqtile-website
-git push origin main --force
-
-# 4. Build WASM
-cd /home/albert/workspace/croqtile
-# ensure emsdk installed
-./scripts/build-wasm.sh /path/to/croqtile
-```
-
-### Architecture decisions
-
-- Playground is a **separate private repo**, deployed as static export
-- Website links to playground (via URL, not embedded)
-- WASM artifacts are gitignored, tracked via `build-manifest.json`
-- Execution targets: Mock (phase 1), WGSL (phase 2), WASM kernel (phase 3)
+### Future
+- [ ] L2 execution: Remote GPU Server
+- [ ] WebGPU exploration (L3)
+- [ ] Code sharing via short links
