@@ -5,6 +5,9 @@ import {
   markChallengePassed,
   getTutorialProgress,
   isChallengePassed,
+  saveLastSource,
+  loadLastSource,
+  resetProgress,
 } from "@/lib/progress";
 
 const STORAGE_KEY = "croqtile-playground-progress";
@@ -53,5 +56,20 @@ describe("progress", () => {
 
   it("getTutorialProgress returns -1 for unknown tutorial", () => {
     expect(getTutorialProgress("unknown")).toBe(-1);
+  });
+
+  it("saves and loads last source", () => {
+    expect(loadLastSource()).toBeNull();
+    saveLastSource("__co__ void hello() {}");
+    expect(loadLastSource()).toBe("__co__ void hello() {}");
+  });
+
+  it("resetProgress clears everything including last source", () => {
+    saveProgress({ tutorialSteps: { ch01: 2 }, challengesPassed: ["c1"] });
+    saveLastSource("some code");
+    resetProgress();
+    expect(loadProgress().tutorialSteps).toEqual({});
+    expect(loadProgress().challengesPassed).toEqual([]);
+    expect(loadLastSource()).toBeNull();
   });
 });
