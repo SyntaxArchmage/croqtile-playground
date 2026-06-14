@@ -26,6 +26,9 @@ export { challenge09 } from "./09-tiled-copy";
 export { challenge10 } from "./10-parallel-min";
 export { challenge11 } from "./11-prefix-sum";
 export { challenge12 } from "./12-broadcast";
+export { challenge13 } from "./13-element-wise-mul";
+export { challenge14 } from "./14-row-sum";
+export { challenge15 } from "./15-scale-vector";
 
 import { challenge01 } from "./01-hello";
 import { challenge02 } from "./02-parallel-sum";
@@ -39,9 +42,13 @@ import { challenge09 } from "./09-tiled-copy";
 import { challenge10 } from "./10-parallel-min";
 import { challenge11 } from "./11-prefix-sum";
 import { challenge12 } from "./12-broadcast";
+import { challenge13 } from "./13-element-wise-mul";
+import { challenge14 } from "./14-row-sum";
+import { challenge15 } from "./15-scale-vector";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
   challenge05, challenge06, challenge07, challenge08,
   challenge09, challenge10, challenge11, challenge12,
+  challenge13, challenge14, challenge15,
 ];
