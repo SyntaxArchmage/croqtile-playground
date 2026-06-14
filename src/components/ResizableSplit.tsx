@@ -13,17 +13,21 @@ export function ResizableSplit({ left, right, initialRatio = 0.35 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
 
+  const updateRatio = useCallback((clientX: number) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+    setRatio(Math.max(0.2, Math.min(0.6, x / rect.width)));
+  }, []);
+
   const onMouseDown = useCallback(() => {
     dragging.current = true;
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
 
     const onMove = (e: MouseEvent) => {
-      if (!dragging.current || !containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const newRatio = Math.max(0.2, Math.min(0.6, x / rect.width));
-      setRatio(newRatio);
+      if (!dragging.current) return;
+      updateRatio(e.clientX);
     };
 
     const onUp = () => {
@@ -36,7 +40,27 @@ export function ResizableSplit({ left, right, initialRatio = 0.35 }: Props) {
 
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
-  }, []);
+  }, [updateRatio]);
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    dragging.current = true;
+    const touch = e.touches[0];
+
+    const onTouchMove = (ev: TouchEvent) => {
+      if (!dragging.current) return;
+      updateRatio(ev.touches[0].clientX);
+    };
+
+    const onTouchEnd = () => {
+      dragging.current = false;
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+    };
+
+    document.addEventListener("touchmove", onTouchMove, { passive: true });
+    document.addEventListener("touchend", onTouchEnd);
+    void touch;
+  }, [updateRatio]);
 
   return (
     <div ref={containerRef} className="flex h-full">
@@ -45,7 +69,8 @@ export function ResizableSplit({ left, right, initialRatio = 0.35 }: Props) {
       </div>
       <div
         onMouseDown={onMouseDown}
-        className="w-1 cursor-col-resize bg-[var(--border)] hover:bg-[var(--accent)] transition-colors flex-shrink-0"
+        onTouchStart={onTouchStart}
+        className="w-1 cursor-col-resize bg-[var(--border)] hover:bg-[var(--accent)] transition-colors flex-shrink-0 touch-none"
       />
       <div style={{ width: `${(1 - ratio) * 100}%` }} className="min-w-0 overflow-hidden">
         {right}
