@@ -138,6 +138,11 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
           registerChoreoLanguage(monaco);
           monaco.editor.setTheme("choreo-dark");
         }}
+        loading={
+          <div className="flex items-center justify-center h-full bg-[var(--bg-primary)]">
+            <span className="text-sm text-[var(--text-muted)]">Loading editor...</span>
+          </div>
+        }
         options={{
           fontSize: 14,
           fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
@@ -149,6 +154,10 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
           bracketPairColorization: { enabled: true },
           tabSize: 2,
           automaticLayout: true,
+          wordWrap: "on",
+          smoothScrolling: true,
+          cursorBlinking: "smooth",
+          cursorSmoothCaretAnimation: "on",
         }}
       />
     );

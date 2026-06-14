@@ -79,7 +79,8 @@ export function Toolbar({
         onClick={onRun}
         disabled={busy}
         className="px-3 py-1 text-xs font-medium rounded bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
-        title="Execute with mock interpreter (instant)"
+        title="Execute with mock interpreter (Ctrl+Enter)"
+        aria-label="Run code"
       >
         ▶ Run
       </button>
