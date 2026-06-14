@@ -61,22 +61,25 @@ export function useChoreoWorker() {
   }, []);
 
   const run = useCallback((source: string) => {
-    if (!workerRef.current || status === "loading") return;
+    if (!workerRef.current) return;
     setStatus("running");
+    setErrors("");
     workerRef.current.postMessage({ type: "mockRun", source });
-  }, [status]);
+  }, []);
 
   const compile = useCallback((source: string, target: string) => {
-    if (!workerRef.current || status === "loading") return;
+    if (!workerRef.current) return;
     setStatus("running");
+    setErrors("");
     workerRef.current.postMessage({ type: "compile", source, target, flags: "" });
-  }, [status]);
+  }, []);
 
   const dumpAST = useCallback((source: string) => {
-    if (!workerRef.current || status === "loading") return;
+    if (!workerRef.current) return;
     setStatus("running");
+    setErrors("");
     workerRef.current.postMessage({ type: "dumpAST", source });
-  }, [status]);
+  }, []);
 
   return { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST };
 }

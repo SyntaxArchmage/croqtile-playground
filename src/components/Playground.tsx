@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Editor } from "./Editor";
 import { Toolbar } from "./Toolbar";
 import { OutputPanel } from "./OutputPanel";
@@ -27,6 +27,17 @@ export function Playground() {
   const handleRun = useCallback(() => run(getCode()), [getCode, run]);
   const handleCompile = useCallback(() => compile(getCode(), target), [getCode, target, compile]);
   const handleDumpAST = useCallback(() => dumpAST(getCode()), [getCode, dumpAST]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        handleRun();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [handleRun]);
 
   const idePanel = (
     <div className="h-full flex flex-col">

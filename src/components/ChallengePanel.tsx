@@ -165,11 +165,13 @@ function checkTests(challenge: Challenge, output: string): TestResult[] {
     }));
   }
 
-  const normalizedOutput = output.trim().replace(/\r\n/g, "\n");
+  const lines = output.trim().replace(/\r\n/g, "\n").split("\n");
 
   return challenge.tests.map((t) => {
-    const expected = t.expectedOutput.trim();
-    const passed = normalizedOutput === expected;
+    const expectedLines = t.expectedOutput.trim().split("\n");
+    const passed = expectedLines.every((exp) =>
+      lines.some((line) => line.trim() === exp.trim())
+    );
     return { passed, ran: true, description: t.description };
   });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type Tab = "output" | "errors";
 
@@ -11,8 +11,25 @@ interface Props {
 
 export function OutputPanel({ output, errors }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("output");
+  const prevErrors = useRef(errors);
+
+  useEffect(() => {
+    if (errors && errors !== prevErrors.current) {
+      setActiveTab("errors");
+    } else if (output && !errors) {
+      setActiveTab("output");
+    }
+    prevErrors.current = errors;
+  }, [errors, output]);
 
   const content = activeTab === "output" ? output : errors;
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [content]);
 
   return (
     <div className="h-[35%] min-h-[120px] border-t border-[var(--border)] flex flex-col">
@@ -41,7 +58,7 @@ export function OutputPanel({ output, errors }: Props) {
           )}
         </button>
       </div>
-      <div className="flex-1 overflow-auto p-3">
+      <div ref={scrollRef} className="flex-1 overflow-auto p-3">
         <pre className="text-xs font-mono text-[var(--text-primary)] whitespace-pre-wrap">
           {content || (
             <span className="text-[var(--text-muted)]">
