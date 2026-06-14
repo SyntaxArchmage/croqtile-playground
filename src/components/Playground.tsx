@@ -11,7 +11,7 @@ import { ResizableSplit } from "./ResizableSplit";
 import { useChoreoWorker } from "@/lib/useChoreoWorker";
 import { EXAMPLES } from "@/lib/examples";
 
-type PanelMode = "closed" | "tutorial" | "challenge";
+export type PanelMode = "closed" | "tutorial" | "challenge";
 
 export function Playground() {
   const [source, setSource] = useState<string>(EXAMPLES[0].code);
@@ -22,11 +22,11 @@ export function Playground() {
   const { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST } =
     useChoreoWorker();
 
-  const getCode = () => editorRef.current?.getValue() ?? source;
+  const getCode = useCallback(() => editorRef.current?.getValue() ?? source, [source]);
 
-  const handleRun = useCallback(() => run(getCode()), [source, run]);
-  const handleCompile = useCallback(() => compile(getCode(), target), [source, target, compile]);
-  const handleDumpAST = useCallback(() => dumpAST(getCode()), [source, dumpAST]);
+  const handleRun = useCallback(() => run(getCode()), [getCode, run]);
+  const handleCompile = useCallback(() => compile(getCode(), target), [getCode, target, compile]);
+  const handleDumpAST = useCallback(() => dumpAST(getCode()), [getCode, dumpAST]);
 
   const idePanel = (
     <div className="h-full flex flex-col">

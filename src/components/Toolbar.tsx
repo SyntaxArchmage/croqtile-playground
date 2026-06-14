@@ -1,9 +1,8 @@
 "use client";
 
 import type { WorkerStatus } from "@/lib/useChoreoWorker";
+import type { PanelMode } from "./Playground";
 import { EXAMPLES } from "@/lib/examples";
-
-type PanelMode = "closed" | "tutorial" | "challenge";
 
 interface Props {
   target: string;
@@ -106,8 +105,9 @@ export function Toolbar({
         onChange={(e) => {
           const ex = EXAMPLES.find((x) => x.id === e.target.value);
           if (ex) onLoadCode(ex.code);
+          e.target.value = "";
         }}
-        defaultValue=""
+        value=""
         className="px-2 py-1 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)]"
       >
         <option value="" disabled>
