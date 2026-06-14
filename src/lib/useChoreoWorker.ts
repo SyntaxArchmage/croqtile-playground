@@ -81,5 +81,10 @@ export function useChoreoWorker() {
     workerRef.current.postMessage({ type: "dumpAST", source });
   }, []);
 
-  return { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST };
+  const clearOutput = useCallback(() => {
+    setOutput("");
+    setErrors("");
+  }, []);
+
+  return { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput };
 }

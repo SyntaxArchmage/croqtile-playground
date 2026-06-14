@@ -42,7 +42,7 @@ export function Playground() {
   const [panelMode, setPanelMode] = useState<PanelMode>("closed");
   const editorRef = useRef<{ getValue: () => string }>(null);
 
-  const { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST } =
+  const { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput } =
     useChoreoWorker();
 
   const getCode = useCallback(() => editorRef.current?.getValue() ?? source, [source]);
@@ -114,7 +114,7 @@ export function Playground() {
         <div className="flex-1 min-h-0">
           <Editor ref={editorRef} value={source} onChange={setSource} />
         </div>
-        <OutputPanel output={output} errors={errors} />
+        <OutputPanel output={output} errors={errors} onClear={clearOutput} />
       </div>
       <StatusBar
         status={status}

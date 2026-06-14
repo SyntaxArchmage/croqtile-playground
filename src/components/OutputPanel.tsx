@@ -7,9 +7,10 @@ type Tab = "output" | "errors";
 interface Props {
   output: string;
   errors: string;
+  onClear?: () => void;
 }
 
-export function OutputPanel({ output, errors }: Props) {
+export function OutputPanel({ output, errors, onClear }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("output");
   const prevErrors = useRef(errors);
 
@@ -57,6 +58,14 @@ export function OutputPanel({ output, errors }: Props) {
             <span className="ml-1 w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />
           )}
         </button>
+        {(output || errors) && onClear && (
+          <button
+            onClick={onClear}
+            className="ml-auto px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+          >
+            Clear
+          </button>
+        )}
       </div>
       <div ref={scrollRef} className="flex-1 overflow-auto p-3">
         <pre className="text-xs font-mono text-[var(--text-primary)] whitespace-pre-wrap">
