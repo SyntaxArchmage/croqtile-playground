@@ -32,7 +32,7 @@ export function StatusBar({ status, compilerVersion, buildManifest }: Props) {
         {commit && <span className="ml-1 opacity-60">({commit})</span>}
       </span>
       <div className="flex-1" />
-      <span className="hidden sm:inline opacity-50">Ctrl+Enter to Run</span>
+      <span className="hidden sm:inline opacity-50">Ctrl+Enter: Run | Ctrl+Shift+Enter: Compile | Ctrl+S: Share</span>
     </div>
   );
 }

@@ -62,12 +62,20 @@ export function Playground() {
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         e.preventDefault();
-        handleRun();
+        if (e.shiftKey) {
+          handleCompile();
+        } else {
+          handleRun();
+        }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        handleShare();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [handleRun]);
+  }, [handleRun, handleCompile, handleShare]);
 
   const idePanel = (
     <div className="h-full flex flex-col relative">
