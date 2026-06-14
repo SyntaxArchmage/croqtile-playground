@@ -1,7 +1,7 @@
 import type { Challenge } from "./index";
 
 export const challenge11: Challenge = {
-  id: "ch11",
+  id: "c11",
   title: "Prefix Sum",
   difficulty: "medium",
   description: `Compute the prefix sum (inclusive scan) of an array of 8 elements.

@@ -1,7 +1,7 @@
 import type { Challenge } from "./index";
 
 export const challenge13: Challenge = {
-  id: "ch13",
+  id: "c13",
   title: "Element-wise Multiply",
   difficulty: "easy",
   description: `Multiply two arrays element-wise in parallel.

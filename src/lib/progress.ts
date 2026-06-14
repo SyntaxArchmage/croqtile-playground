@@ -53,3 +53,12 @@ export function getTutorialProgress(tutorialId: string): number {
 export function isChallengePassed(challengeId: string): boolean {
   return loadProgress().challengesPassed.includes(challengeId);
 }
+
+export function resetProgress(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // noop
+  }
+}

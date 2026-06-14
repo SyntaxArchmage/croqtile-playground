@@ -1,7 +1,7 @@
 import type { Challenge } from "./index";
 
 export const challenge14: Challenge = {
-  id: "ch14",
+  id: "c14",
   title: "Row Sum",
   difficulty: "medium",
   description: `Compute the sum of each row in a 4x4 matrix.

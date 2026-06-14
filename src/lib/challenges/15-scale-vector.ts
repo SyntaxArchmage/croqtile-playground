@@ -1,7 +1,7 @@
 import type { Challenge } from "./index";
 
 export const challenge15: Challenge = {
-  id: "ch15",
+  id: "c15",
   title: "Scale Vector (DMA)",
   difficulty: "hard",
   description: `Use shared memory and DMA to scale a vector.

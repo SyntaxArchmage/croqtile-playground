@@ -1,7 +1,7 @@
 import type { Challenge } from "./index";
 
 export const challenge12: Challenge = {
-  id: "ch12",
+  id: "c12",
   title: "Broadcast Add",
   difficulty: "easy",
   description: `Add a scalar value to every element of an array using parallel execution.
