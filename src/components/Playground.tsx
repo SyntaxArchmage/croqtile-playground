@@ -45,6 +45,8 @@ export function Playground() {
   const { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput } =
     useChoreoWorker();
 
+  const isMobile = useIsMobile();
+
   const getCode = useCallback(() => editorRef.current?.getValue() ?? source, [source]);
 
   const handleRun = useCallback(() => run(getCode()), [getCode, run]);
@@ -140,8 +142,6 @@ export function Playground() {
       lastOutput={output}
     />
   );
-
-  const isMobile = useIsMobile();
 
   if (isMobile) {
     return (
