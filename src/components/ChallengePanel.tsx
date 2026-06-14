@@ -119,8 +119,26 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
         </div>
 
         {allPassed && lastOutput && (
-          <div className="p-3 rounded border border-green-600 bg-green-950/30 text-green-300 text-sm text-center font-medium">
-            All tests passed!
+          <div className="p-3 rounded border border-green-600 bg-green-950/30 text-center space-y-2">
+            <div className="text-green-300 text-sm font-medium">
+              All tests passed!
+            </div>
+            {(() => {
+              const idx = CHALLENGES.indexOf(selectedChallenge);
+              const next = idx >= 0 && idx < CHALLENGES.length - 1 ? CHALLENGES[idx + 1] : null;
+              return next ? (
+                <button
+                  onClick={() => {
+                    setSelectedChallenge(next);
+                    setShowHint(false);
+                    onLoadCode(next.starterCode);
+                  }}
+                  className="px-3 py-1 text-xs rounded bg-[var(--accent)] text-[var(--bg-primary)] font-medium hover:opacity-90"
+                >
+                  Next: {next.title} →
+                </button>
+              ) : null;
+            })()}
           </div>
         )}
 
