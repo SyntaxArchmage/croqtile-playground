@@ -42,11 +42,24 @@ function renderContent(
 interface Props {
   onLoadCode: (code: string) => void;
   onClose: () => void;
+  initialId?: string;
 }
 
-export function TutorialPanel({ onLoadCode, onClose }: Props) {
-  const [selectedTutorial, setSelectedTutorial] = useState<Tutorial | null>(null);
-  const [stepIndex, setStepIndex] = useState(0);
+export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
+  const [selectedTutorial, setSelectedTutorial] = useState<Tutorial | null>(() => {
+    if (initialId) {
+      return TUTORIALS.find((t) => t.id === initialId) ?? null;
+    }
+    return null;
+  });
+  const [stepIndex, setStepIndex] = useState(() => {
+    if (initialId) {
+      const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const stepParam = params?.get("step");
+      return stepParam ? Math.max(0, parseInt(stepParam, 10) - 1) : 0;
+    }
+    return 0;
+  });
 
   if (!selectedTutorial) {
     return (

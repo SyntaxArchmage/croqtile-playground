@@ -9,10 +9,16 @@ interface Props {
   onLoadCode: (code: string) => void;
   onClose: () => void;
   lastOutput: string;
+  initialId?: string;
 }
 
-export function ChallengePanel({ onLoadCode, onClose, lastOutput }: Props) {
-  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
+export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: Props) {
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(() => {
+    if (initialId) {
+      return CHALLENGES.find((c) => c.id === initialId) ?? null;
+    }
+    return null;
+  });
   const [showHint, setShowHint] = useState(false);
 
   const testResults = selectedChallenge ? checkTests(selectedChallenge, lastOutput) : [];

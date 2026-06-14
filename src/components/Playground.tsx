@@ -35,10 +35,18 @@ function getInitialSource(): string {
   return EXAMPLES[0].code;
 }
 
+function getInitialPanelMode(): PanelMode {
+  if (typeof window === "undefined") return "closed";
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("tutorial")) return "tutorial";
+  if (params.has("challenge")) return "challenge";
+  return "closed";
+}
+
 export function Playground() {
   const [source, setSource] = useState<string>(getInitialSource);
   const [target, setTarget] = useState("cc");
-  const [panelMode, setPanelMode] = useState<PanelMode>("closed");
+  const [panelMode, setPanelMode] = useState<PanelMode>(getInitialPanelMode);
   const editorRef = useRef<{ getValue: () => string }>(null);
 
   const { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput } =
@@ -129,16 +137,22 @@ export function Playground() {
     return <div className="h-screen">{idePanel}</div>;
   }
 
+  const deepLinkId = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get(panelMode === "tutorial" ? "tutorial" : "challenge")
+    : null;
+
   const contextPanel = panelMode === "tutorial" ? (
     <TutorialPanel
       onLoadCode={setSource}
       onClose={() => setPanelMode("closed")}
+      initialId={deepLinkId ?? undefined}
     />
   ) : (
     <ChallengePanel
       onLoadCode={setSource}
       onClose={() => setPanelMode("closed")}
       lastOutput={output}
+      initialId={deepLinkId ?? undefined}
     />
   );
 
