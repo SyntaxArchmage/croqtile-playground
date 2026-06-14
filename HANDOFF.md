@@ -1,65 +1,67 @@
 # Croqtile Playground — Session Handoff
 
 **Date**: 2026-06-14
-**Session**: auto-dev cycle (ongoing)
+**Session**: auto-dev (90-minute session, 54 cycles)
 
 ## What Was Done This Session
 
-### Defect Fixes (Priority Order)
-1. **Choreo syntax highlighting** — Monaco editor now registers a custom "choreo" language with Monarch tokenizer for `__co__`, `parallel`, `dma`, `mma`, `shared`, `global`, `println`, type keywords (`f16`, `f32`, etc.), and Catppuccin dark theme
-2. **Example selector reset** — Fixed `<select>` not resettable after choosing an example (controlled value + reset)
-3. **Stale closure fix** — Refactored `getCode` into `useCallback`, updated handler dependencies
-4. **Worker callback stability** — Removed stale `status` dependency from `run`/`compile`/`dumpAST` callbacks
-5. **Challenge test logic** — Fixed `checkTests` to use line-by-line matching instead of full-output equality
-6. **Output panel auto-switch** — Automatically switches to Errors tab when new errors arrive
-7. **Output panel auto-scroll** — Scrolls to bottom on new content
-8. **Type deduplication** — Extracted shared `PanelMode` type
-9. **Font family** — Added system font stack to globals.css
-10. **Double-render fix** — Context panel no longer mounted twice (desktop/mobile)
+### Defect Fixes (12 total)
+1. **P0: Choreo syntax highlighting** — Monaco registers "choreo" language with Monarch tokenizer
+2. **P1: Stale closures** — Refactored getCode/handlers into useCallback with correct deps
+3. **P1: Worker status guard** — Added statusRef to prevent commands during WASM loading
+4. **P2: Example selector reset** — Fixed controlled select not resettable
+5. **P2: checkTests logic** — Line-by-line matching instead of full-output equality
+6. **P2: Double-render on mobile** — Context panel no longer mounted twice
+7. **P3: Missing font-family** — Added system font stack
+8. **P3: Circular dependency** — Extracted PanelMode to lib/types.ts
+9. **P3: React Hooks violation (ChallengePanel)** — Moved useEffect before early return
+10. **P3: React Hooks violation (Playground)** — Moved useIsMobile before conditional return
+11. **P3: Inconsistent challenge IDs** — Normalized to c01-c15 format
+12. **P4: Unused import** — Removed useCallback from TutorialPanel
 
-### New Features
-- **WASM loading spinner** — Animated overlay while compiler initializes
-- **WASM error overlay** — Informative message when WASM fails to load
-- **URL sharing** — Source code encoded in URL hash; Share button copies link
-- **Share feedback** — Button shows "Copied!" for 2 seconds
-- **Responsive layout** — Mobile devices get stacked panels via `useIsMobile` hook
-- **Keyboard shortcuts** — Ctrl+Enter (Run), Ctrl+Shift+Enter (Compile), Ctrl+S (Share)
-- **localStorage progress tracking** — Tutorial step progress and challenge completion
-- **Clear output button** — Clears output/errors panel
-- **Error boundary** — Graceful crash recovery with reload button
-- **SVG favicon** — Catppuccin-themed "C" icon
-- **SEO metadata** — Keywords, authors, viewport, theme-color
+### Features Added (18 total)
+- WASM loading spinner + error overlay
+- URL sharing (hash encoding + clipboard copy + "Copied!" feedback)
+- URL deep linking (?tutorial=ch01&step=2, ?challenge=c04)
+- "Try it" inline code blocks in tutorial content
+- Keyboard shortcuts (Ctrl+Enter, Ctrl+Shift+Enter, Ctrl+S)
+- localStorage progress tracking (tutorials + challenges)
+- Last-edited code persistence (debounced localStorage)
+- Visual progress bar in tutorial step navigation
+- "Next Challenge" button on completion
+- Clear output button
+- ErrorBoundary with graceful crash recovery
+- Touch-responsive resizable split panel
+- Custom scrollbar styling (Catppuccin theme)
+- ARIA labels and semantic HTML
+- SVG favicon + SEO metadata
+- GitHub Actions CI pipeline
+- Responsive layout via useIsMobile hook
+- Auto-scroll and auto-tab-switch in OutputPanel
 
 ### Content Expansion
-- **8 challenges** (was 3): Hello Threads, Parallel Init, DMA Reverse, Dot Product, Shared Memory Accumulate, Matrix Trace, Two-Stage Pipeline, Nested Parallel
-- **6 examples** (was 4): Added Shared Memory demo, Sum Reduction
+- **9 tutorials** (ch01-ch09): Hello, Parallel, Memory, Loops, 2D, Advanced, Functions, Conditionals, GPU Patterns
+- **15 challenges** (c01-c15): Easy to Hard, covering parallel, DMA, shared memory, reduction, stencil
+- **10 examples**: Hello World through 1D Stencil
 
 ### Testing
-- **53 unit tests** across 9 test suites (all passing)
-- Tests cover: `checkTests` logic, data integrity (examples/challenges/tutorials), progress module, StatusBar, OutputPanel, ChallengePanel, Toolbar
-- Jest + ts-jest + jsdom environment
+- **95 unit tests** across **18 test suites** (all passing)
+- Coverage: checkTests, parseContent, progress, deep linking, data integrity, types
+- Component tests: StatusBar, OutputPanel, ChallengePanel, Toolbar, ResizableSplit, TutorialPanel, ErrorBoundary
 
 ### Infrastructure
-- GitHub Actions CI workflow (type check, test, build)
-- Updated README with full feature list and project structure
-- Updated PRD with completed items
-- All commits pushed to `SyntaxArchmage/croqtile-playground`
+- GitHub Actions CI (tsc + jest + next build)
+- Updated README, PRD, auto-dev-session.md
+- All commits pushed to SyntaxArchmage/croqtile-playground
 
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (53 tests)
+- `npm test` ✅ (95 tests, 18 suites)
 - `npx tsc --noEmit` ✅
 - `npm run build` ✅
-- Dev server boots ✅ (port 3001)
 
-## Remaining Work (from PRD)
-
-### Near-term
-- [ ] "Try it" inline buttons in tutorial content
-- [ ] Deep link: URL param for tutorial chapter
-- [ ] More challenges (9-15 total)
-- [ ] Additional tutorials (ch04-ch09)
+## Remaining Work
 
 ### Blocked
 - [ ] WASM build (requires emsdk installation)
@@ -69,3 +71,4 @@
 - [ ] L2 execution: Remote GPU Server
 - [ ] WebGPU exploration (L3)
 - [ ] Code sharing via short links
+- [ ] Extend MockInterpreter to support mma
