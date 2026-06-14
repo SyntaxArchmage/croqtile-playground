@@ -202,24 +202,21 @@ interface Tutorial {
 }
 ```
 
-**Current content** (3 tutorials):
+**Current content** (9 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
 | ch01 | Hello Croqtile | 3 | `__co__` keyword, `println()`, variables/types |
-| ch02 | Parallel Computing | 3 | `parallel` construct, thread indices, data parallelism |
-| ch03 | Memory & DMA | 3 | Global/shared memory, `dma()` transfers, memory layout |
+| ch02 | Parallel Execution | 3 | `parallel` construct, thread indices, data parallelism |
+| ch03 | Memory Hierarchy | 3 | Global/shared memory, `dma()` transfers, slices |
+| ch04 | Loops & Reductions | 3 | `foreach`, sum reduction, max reduction |
+| ch05 | 2D Arrays & Matrix Ops | 3 | 2D indexing, matrix ops, dot product |
+| ch06 | Advanced Patterns | 3 | Tiled processing, pipeline stages, nested parallel |
+| ch07 | Functions & Modularity | 3 | Helper functions, multi-param, composition |
+| ch08 | Conditionals & Control Flow | 3 | if/else in parallel, conditional processing, guards |
+| ch09 | Common GPU Patterns | 3 | Map, reduce, stencil patterns |
 
-**Future content** (from `croqtile-tutorial` repo, ch00–ch09):
-
-| Chapter | Topic | MockInterpreter Support |
-|---------|-------|------------------------|
-| ch04 | MMA (Matrix Multiply-Accumulate) | No (mma not supported) |
-| ch05 | Branch Control | Yes |
-| ch06 | Pipeline + Sync | Partial |
-| ch07 | Double Buffering | Partial |
-| ch08 | Optimization Guide 1 | Compile-only |
-| ch09 | Optimization Guide 2 | Compile-only |
+All tutorials include interactive "Try it" inline code blocks.
 
 **UX**: Each step shows explanatory text + a code snippet. "Try it" button loads the snippet into the editor on the right. User can run it immediately.
 
@@ -247,23 +244,25 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (3):
+**Current challenges** (15):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
-| c01 | Hello Threads | Easy | `parallel`, `println` |
-| c02 | Parallel Sum | Medium | `parallel`, reduction |
-| c03 | DMA Reverse | Medium | `dma`, array reversal |
-
-**Future challenges** (planned):
-
-| Title | Difficulty | Key Construct |
-|-------|-----------|---------------|
-| Element-wise Add | Easy | `parallel`, element access |
-| Matrix Multiply (no mma) | Medium | `parallel`, `foreach`, accumulation |
-| Conditional Logic | Medium | `if/else` in parallel |
-| Pipeline + Sync | Hard | `pipeline`, `event` |
-| Double Buffering | Hard | Multi-stage `dma` |
+| ch01 | Hello Threads | Easy | `parallel`, `println` |
+| ch02 | Parallel Sum | Medium | `parallel`, reduction |
+| ch03 | DMA Reverse | Medium | `dma`, array reversal |
+| ch04 | Dot Product | Medium | `parallel`, `foreach`, accumulation |
+| ch05 | Shared Memory Accumulate | Medium | `shared`, `dma`, reduction |
+| ch06 | Matrix Trace | Medium | 2D indexing, diagonal access |
+| ch07 | Two-Stage Pipeline | Hard | `pipeline`, multi-stage processing |
+| ch08 | Nested Parallel | Medium | Multi-dimensional `parallel` |
+| ch09 | Tiled Copy | Hard | `dma`, tiled data movement |
+| ch10 | Find Minimum | Medium | `foreach`, conditional reduction |
+| ch11 | Prefix Sum | Medium | Sequential scan, inclusive prefix sum |
+| ch12 | Broadcast Add | Easy | Scalar broadcast, element-wise ops |
+| ch13 | Element-wise Multiply | Easy | `parallel`, element-wise multiply |
+| ch14 | Row Sum | Medium | 2D arrays, row-wise reduction |
+| ch15 | Scale Vector (DMA) | Hard | `shared`, `dma`, scale operation |
 
 ### 5.6 Example Programs
 
@@ -406,7 +405,7 @@ src/
 - [x] Status bar
 - [x] Resizable split layout
 - [x] WASM worker architecture (`useChoreoWorker` hook)
-- [x] Example programs (6)
+- [x] Example programs (8)
 
 ### Phase 2: Tutorial Panel (DONE)
 
@@ -414,19 +413,19 @@ src/
 - [x] 3 tutorial chapters (Hello / Parallel / Memory)
 - [x] TutorialPanel component with step navigation
 - [x] "Load code" into editor
-- [ ] "Try it" inline buttons in content
+- [x] "Try it" inline buttons in content
 - [x] Progress tracking (localStorage)
-- [ ] Deep link: URL param for tutorial chapter
+- [x] Deep link: URL param for tutorial chapter
 
 ### Phase 3: Challenge Panel (DONE)
 
 - [x] Challenge data model (`Challenge` / `TestCase`)
-- [x] 8 challenges (Hello Threads / Parallel Init / DMA Reverse / Dot Product / Shared Accum / Matrix Trace / Pipeline / Nested Parallel)
+- [x] 15 challenges (Hello Threads through Scale Vector DMA)
 - [x] ChallengePanel component with verification UI
 - [x] Test verification against expected output
 - [x] Progressive hint reveal UI
 - [x] Progress tracking (localStorage)
-- [x] Expand to 8 challenges
+- [x] Deep link: URL param for challenge
 
 ### Phase 4: Infrastructure (DONE)
 
@@ -445,14 +444,19 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (44 tests)
+- [x] Unit tests (79 tests across 15 suites)
+- [x] GitHub Actions CI pipeline
+- [x] ErrorBoundary component
+- [x] Custom scrollbar styling
+- [x] ARIA accessibility labels
+- [x] Favicon
 
 ### Phase 6: Future Enhancements
 
 - [ ] L2 execution: Remote GPU Server integration
 - [ ] Extend MockInterpreter to support mma (CPU simulation)
-- [ ] Additional tutorials (ch04–ch09)
-- [ ] Additional challenges (9–15 total)
+- [x] ~~Additional tutorials (ch04–ch09)~~ — Done
+- [x] ~~Additional challenges (9–15 total)~~ — Done (15 total)
 - [ ] Code sharing via short links
 - [ ] WebGPU exploration (L3)
 
