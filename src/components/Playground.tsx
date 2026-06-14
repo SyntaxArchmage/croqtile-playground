@@ -13,6 +13,18 @@ import { EXAMPLES } from "@/lib/examples";
 
 export type PanelMode = "closed" | "tutorial" | "challenge";
 
+function useIsMobile(breakpoint = 768): boolean {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 function getInitialSource(): string {
   if (typeof window !== "undefined" && window.location.hash.length > 1) {
     try {
@@ -121,19 +133,22 @@ export function Playground() {
     />
   );
 
-  return (
-    <div className="h-screen">
-      {/* Desktop: side-by-side resizable */}
-      <div className="hidden md:block h-full">
-        <ResizableSplit left={contextPanel} right={idePanel} />
-      </div>
-      {/* Mobile: stacked with swappable panels */}
-      <div className="md:hidden h-full flex flex-col">
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <div className="h-screen flex flex-col">
         <div className="h-[40%] min-h-0 overflow-hidden border-b border-[var(--border)]">
           {contextPanel}
         </div>
         <div className="flex-1 min-h-0">{idePanel}</div>
       </div>
+    );
+  }
+
+  return (
+    <div className="h-screen">
+      <ResizableSplit left={contextPanel} right={idePanel} />
     </div>
   );
 }
