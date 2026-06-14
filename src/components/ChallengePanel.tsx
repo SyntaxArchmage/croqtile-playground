@@ -15,6 +15,15 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput }: Props) {
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
   const [showHint, setShowHint] = useState(false);
 
+  const testResults = selectedChallenge ? checkTests(selectedChallenge, lastOutput) : [];
+  const allPassed = testResults.length > 0 && testResults.every((r) => r.passed);
+
+  useEffect(() => {
+    if (selectedChallenge && allPassed && lastOutput) {
+      markChallengePassed(selectedChallenge.id);
+    }
+  }, [selectedChallenge, allPassed, lastOutput]);
+
   if (!selectedChallenge) {
     return (
       <div className="h-full flex flex-col">
@@ -56,15 +65,6 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput }: Props) {
       </div>
     );
   }
-
-  const testResults = checkTests(selectedChallenge, lastOutput);
-  const allPassed = testResults.every((r) => r.passed);
-
-  useEffect(() => {
-    if (allPassed && lastOutput) {
-      markChallengePassed(selectedChallenge.id);
-    }
-  }, [allPassed, lastOutput, selectedChallenge.id]);
 
   return (
     <div className="h-full flex flex-col">
