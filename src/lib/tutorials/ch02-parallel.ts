@@ -35,7 +35,21 @@ This maps naturally to GPU thread blocks where \`i\` is the block dimension and 
     },
     {
       title: "Using parallel indices for computation",
-      content: `Parallel indices are used to partition work. Each thread operates on its own slice of data:`,
+      content: `Parallel indices are used to partition work. Each thread operates on its own slice of data.
+
+Try changing the computation — for example, compute cubes instead of squares:
+
+\`\`\`croqtile
+__co__ void cubes() {
+  global float data[8];
+  parallel {i} by [8] {
+    data[i] = (float)(i * i * i);
+  }
+  parallel {i} by [8] {
+    println("data[", i, "] =", data[i]);
+  }
+}
+\`\`\``,
       code: `__co__ void parallel_compute() {
   global float data[16];
 

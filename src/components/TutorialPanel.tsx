@@ -1,8 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { TUTORIALS, type Tutorial, type TutorialStep } from "@/lib/tutorials";
 import { getTutorialProgress, markTutorialStep } from "@/lib/progress";
+
+function renderContent(
+  content: string,
+  onTryIt: (code: string) => void,
+): React.ReactNode[] {
+  const parts = content.split(/```(\w*)\n([\s\S]*?)```/);
+  const nodes: React.ReactNode[] = [];
+  for (let i = 0; i < parts.length; i++) {
+    if (i % 3 === 0) {
+      if (parts[i]) {
+        nodes.push(
+          <span key={i} className="whitespace-pre-wrap">
+            {parts[i]}
+          </span>,
+        );
+      }
+    } else if (i % 3 === 2) {
+      const code = parts[i];
+      nodes.push(
+        <div key={i} className="my-2 rounded border border-[var(--border)] bg-[var(--bg-primary)] overflow-hidden">
+          <pre className="p-3 text-xs font-mono overflow-x-auto text-[var(--text-secondary)]">
+            {code}
+          </pre>
+          <button
+            onClick={() => onTryIt(code)}
+            className="w-full px-3 py-1.5 text-xs font-medium bg-[var(--accent)] text-[var(--bg-primary)] hover:opacity-90 transition-opacity"
+          >
+            Try it →
+          </button>
+        </div>,
+      );
+    }
+  }
+  return nodes;
+}
 
 interface Props {
   onLoadCode: (code: string) => void;
@@ -89,8 +124,8 @@ export function TutorialPanel({ onLoadCode, onClose }: Props) {
         <h2 className="text-base font-semibold text-[var(--text-primary)] mb-3">
           {step.title}
         </h2>
-        <div className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap leading-relaxed">
-          {step.content}
+        <div className="text-sm text-[var(--text-secondary)] leading-relaxed">
+          {renderContent(step.content, onLoadCode)}
         </div>
       </div>
 

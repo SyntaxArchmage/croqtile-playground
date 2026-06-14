@@ -19,7 +19,14 @@ Think of \`__co__\` as the entry point, like \`main()\` in C but for GPU kernels
       title: "Printing output",
       content: `\`println()\` works like you'd expect — it prints values followed by a newline.
 
-You can print multiple values separated by commas:`,
+You can print multiple values separated by commas. Try this variation:
+
+\`\`\`croqtile
+__co__ void greet() {
+  println("Hello,", "world!");
+  println("1 + 2 =", 1 + 2);
+}
+\`\`\``,
       code: `__co__ void printing() {
   println("The answer is", 42);
   println("Pi is approximately", 3.14159);
@@ -34,7 +41,16 @@ You can print multiple values separated by commas:`,
 - \`float\` — 32-bit float
 - \`double\` — 64-bit float
 
-No pointers needed — Croqtile manages memory for you.`,
+No pointers needed — Croqtile manages memory for you. Experiment with arithmetic:
+
+\`\`\`croqtile
+__co__ void math() {
+  int a = 7;
+  int b = 3;
+  println("a + b =", a + b);
+  println("a * b =", a * b);
+}
+\`\`\``,
       code: `__co__ void variables() {
   int x = 10;
   float y = 3.14f;
