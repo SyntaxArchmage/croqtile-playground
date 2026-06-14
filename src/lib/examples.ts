@@ -110,4 +110,50 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "tiled",
+    name: "Tiled Processing",
+    code: `__co__ void tiled_process() {
+  global float data[8];
+  shared float tile[4];
+
+  parallel {i} by [8] {
+    data[i] = (float)(i * 10);
+  }
+
+  // Process in tiles of 4
+  foreach t in [0:2] {
+    dma(data[t*4 : t*4+4], tile[0:4]);
+
+    parallel {i} by [4] {
+      tile[i] = tile[i] + 1.0f;
+    }
+
+    parallel {i} by [4] {
+      data[t*4 + i] = tile[i];
+    }
+  }
+
+  parallel {i} by [8] {
+    println("data[", i, "] =", data[i]);
+  }
+}
+`,
+  },
+  {
+    id: "2d-parallel",
+    name: "2D Parallel Grid",
+    code: `__co__ void grid_2d() {
+  global float grid[4, 4];
+
+  parallel {i, j} by [4, 4] {
+    grid[i, j] = (float)(i * 10 + j);
+  }
+
+  parallel {i, j} by [4, 4] {
+    println("grid[", i, ",", j, "] =", grid[i, j]);
+  }
+}
+`,
+  },
 ];
