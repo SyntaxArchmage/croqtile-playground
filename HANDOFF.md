@@ -1,12 +1,12 @@
 # Croqtile Playground — Session Handoff
 
 **Date**: 2026-06-15
-**Sessions**: auto-dev (multiple invocations, 100+ total commits)
+**Sessions**: auto-dev (multiple invocations, 120+ total commits)
 
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (293 tests, 25 suites)
+- `npm test` ✅ (335 tests, 26 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -19,7 +19,8 @@
 - Output panel (tabbed: Output / Errors / AST) with auto-tab-switch, error line highlighting
 - Status bar: worker status, compiler version, cursor position (Ln/Col), line count, target, execution time
 - Resizable split layout with keyboard and touch support
-- Keyboard shortcuts: Ctrl+Enter (Run), Ctrl+Shift+Enter (Compile), Ctrl+Shift+D (AST), Ctrl+S (Share), ? (Help)
+- Keyboard shortcuts: Ctrl+Enter (Run), Ctrl+Shift+Enter (Compile), Ctrl+Shift+D (AST), Ctrl+S (Share), Ctrl+L (Clear), Ctrl+P (Command Palette), ? (Help)
+- Command palette (Ctrl+P) with fuzzy search
 - Error boundary with graceful crash recovery
 
 ### Content
@@ -37,7 +38,8 @@
 - Running indicator in document title
 - Tutorial step indicator dots
 - Responsive layout (stacked on mobile with touch-resizable panels)
-- ARIA accessibility labels and semantic HTML
+- ARIA accessibility labels, keyboard-navigable menus, focus trapping in modals
+- Floating Run button (FAB) for mobile users
 - Custom scrollbar styling
 
 ### Infrastructure
@@ -45,8 +47,10 @@
 - ESLint flat config for Next.js 16
 - GitHub Actions CI: type check, lint, test, build
 - WASM build script with version tracking (build-manifest.json)
-- 293 unit/component tests across 25 suites
+- 335 unit/component tests across 26 suites
+- Coverage: 95% statements, 84% branches, 86% functions, 97% lines
 - Coverage thresholds: 80% statements, 70% branches, 75% functions, 80% lines
+- Worker execution timeout (30s) with elapsed time reporting
 
 ## Remaining Work
 
