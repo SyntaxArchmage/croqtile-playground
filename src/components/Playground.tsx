@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect, useSyncExternalStore } from "react";
+import { useState, useCallback, useRef, useEffect, useSyncExternalStore, useMemo } from "react";
 import { Editor } from "./Editor";
 import { Toolbar } from "./Toolbar";
 import { OutputPanel } from "./OutputPanel";
@@ -207,9 +207,12 @@ export function Playground() {
     return () => window.removeEventListener("keydown", handler);
   }, [handleRun, handleCompile, handleDumpAST, handleShare]);
 
-  const deepLinkId = typeof window !== "undefined"
-    ? new URLSearchParams(window.location.search).get(panelMode === "tutorial" ? "tutorial" : "challenge")
-    : null;
+  const lineCount = useMemo(() => source.split("\n").length, [source]);
+
+  const deepLinkId = useMemo(() => {
+    if (typeof window === "undefined") return null;
+    return new URLSearchParams(window.location.search).get(panelMode === "tutorial" ? "tutorial" : "challenge");
+  }, [panelMode]);
 
   const shortcutsOverlay = showShortcuts && (
     <div
@@ -306,7 +309,7 @@ export function Playground() {
         buildManifest={buildManifest}
         target={target}
         cursorPosition={cursorPos}
-        lineCount={source.split("\n").length}
+        lineCount={lineCount}
       />
     </div>
   );
