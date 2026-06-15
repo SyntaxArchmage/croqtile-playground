@@ -300,9 +300,9 @@ describe("ChallengePanel", () => {
   });
 
   it("does not show Next button on last challenge", () => {
-    const lastOutput = "scaled[0] = 3\nscaled[3] = 12\nscaled[7] = 24";
+    const lastOutput = "data[0] = 3 -> low\ndata[1] = 7 -> high\ndata[2] = 1 -> low\ndata[3] = 9 -> high\ndata[4] = 4 -> mid\ndata[5] = 6 -> mid\ndata[6] = 2 -> low\ndata[7] = 8 -> high";
     render(
-      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={lastOutput} initialId="c15" />
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={lastOutput} initialId="c16" />
     );
     expect(screen.getByText("All tests passed!")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Next/ })).not.toBeInTheDocument();
