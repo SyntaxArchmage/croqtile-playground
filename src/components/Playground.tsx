@@ -270,7 +270,7 @@ export function Playground() {
           handleRun();
         }
       }
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S") && !e.shiftKey) {
         e.preventDefault();
         handleShare();
       }
