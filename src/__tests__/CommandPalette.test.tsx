@@ -113,6 +113,24 @@ describe("CommandPalette", () => {
     expect(cmds[2].action).toHaveBeenCalledTimes(1);
   });
 
+  it("does nothing on Enter when no commands match", () => {
+    const cmds = makeCommands();
+    const onClose = jest.fn();
+    render(<CommandPalette commands={cmds} onClose={onClose} />);
+    const input = screen.getByLabelText("Search commands");
+    fireEvent.change(input, { target: { value: "zzzznotfound" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onClose).not.toHaveBeenCalled();
+    cmds.forEach((c) => expect(c.action).not.toHaveBeenCalled());
+  });
+
+  it("closes on mousedown outside dialog", () => {
+    const onClose = jest.fn();
+    render(<CommandPalette commands={makeCommands()} onClose={onClose} />);
+    fireEvent.mouseDown(document.body);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it("resets highlight when search changes", () => {
     const cmds = makeCommands();
     const onClose = jest.fn();
