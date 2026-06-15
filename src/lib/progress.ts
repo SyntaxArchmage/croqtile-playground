@@ -15,7 +15,14 @@ export function loadProgress(): Progress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return getDefault();
-    return { ...getDefault(), ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    const def = getDefault();
+    return {
+      tutorialSteps: typeof parsed.tutorialSteps === "object" && parsed.tutorialSteps !== null
+        ? parsed.tutorialSteps : def.tutorialSteps,
+      challengesPassed: Array.isArray(parsed.challengesPassed)
+        ? parsed.challengesPassed : def.challengesPassed,
+    };
   } catch {
     return getDefault();
   }

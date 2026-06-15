@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import { checkTests } from "@/lib/checkTests";
 import { isChallengePassed, markChallengePassed } from "@/lib/progress";
@@ -20,35 +20,21 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
     return null;
   });
   const [showHint, setShowHint] = useState(false);
-  const lastChallengeOutput = useRef("");
-  const prevChallengeId = useRef(selectedChallenge?.id);
 
-  if (selectedChallenge && prevChallengeId.current !== selectedChallenge.id) {
-    prevChallengeId.current = selectedChallenge.id;
-    lastChallengeOutput.current = "";
-  }
-
-  if (lastOutput && selectedChallenge && lastOutput !== lastChallengeOutput.current) {
-    lastChallengeOutput.current = lastOutput;
-  }
-
-  const testResults = useMemo(
-    () => selectedChallenge ? checkTests(selectedChallenge, lastChallengeOutput.current) : [],
-    [selectedChallenge, lastChallengeOutput.current],
-  );
+  const testResults = selectedChallenge ? checkTests(selectedChallenge, lastOutput) : [];
   const allPassed = testResults.length > 0 && testResults.every((r) => r.passed);
 
   useEffect(() => {
-    if (selectedChallenge && allPassed && lastChallengeOutput.current) {
+    if (selectedChallenge && allPassed && lastOutput) {
       markChallengePassed(selectedChallenge.id);
     }
-  }, [selectedChallenge, allPassed]);
+  }, [selectedChallenge, allPassed, lastOutput]);
 
   useEffect(() => {
     if (initialId && selectedChallenge) {
       onLoadCode(selectedChallenge.starterCode);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount-only deep link init
 
   if (!selectedChallenge) {
     return (
@@ -140,7 +126,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
           ))}
         </div>
 
-        {allPassed && lastChallengeOutput.current && (
+        {allPassed && lastOutput && (
           <div className="p-3 rounded border border-green-600 bg-green-950/30 text-center space-y-2">
             <div className="text-green-300 text-sm font-medium">
               All tests passed!
@@ -168,7 +154,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
           <div className="mt-4">
             {showHint ? (
               <div className="p-2 rounded border border-[var(--border)] bg-[var(--bg-surface)] text-xs text-[var(--text-secondary)]">
-                💡 {selectedChallenge.hint}
+                {selectedChallenge.hint}
               </div>
             ) : (
               <button
