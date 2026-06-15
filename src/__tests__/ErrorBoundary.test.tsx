@@ -50,6 +50,20 @@ describe("ErrorBoundary", () => {
     expect(btn).not.toBeDisabled();
   });
 
+
+  it("calls componentDidCatch and logs to console.error", () => {
+    render(
+      <ErrorBoundary>
+        <ThrowingComponent msg="logged error" />
+      </ErrorBoundary>
+    );
+    expect(console.error).toHaveBeenCalledWith(
+      "[ErrorBoundary]",
+      expect.any(Error),
+      expect.any(String),
+    );
+  });
+
   it("shows fallback message when error has no message", () => {
     render(
       <ErrorBoundary>
