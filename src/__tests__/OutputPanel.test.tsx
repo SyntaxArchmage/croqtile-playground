@@ -355,4 +355,15 @@ describe("OutputPanel", () => {
     expect(screen.getByText("Copy")).toBeInTheDocument();
     jest.useRealTimers();
   });
+
+  it("handles copy gracefully when clipboard API is unavailable", () => {
+    jest.useFakeTimers();
+    Object.assign(navigator, { clipboard: undefined });
+    render(<OutputPanel output="data" errors="" />);
+    fireEvent.click(screen.getByText("Copy"));
+    expect(screen.getByText("Copied!")).toBeInTheDocument();
+    act(() => { jest.advanceTimersByTime(1500); });
+    expect(screen.getByText("Copy")).toBeInTheDocument();
+    jest.useRealTimers();
+  });
 });

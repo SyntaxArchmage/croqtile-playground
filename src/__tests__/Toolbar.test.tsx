@@ -507,4 +507,19 @@ describe("Toolbar", () => {
     confirmSpy.mockRestore();
     resetProgressSpy.mockRestore();
   });
+
+  it("does not reset progress when confirm is cancelled", () => {
+    const resetProgressSpy = jest.spyOn(progress, "resetProgress");
+    const confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(false);
+
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByText("Reset progress"));
+
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(resetProgressSpy).not.toHaveBeenCalled();
+
+    confirmSpy.mockRestore();
+    resetProgressSpy.mockRestore();
+  });
 });
