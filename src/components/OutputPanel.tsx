@@ -48,6 +48,12 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
     }
   }, [content]);
 
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
+
   const handleCopy = useCallback(() => {
     if (!content) return;
     navigator.clipboard.writeText(content).catch(() => {});
