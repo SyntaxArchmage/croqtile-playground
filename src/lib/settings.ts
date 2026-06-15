@@ -3,11 +3,13 @@ const STORAGE_KEY = "croqtile-playground-settings";
 export interface EditorSettings {
   fontSize: number;
   wordWrap: boolean;
+  lastTarget: string;
 }
 
 const DEFAULT_SETTINGS: EditorSettings = {
   fontSize: 14,
   wordWrap: true,
+  lastTarget: "cc",
 };
 
 function getDefault(): EditorSettings {
@@ -26,7 +28,9 @@ export function loadSettings(): EditorSettings {
       fontSize = parsed.fontSize;
     }
     const wordWrap = typeof parsed.wordWrap === "boolean" ? parsed.wordWrap : def.wordWrap;
-    return { fontSize, wordWrap };
+    const lastTarget = typeof parsed.lastTarget === "string" && ["cc", "cute"].includes(parsed.lastTarget)
+      ? parsed.lastTarget : def.lastTarget;
+    return { fontSize, wordWrap, lastTarget };
   } catch {
     return getDefault();
   }

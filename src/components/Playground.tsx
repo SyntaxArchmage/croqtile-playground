@@ -62,7 +62,7 @@ export function Playground() {
   const initialPanelMode = useSyncExternalStore(noop, readInitialPanelMode, () => "closed" as PanelMode);
 
   const [source, setSource] = useState(initialSource);
-  const [target, setTarget] = useState("cc");
+  const [target, setTarget] = useState(() => loadSettings().lastTarget);
   const [panelMode, setPanelMode] = useState(initialPanelMode);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [cursorPos, setCursorPos] = useState<CursorPosition>({ line: 1, column: 1 });
@@ -277,7 +277,7 @@ export function Playground() {
       )}
       <Toolbar
         target={target}
-        onTargetChange={setTarget}
+        onTargetChange={(t) => { setTarget(t); saveSettings({ ...settings, lastTarget: t }); }}
         onRun={handleRun}
         onCompile={handleCompile}
         onDumpAST={handleDumpAST}

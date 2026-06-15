@@ -7,7 +7,7 @@ const mockCompile = jest.fn();
 const mockDumpAST = jest.fn();
 const mockClearOutput = jest.fn();
 const mockLoadLastSource = jest.fn(() => null);
-const mockLoadSettings = jest.fn(() => ({ fontSize: 14, wordWrap: true }));
+const mockLoadSettings = jest.fn(() => ({ fontSize: 14, wordWrap: true, lastTarget: "cc" }));
 const mockSaveSettings = jest.fn();
 
 jest.mock("@/lib/useChoreoWorker", () => ({
@@ -90,7 +90,7 @@ function renderPlayground() {
 beforeEach(() => {
   jest.clearAllMocks();
   mockLoadLastSource.mockReturnValue(null);
-  mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true });
+  mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, lastTarget: "cc" });
   mockMatchMedia(false);
   setUrl("/");
   window.history.replaceState = jest.fn();
