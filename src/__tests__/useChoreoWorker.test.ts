@@ -62,6 +62,15 @@ describe("useChoreoWorker", () => {
       expect(result.current.compilerVersion).toBeNull();
     });
 
+    it("handles ready with undefined data", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      act(() => {
+        mockWorker.onmessage?.({ data: { type: "ready" } } as MessageEvent);
+      });
+      expect(result.current.status).toBe("ready");
+      expect(result.current.compilerVersion).toBeNull();
+    });
+
     it("handles compile-result for run/compile commands", () => {
       const { result } = renderHook(() => useChoreoWorker());
       makeReady();
@@ -161,6 +170,23 @@ describe("useChoreoWorker", () => {
       expect(result.current.status).toBe("ready");
       expect(result.current.errors).toBe("Execution timed out after 30 seconds.");
       expect(result.current.lastElapsedMs).toBeGreaterThanOrEqual(0);
+    });
+
+    it("clears old timeout when running a second command", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+
+      act(() => { result.current.run("first"); });
+      act(() => { jest.advanceTimersByTime(10000); });
+
+      act(() => { result.current.run("second"); });
+
+      act(() => { jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS - 10000); });
+      expect(result.current.status).toBe("running");
+
+      act(() => { jest.advanceTimersByTime(10000); });
+      expect(result.current.status).toBe("ready");
+      expect(result.current.errors).toBe("Execution timed out after 30 seconds.");
     });
 
     it("clears pending timeout when compile-result arrives", () => {
