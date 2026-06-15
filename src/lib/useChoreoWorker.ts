@@ -89,9 +89,11 @@ export function useChoreoWorker() {
     setErrors("");
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = null;
       if (statusRef.current === "running") {
         statusRef.current = "ready";
         setStatus("ready");
+        setLastElapsedMs(Math.round(performance.now() - startTimeRef.current));
         setErrors("Execution timed out after 30 seconds.");
       }
     }, EXECUTION_TIMEOUT_MS);

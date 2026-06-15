@@ -137,6 +137,7 @@ describe("useChoreoWorker", () => {
       });
       expect(result.current.status).toBe("ready");
       expect(result.current.errors).toBe("Execution timed out after 30 seconds.");
+      expect(result.current.lastElapsedMs).toBeGreaterThanOrEqual(0);
     });
 
     it("clears pending timeout when compile-result arrives", () => {
@@ -157,6 +158,27 @@ describe("useChoreoWorker", () => {
         jest.advanceTimersByTime(2000);
       });
       expect(result.current.errors).toBe("");
+    });
+  });
+
+  describe("clearOutput", () => {
+    it("resets output, errors, and ast to empty strings", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+
+      act(() => {
+        result.current.run("code");
+      });
+      postWorkerMessage("compile-result", { output: "hello", errors: "warn" });
+      expect(result.current.output).toBe("hello");
+      expect(result.current.errors).toBe("warn");
+
+      act(() => {
+        result.current.clearOutput();
+      });
+      expect(result.current.output).toBe("");
+      expect(result.current.errors).toBe("");
+      expect(result.current.ast).toBe("");
     });
   });
 
