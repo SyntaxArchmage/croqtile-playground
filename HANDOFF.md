@@ -6,7 +6,7 @@
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (441 tests, 27 suites)
+- `npm test` ✅ (443 tests, 27 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -47,7 +47,7 @@
 - ESLint flat config for Next.js 16
 - GitHub Actions CI: type check, lint, test, build
 - WASM build script with version tracking (build-manifest.json)
-- 441 unit/component tests across 27 suites
+- 443 unit/component tests across 27 suites
 - Coverage: ~97% statements, ~90% branches, ~97% functions, ~99% lines
 - prefers-reduced-motion media query for accessibility
 - Coverage thresholds: 95% statements, 85% branches, 95% functions, 95% lines

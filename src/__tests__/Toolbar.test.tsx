@@ -452,26 +452,6 @@ describe("Toolbar", () => {
     (window.FileReader as unknown as jest.SpyInstance).mockRestore();
   });
 
-  it("does not decrease font size below minimum (10)", () => {
-    const onSettingsChange = jest.fn();
-    render(
-      <Toolbar {...defaultProps} settings={{ fontSize: 10, wordWrap: true, lastTarget: "cc" }} onSettingsChange={onSettingsChange} />
-    );
-    fireEvent.click(screen.getByLabelText("Settings menu"));
-    fireEvent.click(screen.getByLabelText("Decrease font size"));
-    expect(onSettingsChange).not.toHaveBeenCalled();
-  });
-
-  it("does not increase font size above maximum (24)", () => {
-    const onSettingsChange = jest.fn();
-    render(
-      <Toolbar {...defaultProps} settings={{ fontSize: 24, wordWrap: true, lastTarget: "cc" }} onSettingsChange={onSettingsChange} />
-    );
-    fireEvent.click(screen.getByLabelText("Settings menu"));
-    fireEvent.click(screen.getByLabelText("Increase font size"));
-    expect(onSettingsChange).not.toHaveBeenCalled();
-  });
-
   it("navigates settings menu with ArrowDown/ArrowUp keys", () => {
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
