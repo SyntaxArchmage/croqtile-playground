@@ -120,6 +120,66 @@ function registerChoreoLanguage(monaco: any) {
       "editor.lineHighlightBackground": "#252537",
     },
   });
+
+  monaco.languages.registerCompletionItemProvider("choreo", {
+    provideCompletionItems: (model: unknown, position: unknown) => {
+      const suggestions = [
+        // Choreo-specific constructs
+        ...["__co__", "__cok__", "parallel", "foreach", "pipeline", "dma", "tma", "mma",
+          "shared", "global", "local", "println", "print", "inthreads", "ingroups",
+          "signal", "wait", "arrive", "rotate", "assert_true",
+        ].map(kw => ({
+          label: kw,
+          kind: monaco.languages.CompletionItemKind.Keyword,
+          insertText: kw,
+          detail: "Choreo keyword",
+        })),
+        // Types
+        ...["f16", "f32", "f64", "bf16", "i8", "i16", "i32", "i64",
+          "u8", "u16", "u32", "u64", "half", "size_t", "float", "int", "void",
+        ].map(t => ({
+          label: t,
+          kind: monaco.languages.CompletionItemKind.TypeParameter,
+          insertText: t,
+          detail: "Choreo type",
+        })),
+        // Common snippets
+        {
+          label: "co-function",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "__co__ void ${1:func_name}() {\n  ${0}\n}",
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          detail: "Croqtile function",
+          documentation: "Creates a new Croqtile function",
+        },
+        {
+          label: "parallel-block",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "parallel {${1:i}} by [${2:N}] {\n  ${0}\n}",
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          detail: "Parallel block",
+          documentation: "Creates a parallel execution block",
+        },
+        {
+          label: "foreach-loop",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "foreach ${1:i} in [${2:0}:${3:N}] {\n  ${0}\n}",
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          detail: "Foreach loop",
+          documentation: "Creates a foreach loop",
+        },
+        {
+          label: "dma-transfer",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "dma(${1:src}[${2:0}:${3:N}], ${4:dst}[${5:0}:${6:N}]);",
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          detail: "DMA transfer",
+          documentation: "Direct memory access transfer",
+        },
+      ];
+      return { suggestions };
+    },
+  });
 }
 
 export const Editor = forwardRef<{ getValue: () => string }, Props>(
