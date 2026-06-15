@@ -203,4 +203,46 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "transpose",
+    name: "Matrix Transpose",
+    code: `__co__ void transpose() {
+  global float A[4, 4];
+  global float T[4, 4];
+
+  parallel {i, j} by [4, 4] {
+    A[i, j] = (float)(i * 10 + j);
+  }
+
+  parallel {i, j} by [4, 4] {
+    T[j, i] = A[i, j];
+  }
+
+  parallel {i, j} by [4, 4] {
+    println("T[", i, ",", j, "] =", T[i, j]);
+  }
+}
+`,
+  },
+  {
+    id: "dot-product",
+    name: "Dot Product",
+    code: `__co__ void dot_product() {
+  global float a[8];
+  global float b[8];
+
+  parallel {i} by [8] {
+    a[i] = (float)(i + 1);
+    b[i] = (float)(i * 2);
+  }
+
+  float dot = 0.0f;
+  foreach i in [0:8] {
+    dot = dot + a[i] * b[i];
+  }
+
+  println("dot product =", dot);
+}
+`,
+  },
 ];
