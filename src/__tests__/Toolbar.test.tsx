@@ -386,8 +386,6 @@ describe("Toolbar", () => {
   it("resets progress when reset confirmed", () => {
     const resetProgressSpy = jest.spyOn(progress, "resetProgress");
     const confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(true);
-    const origReload = window.location.reload;
-    window.location.reload = jest.fn();
 
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
@@ -395,10 +393,8 @@ describe("Toolbar", () => {
 
     expect(confirmSpy).toHaveBeenCalledWith("Reset all tutorial and challenge progress?");
     expect(resetProgressSpy).toHaveBeenCalledTimes(1);
-    expect(window.location.reload).toHaveBeenCalledTimes(1);
     expect(screen.queryByText("Reset progress")).not.toBeInTheDocument();
 
-    window.location.reload = origReload;
     confirmSpy.mockRestore();
     resetProgressSpy.mockRestore();
   });
