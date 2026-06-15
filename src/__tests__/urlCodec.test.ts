@@ -50,4 +50,14 @@ describe("urlCodec", () => {
   it("returns the hash when legacy decode fails", () => {
     expect(decodeCode("%E0%A4%A")).toBe("%E0%A4%A");
   });
+
+  it("falls back to legacy decode when b64 content is corrupted", () => {
+    const corrupted = "b64:!!!invalid!!!";
+    expect(decodeCode(corrupted)).toBe(corrupted);
+  });
+
+  it("handles code with null bytes", () => {
+    const code = "hello\x00world";
+    expect(decodeCode(encodeCode(code))).toBe(code);
+  });
 });
