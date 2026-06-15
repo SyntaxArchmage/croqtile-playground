@@ -222,6 +222,13 @@ describe("Toolbar", () => {
     expect(defaultProps.onLoadCode).toHaveBeenCalled();
   });
 
+  it("ignores example select with invalid value", () => {
+    render(<Toolbar {...defaultProps} />);
+    const select = screen.getByLabelText("Load example code");
+    fireEvent.change(select, { target: { value: "nonexistent-id" } });
+    expect(defaultProps.onLoadCode).not.toHaveBeenCalled();
+  });
+
   it("renders settings menu button", () => {
     render(<Toolbar {...defaultProps} />);
     expect(screen.getByLabelText("Settings menu")).toBeInTheDocument();
@@ -260,10 +267,24 @@ describe("Toolbar", () => {
     expect(screen.getByLabelText("Decrease font size")).toBeDisabled();
   });
 
+  it("does not decrease font size below minimum", () => {
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 10, wordWrap: true, lastTarget: "cc" }} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByLabelText("Decrease font size"));
+    expect(defaultProps.onSettingsChange).not.toHaveBeenCalled();
+  });
+
   it("disables font increase at maximum size", () => {
     render(<Toolbar {...defaultProps} settings={{ fontSize: 24, wordWrap: true, lastTarget: "cc" }} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     expect(screen.getByLabelText("Increase font size")).toBeDisabled();
+  });
+
+  it("does not increase font size above maximum", () => {
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 24, wordWrap: true, lastTarget: "cc" }} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByLabelText("Increase font size"));
+    expect(defaultProps.onSettingsChange).not.toHaveBeenCalled();
   });
 
   it("disables Compile and AST when running", () => {
