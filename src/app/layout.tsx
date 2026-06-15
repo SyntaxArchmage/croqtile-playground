@@ -6,6 +6,12 @@ export const metadata: Metadata = {
   description: "Write, compile, and run Croqtile GPU kernel code in the browser. Includes tutorials and coding challenges.",
   keywords: ["Croqtile", "GPU", "playground", "compiler", "WASM", "WebAssembly", "CUDA"],
   authors: [{ name: "Croqtile Team" }],
+  openGraph: {
+    title: "Croqtile Playground",
+    description: "Write, compile, and run Croqtile GPU kernel code in the browser.",
+    type: "website",
+    siteName: "Croqtile Playground",
+  },
 };
 
 export const viewport: Viewport = {

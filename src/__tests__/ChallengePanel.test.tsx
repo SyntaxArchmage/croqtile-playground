@@ -131,6 +131,14 @@ describe("ChallengePanel", () => {
     expect(screen.getByText("← Back")).toBeInTheDocument();
   });
 
+  it("shows challenge list when initialId is invalid", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="nonexistent" />
+    );
+    expect(screen.getByText("Hello Threads")).toBeInTheDocument();
+    expect(screen.queryByText("← Back")).not.toBeInTheDocument();
+  });
+
   it("shows close button in detail view", () => {
     const onClose = jest.fn();
     render(
