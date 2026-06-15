@@ -444,7 +444,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (443 tests across 27 suites)
+- [x] Unit tests (453 tests across 27 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
