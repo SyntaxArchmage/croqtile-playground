@@ -133,6 +133,19 @@ describe("useChoreoWorker", () => {
       expect(result.current.errors).toContain("Worker failed to initialize");
     });
 
+    it("onerror clears execution timeout to prevent stale timeout firing", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+      act(() => { result.current.run("test"); });
+      expect(result.current.status).toBe("running");
+
+      act(() => { mockWorker.onerror?.({} as ErrorEvent); });
+      expect(result.current.status).toBe("error");
+
+      act(() => { jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS + 1000); });
+      expect(result.current.status).toBe("error");
+    });
+
     it("postIfReady rejects loading and error states", () => {
       const { result } = renderHook(() => useChoreoWorker());
 

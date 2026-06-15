@@ -70,6 +70,7 @@ export function useChoreoWorker() {
     };
 
     worker.onerror = () => {
+      if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
       updateStatus("error");
       setErrors("Worker failed to initialize. WASM files may not be available.");
     };
