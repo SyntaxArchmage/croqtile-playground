@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 const mockMarkChallengePassed = jest.fn();
@@ -227,7 +227,8 @@ describe("ChallengePanel", () => {
     expect(screen.queryByText("DMA Reverse")).not.toBeInTheDocument();
     expect(screen.queryByText("Matrix Trace")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "All" }));
+    const diffGroup = screen.getByRole("group", { name: "Filter by difficulty" });
+    fireEvent.click(within(diffGroup).getByRole("button", { name: "All" }));
     expect(screen.getByText("Hello Threads")).toBeInTheDocument();
     expect(screen.getByText("DMA Reverse")).toBeInTheDocument();
     expect(screen.getByText("Matrix Trace")).toBeInTheDocument();
@@ -362,5 +363,41 @@ describe("ChallengePanel", () => {
     const params = new URLSearchParams(window.location.search);
     expect(params.get("challenge")).toBeNull();
     window.history.pushState({}, "", "/");
+  });
+
+  it("renders status filter buttons", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    expect(screen.getByRole("group", { name: "Filter by status" })).toBeInTheDocument();
+    expect(screen.getByText("To Do")).toBeInTheDocument();
+    expect(screen.getByText("Passed")).toBeInTheDocument();
+  });
+
+  it("filters by passed status", () => {
+    mockIsChallengePassed = true;
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    fireEvent.click(screen.getByText("Passed"));
+    expect(screen.getAllByText("passed").length).toBeGreaterThan(0);
+  });
+
+  it("filters by todo status hides passed challenges", () => {
+    mockIsChallengePassed = true;
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    fireEvent.click(screen.getByText("To Do"));
+    expect(screen.getByText("No challenges match")).toBeInTheDocument();
+  });
+
+  it("todo filter shows challenges when none passed", () => {
+    mockIsChallengePassed = false;
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    fireEvent.click(screen.getByText("To Do"));
+    expect(screen.getByText("Hello Threads")).toBeInTheDocument();
   });
 });

@@ -25,10 +25,12 @@ interface Props {
 }
 
 type DifficultyFilter = "all" | "easy" | "medium" | "hard";
+type StatusFilter = "all" | "todo" | "passed";
 
 export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initialId }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(() => {
     if (initialId) {
       return CHALLENGES.find((c) => c.id === initialId) ?? null;
@@ -79,6 +81,11 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
       if (difficultyFilter !== "all" && c.difficulty !== difficultyFilter) {
         return false;
       }
+      if (statusFilter !== "all") {
+        const passed = isChallengePassed(c.id);
+        if (statusFilter === "passed" && !passed) return false;
+        if (statusFilter === "todo" && passed) return false;
+      }
       if (!query) {
         return true;
       }
@@ -109,28 +116,52 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full px-3 py-1.5 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
           />
-          <div className="flex gap-1" role="group" aria-label="Filter by difficulty">
-            {(
-              [
-                { value: "all", label: "All" },
-                { value: "easy", label: "Easy" },
-                { value: "medium", label: "Medium" },
-                { value: "hard", label: "Hard" },
-              ] as const
-            ).map(({ value, label }) => (
-              <button
-                key={value}
-                onClick={() => setDifficultyFilter(value)}
-                aria-pressed={difficultyFilter === value}
-                className={`text-xs px-2 py-0.5 rounded ${
-                  difficultyFilter === value
-                    ? "bg-[var(--accent)] text-[var(--bg-primary)]"
-                    : "border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+          <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-1" role="group" aria-label="Filter by difficulty">
+              {(
+                [
+                  { value: "all", label: "All" },
+                  { value: "easy", label: "Easy" },
+                  { value: "medium", label: "Medium" },
+                  { value: "hard", label: "Hard" },
+                ] as const
+              ).map(({ value, label }) => (
+                <button
+                  key={value}
+                  onClick={() => setDifficultyFilter(value)}
+                  aria-pressed={difficultyFilter === value}
+                  className={`text-xs px-2 py-0.5 rounded ${
+                    difficultyFilter === value
+                      ? "bg-[var(--accent)] text-[var(--bg-primary)]"
+                      : "border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-1" role="group" aria-label="Filter by status">
+              {(
+                [
+                  { value: "all", label: "All" },
+                  { value: "todo", label: "To Do" },
+                  { value: "passed", label: "Passed" },
+                ] as const
+              ).map(({ value, label }) => (
+                <button
+                  key={value}
+                  onClick={() => setStatusFilter(value)}
+                  aria-pressed={statusFilter === value}
+                  className={`text-xs px-2 py-0.5 rounded ${
+                    statusFilter === value
+                      ? "bg-[var(--accent)] text-[var(--bg-primary)]"
+                      : "border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
           {filteredChallenges.length === 0 ? (
             <div className="text-xs text-[var(--text-muted)] text-center py-4">
