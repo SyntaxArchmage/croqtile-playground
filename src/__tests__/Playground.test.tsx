@@ -209,6 +209,35 @@ describe("Playground", () => {
     });
   });
 
+  describe("command palette", () => {
+    it("opens command palette on Ctrl+P", () => {
+      renderPlayground();
+      expect(screen.queryByLabelText("Search commands")).not.toBeInTheDocument();
+
+      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+      expect(screen.getByLabelText("Search commands")).toBeInTheDocument();
+      expect(screen.getByRole("dialog", { name: "Command palette" })).toBeInTheDocument();
+    });
+
+    it("executes Run from command palette", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+
+      fireEvent.click(screen.getByText("Run Code"));
+      expect(mockRun).toHaveBeenCalledTimes(1);
+      expect(screen.queryByLabelText("Search commands")).not.toBeInTheDocument();
+    });
+
+    it("closes command palette on Escape", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+      expect(screen.getByLabelText("Search commands")).toBeInTheDocument();
+
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(screen.queryByLabelText("Search commands")).not.toBeInTheDocument();
+    });
+  });
+
   describe("panel toggle", () => {
     it("opens tutorial panel when tutorial button is clicked", () => {
       renderPlayground();

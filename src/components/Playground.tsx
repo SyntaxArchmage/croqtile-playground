@@ -15,6 +15,8 @@ import { saveLastSource, loadLastSource } from "@/lib/progress";
 import { loadSettings, saveSettings, type EditorSettings } from "@/lib/settings";
 import type { CursorPosition } from "./Editor";
 import { decodeCode, encodeCode } from "@/lib/urlCodec";
+import { formatChoreoCode } from "@/lib/formatCode";
+import { CommandPalette, type CommandItem } from "./CommandPalette";
 
 const noop = () => () => {};
 
@@ -65,6 +67,7 @@ export function Playground() {
   const [target, setTarget] = useState(() => loadSettings().lastTarget);
   const [panelMode, setPanelMode] = useState(initialPanelMode);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [cursorPos, setCursorPos] = useState<CursorPosition>({ line: 1, column: 1 });
   const [settings, setSettings] = useState(() => loadSettings());
   const editorRef = useRef<{ getValue: () => string }>(null);
@@ -234,6 +237,26 @@ export function Playground() {
     window.history.replaceState(null, "", `#${encoded}`);
   }, [getCode]);
 
+  const handleFormatCode = useCallback(() => {
+    setSource(formatChoreoCode(getCode()));
+  }, [getCode]);
+
+  const closeCommandPalette = useCallback(() => {
+    setShowCommandPalette(false);
+  }, []);
+
+  const paletteCommands = useMemo<CommandItem[]>(() => [
+    { label: "Run Code", action: handleRun, shortcut: "Ctrl+Enter" },
+    { label: "Compile Code", action: handleCompile, shortcut: "Ctrl+Shift+Enter" },
+    { label: "Dump AST", action: handleDumpAST, shortcut: "Ctrl+Shift+D" },
+    { label: "Share Link", action: handleShare, shortcut: "Ctrl+S" },
+    { label: "Clear Output", action: clearOutput, shortcut: "Ctrl+L" },
+    { label: "Open Tutorial", action: () => handleTogglePanel("tutorial") },
+    { label: "Open Challenges", action: () => handleTogglePanel("challenge") },
+    { label: "Format Code", action: handleFormatCode },
+    { label: "Keyboard Shortcuts", action: () => setShowShortcuts(true), shortcut: "?" },
+  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleTogglePanel, handleFormatCode]);
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
@@ -256,10 +279,15 @@ export function Playground() {
         e.preventDefault();
         clearOutput();
       }
+      if ((e.ctrlKey || e.metaKey) && (e.key === "p" || e.key === "P")) {
+        e.preventDefault();
+        setShowCommandPalette(true);
+      }
       if (e.key === "?" && !e.ctrlKey && !e.metaKey && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
         setShowShortcuts((v) => !v);
       }
       if (e.key === "Escape") {
+        setShowCommandPalette(false);
         setShowShortcuts(false);
       }
     };
@@ -273,6 +301,10 @@ export function Playground() {
     if (typeof window === "undefined") return null;
     return new URLSearchParams(window.location.search).get(panelMode === "tutorial" ? "tutorial" : "challenge");
   }, [panelMode]);
+
+  const commandPaletteOverlay = showCommandPalette && (
+    <CommandPalette commands={paletteCommands} onClose={closeCommandPalette} />
+  );
 
   const shortcutsOverlay = showShortcuts && (
     <div
@@ -298,6 +330,7 @@ export function Playground() {
             ["Ctrl+Shift+D", "Dump AST"],
             ["Ctrl+S", "Share link"],
             ["Ctrl+L", "Clear output"],
+            ["Ctrl+P", "Command palette"],
             ["?", "Toggle this help"],
             ["Esc", "Close dialog"],
           ].map(([key, desc]) => (
@@ -316,6 +349,7 @@ export function Playground() {
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {statusAnnouncement}
       </div>
+      {commandPaletteOverlay}
       {shortcutsOverlay}
       {status === "loading" && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/80 backdrop-blur-sm" role="alert" aria-live="polite">

@@ -53,4 +53,29 @@ describe("settings", () => {
     saveSettings({ fontSize: 14, wordWrap: true, lastTarget: "cute" });
     expect(loadSettings().lastTarget).toBe("cute");
   });
+
+  describe("persistence and validation edge cases", () => {
+    it("saveSettings persists changes that loadSettings reads back from localStorage", () => {
+      saveSettings({ fontSize: 20, wordWrap: false, lastTarget: "cute" });
+      const raw = localStorage.getItem(STORAGE_KEY);
+      expect(raw).toBe(JSON.stringify({ fontSize: 20, wordWrap: false, lastTarget: "cute" }));
+      expect(loadSettings()).toEqual({ fontSize: 20, wordWrap: false, lastTarget: "cute" });
+    });
+
+    it("invalid lastTarget in localStorage defaults to cc", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 14, wordWrap: true, lastTarget: "cuda" }));
+      expect(loadSettings().lastTarget).toBe("cc");
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 14, wordWrap: true, lastTarget: null }));
+      expect(loadSettings().lastTarget).toBe("cc");
+    });
+
+    it("very large fontSize values are clamped to default on load", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 999, wordWrap: true }));
+      expect(loadSettings().fontSize).toBe(14);
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 1e6, wordWrap: true }));
+      expect(loadSettings().fontSize).toBe(14);
+    });
+  });
 });

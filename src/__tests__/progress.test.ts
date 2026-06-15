@@ -101,4 +101,46 @@ describe("progress", () => {
     expect(p.challengesPassed).toEqual([]);
     expect(p.challengeProgress).toEqual({});
   });
+
+  describe("challenge attempt and pass edge cases", () => {
+    it("recordChallengeAttempt increments attempt count across many calls and persists", () => {
+      for (let i = 1; i <= 5; i++) {
+        recordChallengeAttempt("c-multi");
+        expect(getChallengeProgress("c-multi").attempts).toBe(i);
+        expect(getChallengeProgress("c-multi").status).toBe("attempted");
+      }
+      const reloaded = loadProgress().challengeProgress["c-multi"];
+      expect(reloaded?.attempts).toBe(5);
+      expect(reloaded?.status).toBe("attempted");
+    });
+
+    it("markChallengePassed saves bestCode when provided and keeps it on later passes", () => {
+      markChallengePassed("c-code", "first solution");
+      expect(getChallengeProgress("c-code").bestCode).toBe("first solution");
+
+      markChallengePassed("c-code");
+      expect(getChallengeProgress("c-code").bestCode).toBe("first solution");
+    });
+
+    it("getChallengeProgress returns passed status after markChallengePassed", () => {
+      expect(getChallengeProgress("c-pass").status).toBe("not_started");
+      markChallengePassed("c-pass", "final code");
+
+      const cp = getChallengeProgress("c-pass");
+      expect(cp.status).toBe("passed");
+      expect(cp.bestCode).toBe("final code");
+      expect(isChallengePassed("c-pass")).toBe(true);
+    });
+
+    it("recordChallengeAttempt after passing increments attempts without downgrading status", () => {
+      markChallengePassed("c-done", "done");
+      recordChallengeAttempt("c-done");
+      recordChallengeAttempt("c-done");
+
+      const cp = getChallengeProgress("c-done");
+      expect(cp.status).toBe("passed");
+      expect(cp.attempts).toBe(2);
+      expect(cp.bestCode).toBe("done");
+    });
+  });
 });

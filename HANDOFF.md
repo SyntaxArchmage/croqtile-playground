@@ -1,12 +1,12 @@
 # Croqtile Playground — Session Handoff
 
 **Date**: 2026-06-15
-**Sessions**: auto-dev (multiple invocations, 79 total commits)
+**Sessions**: auto-dev (multiple invocations, 100+ total commits)
 
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (227 tests, 25 suites)
+- `npm test` ✅ (293 tests, 25 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -16,8 +16,8 @@
 ### Core IDE
 - Monaco editor with Choreo syntax highlighting (Catppuccin Mocha theme)
 - Toolbar: Run / Compile / AST / Target selector / Examples / Share / Download / Format / Open
-- Output panel (tabbed: Output / Errors) with auto-tab-switch
-- Status bar: worker status, compiler version, cursor position (Ln/Col), line count
+- Output panel (tabbed: Output / Errors / AST) with auto-tab-switch, error line highlighting
+- Status bar: worker status, compiler version, cursor position (Ln/Col), line count, target, execution time
 - Resizable split layout with keyboard and touch support
 - Keyboard shortcuts: Ctrl+Enter (Run), Ctrl+Shift+Enter (Compile), Ctrl+Shift+D (AST), Ctrl+S (Share), ? (Help)
 - Error boundary with graceful crash recovery
@@ -32,7 +32,10 @@
 - URL deep linking (?tutorial=ch01&step=2, ?challenge=c04)
 - localStorage persistence: progress, last source, editor settings
 - Editor settings: font size (10–24px), word wrap toggle
-- Challenge progress tracking: attempts, best code, pass/fail status
+- Challenge progress tracking: attempts, best code, pass/fail status, confetti animation
+- Unsaved changes warning dialog
+- Running indicator in document title
+- Tutorial step indicator dots
 - Responsive layout (stacked on mobile with touch-resizable panels)
 - ARIA accessibility labels and semantic HTML
 - Custom scrollbar styling
@@ -42,7 +45,8 @@
 - ESLint flat config for Next.js 16
 - GitHub Actions CI: type check, lint, test, build
 - WASM build script with version tracking (build-manifest.json)
-- 227 unit/component tests across 25 suites
+- 293 unit/component tests across 25 suites
+- Coverage thresholds: 80% statements, 70% branches, 75% functions, 80% lines
 
 ## Remaining Work
 

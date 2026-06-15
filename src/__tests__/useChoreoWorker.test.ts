@@ -1,60 +1,185 @@
 /**
- * Unit tests for useChoreoWorker logic extracted to testable helpers.
- * The hook itself requires a Web Worker environment; we test the
- * state machine logic it implements.
+ * Unit tests for useChoreoWorker hook behavior with a mocked Web Worker.
  */
 
-describe("useChoreoWorker state logic", () => {
-  it("initial status is loading", () => {
-    expect("loading").toBe("loading");
+import { renderHook, act, waitFor } from "@testing-library/react";
+import { useChoreoWorker } from "@/lib/useChoreoWorker";
+
+const EXECUTION_TIMEOUT_MS = 30000;
+
+class MockWorker {
+  onmessage: ((e: MessageEvent) => void) | null = null;
+  onerror: (() => void) | null = null;
+  postMessage = jest.fn();
+  terminate = jest.fn();
+}
+
+let mockWorker: MockWorker;
+
+beforeEach(() => {
+  mockWorker = new MockWorker();
+  global.Worker = jest.fn(() => mockWorker) as unknown as typeof Worker;
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: () => Promise.resolve({ version: "1.0.0", commit: null, commit_short: null, built_at: null }),
+  });
+  jest.useFakeTimers();
+});
+
+afterEach(() => {
+  jest.useRealTimers();
+});
+
+function postWorkerMessage(type: string, data: Record<string, unknown> = {}) {
+  act(() => {
+    mockWorker.onmessage?.({ data: { type, data } } as MessageEvent);
+  });
+}
+
+function makeReady() {
+  postWorkerMessage("ready", { version: "2.1.0" });
+}
+
+describe("useChoreoWorker", () => {
+  it("EXECUTION_TIMEOUT_MS constant value is 30000", () => {
+    expect(EXECUTION_TIMEOUT_MS).toBe(30000);
   });
 
-  it("postIfReady rejects loading state", () => {
-    const status = "loading";
-    const shouldPost = status !== "loading" && status !== "error";
-    expect(shouldPost).toBe(false);
-  });
+  describe("worker message state machine", () => {
+    it("starts in loading state until ready message", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      expect(result.current.status).toBe("loading");
 
-  it("postIfReady rejects error state", () => {
-    const status = "error";
-    const shouldPost = status !== "loading" && status !== "error";
-    expect(shouldPost).toBe(false);
-  });
-
-  it("postIfReady accepts ready state", () => {
-    const status = "ready";
-    const shouldPost = status !== "loading" && status !== "error";
-    expect(shouldPost).toBe(true);
-  });
-
-  it("build manifest fetch validates response.ok", async () => {
-    const mockFetch = jest.fn().mockResolvedValue({
-      ok: false,
-      statusText: "Not Found",
+      makeReady();
+      expect(result.current.status).toBe("ready");
+      expect(result.current.compilerVersion).toBe("2.1.0");
     });
 
-    let manifestSet = false;
-    try {
-      const r = await mockFetch("/wasm/build-manifest.json");
-      if (!r.ok) throw new Error(r.statusText);
-      manifestSet = true;
-    } catch {
-      // expected
-    }
-    expect(manifestSet).toBe(false);
-  });
+    it("handles compile-result for run/compile commands", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
 
-  it("build manifest fetch succeeds with valid response", async () => {
-    const manifest = { version: "1.0.0", commit: "abc123", commit_short: "abc", built_at: "2024-01-01" };
-    const mockFetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(manifest),
+      act(() => {
+        result.current.run("source code");
+      });
+      expect(result.current.status).toBe("running");
+
+      postWorkerMessage("compile-result", { output: "hello", errors: "" });
+      expect(result.current.status).toBe("ready");
+      expect(result.current.output).toBe("hello");
+      expect(result.current.errors).toBe("");
     });
 
-    const r = await mockFetch("/wasm/build-manifest.json");
-    if (!r.ok) throw new Error(r.statusText);
-    const m = await r.json();
-    expect(m.version).toBe("1.0.0");
-    expect(m.commit_short).toBe("abc");
+    it("routes compile-result to ast when last command was dumpAST", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+
+      act(() => {
+        result.current.dumpAST("fn main() {}");
+      });
+      postWorkerMessage("compile-result", { output: "(ast)", errors: "" });
+
+      expect(result.current.ast).toBe("(ast)");
+      expect(result.current.output).toBe("");
+    });
+
+    it("handles error message by transitioning to error state", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+
+      postWorkerMessage("error", { message: "compile failed" });
+      expect(result.current.status).toBe("error");
+      expect(result.current.errors).toBe("compile failed");
+    });
+
+    it("handles worker onerror by transitioning to error state", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      act(() => {
+        mockWorker.onerror?.({} as ErrorEvent);
+      });
+      expect(result.current.status).toBe("error");
+      expect(result.current.errors).toContain("Worker failed to initialize");
+    });
+
+    it("postIfReady rejects loading and error states", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+
+      act(() => {
+        result.current.run("should not post");
+      });
+      expect(mockWorker.postMessage).not.toHaveBeenCalled();
+
+      makeReady();
+      postWorkerMessage("error", { message: "broken" });
+
+      act(() => {
+        result.current.compile("src", "cc");
+      });
+      expect(mockWorker.postMessage).toHaveBeenCalledTimes(0);
+    });
+
+    it("times out after 30000ms and returns to ready with timeout error", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+
+      act(() => {
+        result.current.run("slow code");
+      });
+      expect(result.current.status).toBe("running");
+
+      act(() => {
+        jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS - 1);
+      });
+      expect(result.current.status).toBe("running");
+
+      act(() => {
+        jest.advanceTimersByTime(1);
+      });
+      expect(result.current.status).toBe("ready");
+      expect(result.current.errors).toBe("Execution timed out after 30 seconds.");
+    });
+
+    it("clears pending timeout when compile-result arrives", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+
+      act(() => {
+        result.current.run("code");
+      });
+      act(() => {
+        jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS - 1000);
+      });
+
+      postWorkerMessage("compile-result", { output: "ok", errors: "" });
+      expect(result.current.output).toBe("ok");
+
+      act(() => {
+        jest.advanceTimersByTime(2000);
+      });
+      expect(result.current.errors).toBe("");
+    });
+  });
+
+  describe("build manifest fetch", () => {
+    it("loads build manifest when fetch succeeds", async () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      await waitFor(() => {
+        expect(result.current.buildManifest).toEqual({
+          version: "1.0.0",
+          commit: null,
+          commit_short: null,
+          built_at: null,
+        });
+      });
+    });
+
+    it("leaves buildManifest null when fetch fails", async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: false, statusText: "Not Found" });
+      const { result } = renderHook(() => useChoreoWorker());
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalled();
+      });
+      expect(result.current.buildManifest).toBeNull();
+    });
   });
 });

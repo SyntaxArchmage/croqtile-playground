@@ -147,4 +147,15 @@ describe("TutorialPanel", () => {
     fireEvent.click(screen.getByText("Hello Croqtile"));
     expect(screen.getAllByTestId("tutorial-step-dot")).toHaveLength(3);
   });
+
+  it("calls onLoadCode when Try it button is clicked", () => {
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    fireEvent.click(screen.getByText("Next →"));
+    const tryButtons = screen.queryAllByText("Try it →");
+    expect(tryButtons.length).toBeGreaterThan(0);
+    fireEvent.click(tryButtons[0]);
+    expect(onLoadCode).toHaveBeenCalled();
+  });
 });
