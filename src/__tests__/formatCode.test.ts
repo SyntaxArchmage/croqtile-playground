@@ -217,4 +217,63 @@ char c = '\\\\';
   char c = '\\\\';
 }`);
   });
+
+  it("handles else on its own line after closing brace", () => {
+    const input = `__co__ void f() {
+if (x > 0) {
+a();
+} else {
+b();
+}
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  if (x > 0) {
+    a();
+  } else {
+    b();
+  }
+}`);
+  });
+
+  it("handles block comment spanning multiple lines mid-code", () => {
+    const input = `__co__ void f() {
+/* start
+middle
+end */
+println("after");
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  /* start
+  middle
+  end */
+  println("after");
+}`);
+  });
+
+  it("handles opening brace on its own line", () => {
+    const input = `__co__ void f()
+{
+println("hi");
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f()
+{
+  println("hi");
+}`);
+  });
+
+  it("handles braces inside strings", () => {
+    const input = `__co__ void f() {
+println("{ not a block }");
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  println("{ not a block }");
+}`);
+  });
+
+  it("handles completely flat code", () => {
+    const input = `int x = 0;
+println(x);`;
+    expect(formatChoreoCode(input)).toBe(`int x = 0;
+println(x);`);
+  });
 });
