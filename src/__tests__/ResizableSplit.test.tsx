@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { ResizableSplit } from "@/components/ResizableSplit";
 
@@ -107,5 +107,103 @@ describe("ResizableSplit", () => {
     const left = container.querySelectorAll("[style]")[0];
     const width = parseFloat((left as HTMLElement).style.width);
     expect(width).toBeLessThanOrEqual(60);
+  });
+
+  it("resizes on mouse drag", () => {
+    const { container } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} initialRatio={0.35} />
+    );
+    const sep = screen.getByRole("separator");
+    const outer = container.firstElementChild as HTMLElement;
+
+    jest.spyOn(outer, "getBoundingClientRect").mockReturnValue({
+      left: 0, top: 0, right: 1000, bottom: 600,
+      width: 1000, height: 600, x: 0, y: 0, toJSON: () => {},
+    });
+
+    fireEvent.mouseDown(sep);
+    expect(document.body.style.cursor).toBe("col-resize");
+
+    fireEvent.mouseMove(document, { clientX: 500 });
+    const left = container.querySelectorAll("[style]")[0] as HTMLElement;
+    expect(parseFloat(left.style.width)).toBe(50);
+
+    fireEvent.mouseUp(document);
+    expect(document.body.style.cursor).toBe("");
+  });
+
+  it("clamps mouse drag ratio within bounds", () => {
+    const { container } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} />
+    );
+    const sep = screen.getByRole("separator");
+    const outer = container.firstElementChild as HTMLElement;
+
+    jest.spyOn(outer, "getBoundingClientRect").mockReturnValue({
+      left: 0, top: 0, right: 1000, bottom: 600,
+      width: 1000, height: 600, x: 0, y: 0, toJSON: () => {},
+    });
+
+    fireEvent.mouseDown(sep);
+
+    fireEvent.mouseMove(document, { clientX: 50 });
+    let left = container.querySelectorAll("[style]")[0] as HTMLElement;
+    expect(parseFloat(left.style.width)).toBe(20);
+
+    fireEvent.mouseMove(document, { clientX: 900 });
+    left = container.querySelectorAll("[style]")[0] as HTMLElement;
+    expect(parseFloat(left.style.width)).toBe(60);
+
+    fireEvent.mouseUp(document);
+  });
+
+  it("resizes on touch drag", () => {
+    const { container } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} initialRatio={0.35} />
+    );
+    const sep = screen.getByRole("separator");
+    const outer = container.firstElementChild as HTMLElement;
+
+    jest.spyOn(outer, "getBoundingClientRect").mockReturnValue({
+      left: 0, top: 0, right: 1000, bottom: 600,
+      width: 1000, height: 600, x: 0, y: 0, toJSON: () => {},
+    });
+
+    fireEvent.touchStart(sep);
+
+    act(() => {
+      const touchEvent = new Event("touchmove") as unknown as TouchEvent;
+      Object.defineProperty(touchEvent, "touches", {
+        value: [{ clientX: 400 }],
+      });
+      document.dispatchEvent(touchEvent);
+    });
+
+    const left = container.querySelectorAll("[style]")[0] as HTMLElement;
+    expect(parseFloat(left.style.width)).toBe(40);
+
+    act(() => {
+      document.dispatchEvent(new Event("touchend"));
+    });
+  });
+
+  it("ignores mouse move after mouse up", () => {
+    const { container } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} initialRatio={0.35} />
+    );
+    const sep = screen.getByRole("separator");
+    const outer = container.firstElementChild as HTMLElement;
+
+    jest.spyOn(outer, "getBoundingClientRect").mockReturnValue({
+      left: 0, top: 0, right: 1000, bottom: 600,
+      width: 1000, height: 600, x: 0, y: 0, toJSON: () => {},
+    });
+
+    fireEvent.mouseDown(sep);
+    fireEvent.mouseUp(document);
+
+    fireEvent.mouseMove(document, { clientX: 500 });
+    const left = container.querySelectorAll("[style]")[0] as HTMLElement;
+    expect(parseFloat(left.style.width)).toBe(35);
   });
 });
