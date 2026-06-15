@@ -187,6 +187,18 @@ describe("Playground", () => {
       expect(mockRun).toHaveBeenCalledTimes(1);
     });
 
+    it("dispatches compile on Meta+Shift+Enter (macOS)", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "Enter", metaKey: true, shiftKey: true });
+      expect(mockCompile).toHaveBeenCalledTimes(1);
+    });
+
+    it("dispatches dumpAST on Meta+Shift+D (macOS)", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "D", metaKey: true, shiftKey: true });
+      expect(mockDumpAST).toHaveBeenCalledTimes(1);
+    });
+
     it("toggles shortcuts overlay on ?", () => {
       renderPlayground();
       expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
