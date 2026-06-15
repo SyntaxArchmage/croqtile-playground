@@ -15,6 +15,7 @@ jest.mock("@/lib/useChoreoWorker", () => ({
     status: "ready" as const,
     output: "",
     errors: "",
+    ast: "",
     compilerVersion: "1.0.0",
     buildManifest: null,
     run: mockRun,
@@ -156,6 +157,12 @@ describe("Playground", () => {
       renderPlayground();
       fireEvent.keyDown(window, { key: "Enter", ctrlKey: true, shiftKey: true });
       expect(mockCompile).toHaveBeenCalledTimes(1);
+    });
+
+    it("dispatches dumpAST on Ctrl+Shift+D", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "D", ctrlKey: true, shiftKey: true });
+      expect(mockDumpAST).toHaveBeenCalledTimes(1);
     });
 
     it("toggles shortcuts overlay on ?", () => {

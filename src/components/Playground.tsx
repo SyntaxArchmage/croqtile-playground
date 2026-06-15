@@ -80,7 +80,7 @@ export function Playground() {
     setPanelMode(initialPanelMode);
   }
 
-  const { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput } =
+  const { status, output, errors, ast, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput } =
     useChoreoWorker();
 
   const isMobile = useIsMobile();
@@ -136,6 +136,10 @@ export function Playground() {
         e.preventDefault();
         handleShare();
       }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "d" || e.key === "D")) {
+        e.preventDefault();
+        handleDumpAST();
+      }
       if (e.key === "?" && !e.ctrlKey && !e.metaKey && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
         setShowShortcuts((v) => !v);
       }
@@ -145,7 +149,7 @@ export function Playground() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [handleRun, handleCompile, handleShare]);
+  }, [handleRun, handleCompile, handleDumpAST, handleShare]);
 
   const deepLinkId = typeof window !== "undefined"
     ? new URLSearchParams(window.location.search).get(panelMode === "tutorial" ? "tutorial" : "challenge")
@@ -162,6 +166,7 @@ export function Playground() {
           {[
             ["Ctrl+Enter", "Run code"],
             ["Ctrl+Shift+Enter", "Compile code"],
+            ["Ctrl+Shift+D", "Dump AST"],
             ["Ctrl+S", "Share link"],
             ["?", "Toggle this help"],
             ["Esc", "Close dialog"],
@@ -224,7 +229,7 @@ export function Playground() {
             wordWrap={settings.wordWrap}
           />
         </div>
-        <OutputPanel output={output} errors={errors} onClear={clearOutput} />
+        <OutputPanel output={output} errors={errors} ast={ast} onClear={clearOutput} />
       </div>
       <StatusBar
         status={status}
