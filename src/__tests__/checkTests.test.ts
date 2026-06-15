@@ -1,5 +1,6 @@
 import { checkTests } from "@/lib/checkTests";
 import type { Challenge } from "@/lib/challenges";
+import { CHALLENGES } from "@/lib/challenges";
 
 function makeChallenge(tests: { expectedOutput: string; description: string }[]): Challenge {
   return {
@@ -124,5 +125,26 @@ describe("checkTests", () => {
     const results = checkTests(c, "actual");
     expect(results[0].expected).toBe("expected");
     expect(results[0].actual).toBe("actual");
+  });
+
+  it("all real challenges pass when given their expected output", () => {
+    for (const c of CHALLENGES) {
+      const fullExpected = c.tests.map((t) => t.expectedOutput).join("\n");
+      const results = checkTests(c, fullExpected);
+      for (const r of results) {
+        expect(r.passed).toBe(true);
+        expect(r.ran).toBe(true);
+      }
+    }
+  });
+
+  it("all real challenges fail when given empty output", () => {
+    for (const c of CHALLENGES) {
+      const results = checkTests(c, "");
+      for (const r of results) {
+        expect(r.ran).toBe(false);
+        expect(r.passed).toBe(false);
+      }
+    }
   });
 });
