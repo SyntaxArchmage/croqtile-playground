@@ -30,10 +30,12 @@ import { challenge13 } from "./13-element-wise-mul";
 import { challenge14 } from "./14-row-sum";
 import { challenge15 } from "./15-scale-vector";
 import { challenge16 } from "./16-classify";
+import { challenge17 } from "./17-transpose";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
   challenge05, challenge06, challenge07, challenge08,
   challenge09, challenge10, challenge11, challenge12,
   challenge13, challenge14, challenge15, challenge16,
+  challenge17,
 ];
