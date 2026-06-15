@@ -275,6 +275,75 @@ describe("OutputPanel", () => {
     expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
   });
 
+  it("renders non-breaking space for empty lines in error output", () => {
+    const errorText = "Error at line 1\n\nmore text";
+    const { container, rerender } = render(<OutputPanel output="" errors="" />);
+    rerender(<OutputPanel output="" errors={errorText} />);
+    const divs = container.querySelectorAll("[class*='error-line'],.text-xs.font-mono > div");
+    const emptyDiv = Array.from(divs).find((d) => d.textContent === "\u00A0");
+    expect(emptyDiv).toBeTruthy();
+  });
+
+  it("does not auto-switch to ast tab when ast changes to empty", () => {
+    const { rerender } = render(<OutputPanel output="" errors="" ast="" />);
+    rerender(<OutputPanel output="" errors="" ast="tree" />);
+    expect(screen.getByRole("tab", { name: /AST/ })).toHaveAttribute("aria-selected", "true");
+    fireEvent.click(screen.getByRole("tab", { name: /Output/ }));
+    expect(screen.getByRole("tab", { name: /Output/ })).toHaveAttribute("aria-selected", "true");
+    rerender(<OutputPanel output="" errors="" ast="" />);
+    expect(screen.getByRole("tab", { name: /Output/ })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("does not auto-switch to output when new output arrives alongside errors", () => {
+    const { rerender } = render(<OutputPanel output="" errors="" />);
+    rerender(<OutputPanel output="" errors="err" />);
+    expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
+    rerender(<OutputPanel output="new out" errors="err" />);
+    expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("handleCopy is a no-op when content is empty (errors tab with no errors)", () => {
+    render(<OutputPanel output="data" errors="" />);
+    fireEvent.click(screen.getByRole("tab", { name: /Errors/ }));
+    expect(screen.queryByText("Copy")).not.toBeInTheDocument();
+  });
+
+  it("ignores mouse move after mouse up on separator", () => {
+    const { container } = render(
+      <div style={{ height: 600 }}>
+        <OutputPanel output="data" errors="" />
+      </div>
+    );
+    const sep = screen.getByRole("separator");
+    const initialVal = Number(sep.getAttribute("aria-valuenow"));
+
+    fireEvent.mouseDown(sep);
+    act(() => { document.dispatchEvent(new MouseEvent("mouseup")); });
+
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 100 }));
+    });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialVal);
+  });
+
+  it("ignores touch move after touch end on separator", () => {
+    render(<OutputPanel output="data" errors="" />);
+    const sep = screen.getByRole("separator");
+    const initialVal = Number(sep.getAttribute("aria-valuenow"));
+
+    fireEvent.touchStart(sep);
+    act(() => { document.dispatchEvent(new TouchEvent("touchend")); });
+
+    act(() => {
+      document.dispatchEvent(
+        new TouchEvent("touchmove", {
+          touches: [{ clientY: 100 } as Touch],
+        })
+      );
+    });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialVal);
+  });
+
   it("clears existing copy timeout on rapid re-copy", () => {
     jest.useFakeTimers();
     render(<OutputPanel output="data" errors="" />);

@@ -216,4 +216,65 @@ describe("ResizableSplit", () => {
     const left = container.querySelectorAll("[style]")[0];
     expect(left).toHaveStyle({ width: "35%" });
   });
+
+  it("ignores touch move after touch end", () => {
+    const { container } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} initialRatio={0.35} />
+    );
+    const sep = screen.getByRole("separator");
+    const outer = container.firstElementChild as HTMLElement;
+
+    jest.spyOn(outer, "getBoundingClientRect").mockReturnValue({
+      left: 0, top: 0, right: 1000, bottom: 600,
+      width: 1000, height: 600, x: 0, y: 0, toJSON: () => {},
+    });
+
+    fireEvent.touchStart(sep);
+
+    act(() => {
+      document.dispatchEvent(new Event("touchend"));
+    });
+
+    act(() => {
+      const touchEvent = new Event("touchmove") as unknown as TouchEvent;
+      Object.defineProperty(touchEvent, "touches", {
+        value: [{ clientX: 500 }],
+      });
+      document.dispatchEvent(touchEvent);
+    });
+
+    const left = container.querySelectorAll("[style]")[0] as HTMLElement;
+    expect(parseFloat(left.style.width)).toBe(35);
+  });
+
+  it("handles mouse drag when containerRef has no bounding rect gracefully", () => {
+    const { container } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} initialRatio={0.35} />
+    );
+    const sep = screen.getByRole("separator");
+    const outer = container.firstElementChild as HTMLElement;
+
+    jest.spyOn(outer, "getBoundingClientRect").mockReturnValue({
+      left: 0, top: 0, right: 0, bottom: 0,
+      width: 0, height: 0, x: 0, y: 0, toJSON: () => {},
+    });
+
+    fireEvent.mouseDown(sep);
+    fireEvent.mouseMove(document, { clientX: 500 });
+
+    const left = container.querySelectorAll("[style]")[0] as HTMLElement;
+    expect(parseFloat(left.style.width)).toBeLessThanOrEqual(60);
+
+    fireEvent.mouseUp(document);
+  });
+
+  it("right panel width complements left panel", () => {
+    const { container } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} initialRatio={0.4} />
+    );
+    const panels = container.querySelectorAll("[style]");
+    const leftWidth = parseFloat((panels[0] as HTMLElement).style.width);
+    const rightWidth = parseFloat((panels[1] as HTMLElement).style.width);
+    expect(leftWidth + rightWidth).toBeCloseTo(100, 1);
+  });
 });

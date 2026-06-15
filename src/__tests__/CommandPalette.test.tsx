@@ -149,4 +149,22 @@ describe("CommandPalette", () => {
     fireEvent.mouseDown(document, { target: document.body });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it("does not close on mousedown inside dialog", () => {
+    const onClose = jest.fn();
+    render(<CommandPalette commands={makeCommands()} onClose={onClose} />);
+    const dialog = screen.getByRole("dialog");
+    fireEvent.mouseDown(dialog);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("ArrowDown does not exceed filtered length", () => {
+    const cmds = makeCommands();
+    const onClose = jest.fn();
+    render(<CommandPalette commands={cmds} onClose={onClose} />);
+    const input = screen.getByLabelText("Search commands");
+    for (let i = 0; i < 10; i++) fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(cmds[2].action).toHaveBeenCalledTimes(1);
+  });
 });
