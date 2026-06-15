@@ -332,4 +332,14 @@ describe("ChallengePanel", () => {
     fireEvent.click(loadBest);
     expect(onLoadCode).toHaveBeenCalledWith("saved solution");
   });
+
+  it("shows '(no output)' when test output is whitespace-only", () => {
+    const { rerender } = render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+    );
+    rerender(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="   " initialId="c01" />
+    );
+    expect(screen.getByText("(no output)")).toBeInTheDocument();
+  });
 });
