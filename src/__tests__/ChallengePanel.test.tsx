@@ -114,6 +114,15 @@ describe("ChallengePanel", () => {
     expect(screen.getByText("Tests")).toBeInTheDocument();
   });
 
+  it("shows expected/actual diff when test fails with output", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="wrong output" />
+    );
+    fireEvent.click(screen.getByText("Hello Threads"));
+    expect(screen.getByText("Expected:")).toBeInTheDocument();
+    expect(screen.getByText("Got:")).toBeInTheDocument();
+  });
+
   it("shows hint button when challenge has hint", () => {
     render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
@@ -248,13 +257,22 @@ describe("ChallengePanel", () => {
     expect(mockMarkChallengePassed).not.toHaveBeenCalled();
   });
 
-  it("shows attempt count on success", () => {
+  it("shows attempt count on success (plural)", () => {
     const passingOutput = "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3";
     mockChallengeProgress = { status: "passed", attempts: 3 };
     render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={passingOutput} initialId="c01" />
     );
     expect(screen.getByText("Solved in 3 attempts")).toBeInTheDocument();
+  });
+
+  it("shows singular attempt on success when solved in 1 attempt", () => {
+    const passingOutput = "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3";
+    mockChallengeProgress = { status: "passed", attempts: 1 };
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={passingOutput} initialId="c01" />
+    );
+    expect(screen.getByText("Solved in 1 attempt")).toBeInTheDocument();
   });
 
   it("does not show Next button on last challenge", () => {
