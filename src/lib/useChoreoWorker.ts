@@ -23,6 +23,8 @@ export function useChoreoWorker() {
   const workerRef = useRef<Worker | null>(null);
   const statusRef = useRef<WorkerStatus>("loading");
   const lastCommandRef = useRef<CommandType | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const EXECUTION_TIMEOUT_MS = 30000;
 
   useEffect(() => {
     fetch("/wasm/build-manifest.json")
@@ -41,6 +43,7 @@ export function useChoreoWorker() {
     };
 
     worker.onmessage = (e) => {
+      if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
       const { type, data } = e.data;
       switch (type) {
         case "ready":
@@ -71,6 +74,7 @@ export function useChoreoWorker() {
     return () => {
       worker.terminate();
       workerRef.current = null;
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
 
@@ -80,6 +84,14 @@ export function useChoreoWorker() {
     statusRef.current = "running";
     setStatus("running");
     setErrors("");
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      if (statusRef.current === "running") {
+        statusRef.current = "ready";
+        setStatus("ready");
+        setErrors("Execution timed out after 30 seconds.");
+      }
+    }, EXECUTION_TIMEOUT_MS);
     workerRef.current.postMessage(msg);
   }, []);
 
