@@ -141,6 +141,17 @@ describe("OutputPanel", () => {
     expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialValue);
   });
 
+  it("highlights error lines with line numbers", () => {
+    const errorText = "line 1: some error\nok line\nError at line 3: bad";
+    const { container, rerender } = render(<OutputPanel output="" errors="" />);
+    rerender(<OutputPanel output="" errors={errorText} />);
+    const highlighted = container.querySelectorAll(".error-line-highlight");
+    expect(highlighted).toHaveLength(2);
+    expect(highlighted[0]).toHaveTextContent("line 1: some error");
+    expect(highlighted[1]).toHaveTextContent("Error at line 3: bad");
+    expect(screen.getByText("ok line").closest(".error-line-highlight")).toBeNull();
+  });
+
   it("navigates tabs with arrow keys", () => {
     render(<OutputPanel output="out" errors="err" ast="tree" />);
     const outputTab = screen.getByRole("tab", { name: /Output/ });
@@ -150,5 +161,56 @@ describe("OutputPanel", () => {
     expect(screen.getByRole("tab", { name: /AST/ })).toHaveAttribute("aria-selected", "true");
     fireEvent.keyDown(screen.getByRole("tab", { name: /AST/ }), { key: "ArrowLeft" });
     expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("resizes via mouse drag on separator", () => {
+    const { container } = render(
+      <div style={{ height: 600 }}>
+        <OutputPanel output="data" errors="" />
+      </div>
+    );
+    const sep = screen.getByRole("separator");
+    fireEvent.mouseDown(sep);
+    expect(document.body.style.cursor).toBe("row-resize");
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 300 }));
+    });
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mouseup"));
+    });
+    expect(document.body.style.cursor).toBe("");
+  });
+
+  it("resizes via touch drag on separator", () => {
+    render(<OutputPanel output="data" errors="" />);
+    const sep = screen.getByRole("separator");
+    fireEvent.touchStart(sep);
+    act(() => {
+      document.dispatchEvent(
+        new TouchEvent("touchmove", {
+          touches: [{ clientY: 300 } as Touch],
+        })
+      );
+    });
+    act(() => {
+      document.dispatchEvent(new TouchEvent("touchend"));
+    });
+  });
+
+  it("does not copy when content is empty", () => {
+    render(<OutputPanel output="" errors="" />);
+    expect(screen.queryByText("Copy")).not.toBeInTheDocument();
+  });
+
+  it("clears existing copy timeout on rapid re-copy", () => {
+    jest.useFakeTimers();
+    render(<OutputPanel output="data" errors="" />);
+    fireEvent.click(screen.getByText("Copy"));
+    expect(screen.getByText("Copied!")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Copied!"));
+    expect(writeText).toHaveBeenCalledTimes(2);
+    act(() => { jest.advanceTimersByTime(1500); });
+    expect(screen.getByText("Copy")).toBeInTheDocument();
+    jest.useRealTimers();
   });
 });

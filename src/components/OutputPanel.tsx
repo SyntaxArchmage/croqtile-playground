@@ -1,6 +1,30 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, memo } from "react";
+import { useState, useEffect, useRef, useCallback, memo, type ReactNode } from "react";
+
+function isErrorLine(line: string): boolean {
+  return (
+    /\bline\s+\d+:?\b/i.test(line) ||
+    /\bat\s+line\s+\d+\b/i.test(line) ||
+    /:\d+:/.test(line)
+  );
+}
+
+function highlightErrorLines(text: string): ReactNode {
+  const lines = text.split("\n");
+  return lines.map((line, i) => (
+    <div
+      key={i}
+      className={
+        isErrorLine(line)
+          ? "error-line-highlight border-l-2 border-red-500 bg-red-950/20 pl-2"
+          : undefined
+      }
+    >
+      {line || "\u00A0"}
+    </div>
+  ));
+}
 
 type Tab = "output" | "errors" | "ast";
 
@@ -206,13 +230,19 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
         aria-labelledby={`${activeTab}-tab`}
         className="flex-1 overflow-auto p-3"
       >
-        <pre className="text-xs font-mono text-[var(--text-primary)] whitespace-pre-wrap">
-          {content || (
-            <span className="text-[var(--text-muted)]">
-              Click &ldquo;Run&rdquo; or &ldquo;Compile&rdquo; to see output.
-            </span>
-          )}
-        </pre>
+        {activeTab === "errors" && errors ? (
+          <div className="text-xs font-mono text-[var(--text-primary)]">
+            {highlightErrorLines(errors)}
+          </div>
+        ) : (
+          <pre className="text-xs font-mono text-[var(--text-primary)] whitespace-pre-wrap">
+            {content || (
+              <span className="text-[var(--text-muted)]">
+                Click &ldquo;Run&rdquo; or &ldquo;Compile&rdquo; to see output.
+              </span>
+            )}
+          </pre>
+        )}
       </div>
     </div>
   );
