@@ -81,4 +81,44 @@ describe("Content integrity", () => {
     expect(medium).toBeGreaterThanOrEqual(4);
     expect(hard).toBeGreaterThanOrEqual(2);
   });
+
+  it("all challenge test cases have non-empty expected output", () => {
+    for (const c of CHALLENGES) {
+      for (const t of c.tests) {
+        expect(t.expectedOutput.trim().length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("all challenges have non-empty title and description", () => {
+    for (const c of CHALLENGES) {
+      expect(c.title.trim().length).toBeGreaterThan(0);
+      expect(c.description.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("all tutorials have non-empty title", () => {
+    for (const t of TUTORIALS) {
+      expect(t.title.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("all examples have non-empty name and code", () => {
+    for (const ex of EXAMPLES) {
+      expect(ex.name.trim().length).toBeGreaterThan(0);
+      expect(ex.code.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("challenge IDs follow naming convention", () => {
+    for (const c of CHALLENGES) {
+      expect(c.id).toMatch(/^c\d{2}$/);
+    }
+  });
+
+  it("tutorial IDs follow naming convention", () => {
+    for (const t of TUTORIALS) {
+      expect(t.id).toMatch(/^ch\d{2}/);
+    }
+  });
 });
