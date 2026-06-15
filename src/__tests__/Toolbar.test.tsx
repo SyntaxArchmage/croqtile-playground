@@ -286,4 +286,31 @@ describe("Toolbar", () => {
     expect(confirmSpy).toHaveBeenCalledWith("Reset all tutorial and challenge progress?");
     confirmSpy.mockRestore();
   });
+
+  it("closes File menu on Escape", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    expect(screen.getByText("Open file...")).toBeInTheDocument();
+    fireEvent.keyDown(screen.getByRole("menu", { name: "File" }), { key: "Escape" });
+    expect(screen.queryByText("Open file...")).not.toBeInTheDocument();
+  });
+
+  it("closes Settings menu on Escape", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByText("Reset progress")).toBeInTheDocument();
+    fireEvent.keyDown(screen.getByRole("menu", { name: "Settings" }), { key: "Escape" });
+    expect(screen.queryByText("Reset progress")).not.toBeInTheDocument();
+  });
+
+  it("moves focus within File menu with ArrowDown", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    const fileMenu = screen.getByRole("menu", { name: "File" });
+    const openItem = screen.getByText("Open file...");
+    const downloadItem = screen.getByText("Download .co");
+    expect(openItem).toHaveFocus();
+    fireEvent.keyDown(fileMenu, { key: "ArrowDown" });
+    expect(downloadItem).toHaveFocus();
+  });
 });

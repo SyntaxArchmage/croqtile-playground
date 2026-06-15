@@ -53,6 +53,57 @@ export const Toolbar = memo(function Toolbar({
   const [showFileMenu, setShowFileMenu] = useState(false);
   const shareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileMenuRef = useRef<HTMLDivElement>(null);
+  const settingsMenuRef = useRef<HTMLDivElement>(null);
+
+  const getFocusableMenuItems = useCallback((menuEl: HTMLDivElement | null) => {
+    if (!menuEl) return [];
+    return Array.from(
+      menuEl.querySelectorAll<HTMLElement>('[role="menuitem"], [role="menuitemcheckbox"]'),
+    );
+  }, []);
+
+  const handleMenuKeyDown = useCallback(
+    (
+      e: React.KeyboardEvent<HTMLDivElement>,
+      close: () => void,
+      menuRef: React.RefObject<HTMLDivElement | null>,
+    ) => {
+      const items = getFocusableMenuItems(menuRef.current);
+      if (items.length === 0) return;
+
+      const focusedIndex = items.indexOf(document.activeElement as HTMLElement);
+
+      switch (e.key) {
+        case "Escape":
+          e.preventDefault();
+          close();
+          return;
+        case "ArrowDown": {
+          e.preventDefault();
+          const nextIndex = focusedIndex >= 0 ? (focusedIndex + 1) % items.length : 0;
+          items[nextIndex].focus();
+          return;
+        }
+        case "ArrowUp": {
+          e.preventDefault();
+          const prevIndex =
+            focusedIndex >= 0 ? (focusedIndex - 1 + items.length) % items.length : items.length - 1;
+          items[prevIndex].focus();
+          return;
+        }
+        case "Home":
+          e.preventDefault();
+          items[0].focus();
+          return;
+        case "End":
+          e.preventDefault();
+          items[items.length - 1].focus();
+          return;
+      }
+    },
+    [getFocusableMenuItems],
+  );
 
   const handleShareClick = useCallback(() => {
     onShare();
@@ -103,6 +154,18 @@ export const Toolbar = memo(function Toolbar({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!showFileMenu) return;
+    const items = getFocusableMenuItems(fileMenuRef.current);
+    items[0]?.focus();
+  }, [showFileMenu, getFocusableMenuItems]);
+
+  useEffect(() => {
+    if (!showMenu) return;
+    const items = getFocusableMenuItems(settingsMenuRef.current);
+    items[0]?.focus();
+  }, [showMenu, getFocusableMenuItems]);
 
   useEffect(() => {
     if (!showMenu && !showFileMenu) return;
@@ -231,7 +294,13 @@ export const Toolbar = memo(function Toolbar({
           File ▾
         </button>
         {showFileMenu && (
-          <div role="menu" aria-label="File" className="absolute left-0 top-full mt-1 w-40 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1">
+          <div
+            ref={fileMenuRef}
+            role="menu"
+            aria-label="File"
+            className="absolute left-0 top-full mt-1 w-40 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1"
+            onKeyDown={(e) => handleMenuKeyDown(e, () => setShowFileMenu(false), fileMenuRef)}
+          >
             <button
               role="menuitem"
               onClick={() => { handleOpenClick(); setShowFileMenu(false); }}
@@ -275,7 +344,13 @@ export const Toolbar = memo(function Toolbar({
           </svg>
         </button>
         {showMenu && (
-          <div role="menu" aria-label="Settings" className="absolute right-0 top-full mt-1 w-48 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1">
+          <div
+            ref={settingsMenuRef}
+            role="menu"
+            aria-label="Settings"
+            className="absolute right-0 top-full mt-1 w-48 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1"
+            onKeyDown={(e) => handleMenuKeyDown(e, () => setShowMenu(false), settingsMenuRef)}
+          >
             <div role="none" className="px-3 py-2 flex items-center justify-between">
               <span className="text-xs text-[var(--text-secondary)]">Font size</span>
               <div className="flex items-center gap-1">
