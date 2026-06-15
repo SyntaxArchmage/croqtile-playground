@@ -372,6 +372,24 @@ describe("Playground", () => {
 
       jest.useRealTimers();
     });
+
+    it("debounces load-and-run so only last timer fires", async () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      await act(async () => { jest.runAllTimers(); });
+
+      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+      mockRun.mockClear();
+
+      fireEvent.click(screen.getByText("Hello Croqtile"));
+      act(() => { jest.advanceTimersByTime(50); });
+      expect(mockRun).not.toHaveBeenCalled();
+
+      act(() => { jest.advanceTimersByTime(50); });
+      expect(mockRun).toHaveBeenCalledTimes(1);
+
+      jest.useRealTimers();
+    });
   });
 
   describe("share functionality", () => {
