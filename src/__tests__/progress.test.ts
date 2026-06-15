@@ -110,6 +110,18 @@ describe("progress", () => {
     expect(p.challengeProgress).toEqual({});
   });
 
+  it("handles invalid types for progress fields", () => {
+    localStorage.setItem("croqtile-playground-progress", JSON.stringify({
+      tutorialSteps: "not-an-object",
+      challengesPassed: "not-an-array",
+      challengeProgress: null,
+    }));
+    const p = loadProgress();
+    expect(p.tutorialSteps).toEqual({});
+    expect(p.challengesPassed).toEqual([]);
+    expect(p.challengeProgress).toEqual({});
+  });
+
   describe("challenge attempt and pass edge cases", () => {
     it("recordChallengeAttempt increments attempt count across many calls and persists", () => {
       for (let i = 1; i <= 5; i++) {

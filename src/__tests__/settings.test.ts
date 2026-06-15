@@ -70,6 +70,16 @@ describe("settings", () => {
       expect(loadSettings().lastTarget).toBe("cc");
     });
 
+    it("handles non-number fontSize gracefully", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: "sixteen", wordWrap: true }));
+      expect(loadSettings().fontSize).toBe(14);
+    });
+
+    it("handles non-boolean wordWrap gracefully", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 14, wordWrap: "yes" }));
+      expect(loadSettings().wordWrap).toBe(true);
+    });
+
     it("very large fontSize values are clamped to default on load", () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 999, wordWrap: true }));
       expect(loadSettings().fontSize).toBe(14);
