@@ -170,6 +170,30 @@ describe("TutorialPanel", () => {
     window.history.pushState({}, "", "/");
   });
 
+  it("initializes to step from URL param when deep-linked", () => {
+    window.history.pushState({}, "", "/?tutorial=ch01&step=2");
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} initialId="ch01" />);
+    expect(screen.getByText("2 / 3")).toBeInTheDocument();
+    window.history.pushState({}, "", "/");
+  });
+
+  it("clamps out-of-range step param to valid range", () => {
+    window.history.pushState({}, "", "/?tutorial=ch01&step=99");
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} initialId="ch01" />);
+    expect(screen.getByText("3 / 3")).toBeInTheDocument();
+    window.history.pushState({}, "", "/");
+  });
+
+  it("ignores invalid step param and defaults to step 0", () => {
+    window.history.pushState({}, "", "/?tutorial=ch01&step=abc");
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} initialId="ch01" />);
+    expect(screen.getByText("1 / 3")).toBeInTheDocument();
+    window.history.pushState({}, "", "/");
+  });
+
   it("calls onLoadCode when Try it button is clicked", () => {
     const onLoadCode = jest.fn();
     render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} />);
