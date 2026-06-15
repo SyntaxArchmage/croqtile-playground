@@ -11,6 +11,12 @@ interface Props {
   target?: string;
   cursorPosition?: CursorPosition;
   lineCount?: number;
+  lastElapsedMs?: number | null;
+}
+
+function formatElapsedMs(ms: number): string {
+  if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`;
+  return `${ms}ms`;
 }
 
 const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
@@ -20,7 +26,7 @@ const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
   error: { label: "Error", color: "text-[var(--error)]" },
 };
 
-export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount }: Props) {
+export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount, lastElapsedMs }: Props) {
   const { label, color } = statusConfig[status];
   const version = compilerVersion ?? buildManifest?.version ?? null;
   const commit = buildManifest?.commit_short ?? null;
@@ -52,6 +58,12 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
         <>
           <span className="text-[var(--border)]">|</span>
           <span>{lineCount} lines</span>
+        </>
+      )}
+      {lastElapsedMs != null && (
+        <>
+          <span className="text-[var(--border)]">|</span>
+          <span>{formatElapsedMs(lastElapsedMs)}</span>
         </>
       )}
       <div className="flex-1" />

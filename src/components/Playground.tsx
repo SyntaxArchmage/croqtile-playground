@@ -83,7 +83,7 @@ export function Playground() {
     setPanelMode(initialPanelMode);
   }
 
-  const { status, output, errors, ast, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput } =
+  const { status, output, errors, ast, compilerVersion, buildManifest, lastElapsedMs, run, compile, dumpAST, clearOutput } =
     useChoreoWorker();
 
   const prevStatusRef = useRef(status);
@@ -348,6 +348,7 @@ export function Playground() {
         target={target}
         cursorPosition={cursorPos}
         lineCount={lineCount}
+        lastElapsedMs={lastElapsedMs}
       />
     </div>
   );

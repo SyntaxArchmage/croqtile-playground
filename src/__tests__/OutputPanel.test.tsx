@@ -130,4 +130,24 @@ describe("OutputPanel", () => {
     fireEvent.click(screen.getByText("Copy"));
     expect(writeText).toHaveBeenCalledWith("bad");
   });
+
+  it("adjusts height via keyboard on separator", () => {
+    render(<OutputPanel output="data" errors="" />);
+    const sep = screen.getByRole("separator");
+    const initialValue = Number(sep.getAttribute("aria-valuenow"));
+    fireEvent.keyDown(sep, { key: "ArrowUp" });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialValue + 2);
+    fireEvent.keyDown(sep, { key: "ArrowDown" });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialValue);
+  });
+
+  it("adjusts height via keyboard on separator", () => {
+    render(<OutputPanel output="data" errors="" />);
+    const sep = screen.getByRole("separator");
+    const initialValue = Number(sep.getAttribute("aria-valuenow"));
+    fireEvent.keyDown(sep, { key: "ArrowUp" });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialValue + 2);
+    fireEvent.keyDown(sep, { key: "ArrowDown" });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialValue);
+  });
 });

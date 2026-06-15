@@ -125,9 +125,15 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
         aria-valuemin={MIN_HEIGHT_PCT}
         aria-valuemax={MAX_HEIGHT_PCT}
         aria-label="Resize output panel"
+        tabIndex={0}
         onMouseDown={onResizeMouseDown}
         onTouchStart={onResizeTouchStart}
-        className="h-1 cursor-row-resize bg-[var(--border)] hover:bg-[var(--accent)] transition-colors flex-shrink-0 touch-none"
+        onKeyDown={(e) => {
+          const step = 2;
+          if (e.key === "ArrowUp") { e.preventDefault(); setHeightPct((h) => Math.min(MAX_HEIGHT_PCT, h + step)); }
+          if (e.key === "ArrowDown") { e.preventDefault(); setHeightPct((h) => Math.max(MIN_HEIGHT_PCT, h - step)); }
+        }}
+        className="h-1 cursor-row-resize bg-[var(--border)] hover:bg-[var(--accent)] focus:bg-[var(--accent)] focus:outline-none transition-colors flex-shrink-0 touch-none"
       />
       <div className="flex items-center gap-1 px-3 py-1 border-b border-[var(--border)] bg-[var(--bg-secondary)]" role="tablist" aria-label="Output panels">
         <button id="output-tab" role="tab" aria-selected={activeTab === "output"} aria-controls="output-tabpanel" onClick={() => setActiveTab("output")} className={tabClass("output")}>
