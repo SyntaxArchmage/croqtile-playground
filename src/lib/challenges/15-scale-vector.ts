@@ -33,5 +33,5 @@ Given data = [1, 2, 3, 4, 5, 6, 7, 8], print each scaled value as: scaled[i] = <
     { description: "scaled[3] = 12", expectedOutput: "scaled[3] = 12" },
     { description: "scaled[7] = 24", expectedOutput: "scaled[7] = 24" },
   ],
-  hint: "Use dma(data[0:8], buf[0:8]) to load, then parallel {i} by [8] { buf[i] = buf[i] * 3.0f; scaled[i] = buf[i]; }",
+  hint: "First DMA the global array into shared buf, then scale each element by 3 in parallel and write to scaled.",
 };

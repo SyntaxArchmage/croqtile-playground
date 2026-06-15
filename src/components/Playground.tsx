@@ -86,11 +86,21 @@ export function Playground() {
     return () => clearTimeout(timer);
   }, [source]);
 
-  const getCode = useCallback(() => editorRef.current?.getValue() ?? source, [source]);
+  const sourceRef = useRef(source);
+  sourceRef.current = source;
+  const getCode = useCallback(() => editorRef.current?.getValue() ?? sourceRef.current, []);
 
   const handleRun = useCallback(() => run(getCode()), [getCode, run]);
   const handleCompile = useCallback(() => compile(getCode(), target), [getCode, target, compile]);
   const handleDumpAST = useCallback(() => dumpAST(getCode()), [getCode, dumpAST]);
+
+  const handleTogglePanel = useCallback((mode: PanelMode) => {
+    setPanelMode((p) => {
+      const next = p === mode ? "closed" : mode;
+      if (next === "closed") clearPanelParams();
+      return next;
+    });
+  }, []);
 
   const handleShare = useCallback(() => {
     const code = getCode();
@@ -187,11 +197,7 @@ export function Playground() {
         onDumpAST={handleDumpAST}
         onLoadCode={setSource}
         onShare={handleShare}
-        onTogglePanel={(mode) => setPanelMode((p) => {
-          const next = p === mode ? "closed" : mode;
-          if (next === "closed") clearPanelParams();
-          return next;
-        })}
+        onTogglePanel={handleTogglePanel}
         panelMode={panelMode}
         status={status}
       />

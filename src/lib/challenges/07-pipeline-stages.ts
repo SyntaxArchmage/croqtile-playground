@@ -24,12 +24,17 @@ This simulates a basic load → compute → store pipeline.`,
   shared float buf[4];
 
   // Initialize input = [5, 10, 15, 20]
+  parallel {i} by [4] {
+    input[i] = (float)((i + 1) * 5);
+  }
 
   // Stage 1: DMA input -> buf
 
   // Stage 2: Double buf values into output
 
-  // Print output
+  parallel {i} by [4] {
+    println("out[", i, "] =", output[i]);
+  }
 }
 `,
   tests: [
@@ -38,5 +43,5 @@ This simulates a basic load → compute → store pipeline.`,
       description: "Should double each value through the pipeline",
     },
   ],
-  hint: "DMA input[0:4] to buf[0:4], then parallel {i} by [4] { output[i] = buf[i] * 2.0f; }",
+  hint: "Stage 1 is a DMA copy from input to buf. Stage 2 multiplies each buf element by 2 and stores it in output.",
 };

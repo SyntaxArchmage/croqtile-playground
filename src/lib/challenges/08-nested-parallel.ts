@@ -25,9 +25,9 @@ Use \`parallel {i, j} by [3, 3]\` for 2D parallel execution.`,
   starterCode: `__co__ void mult_table() {
   global float M[3, 3];
 
-  // Compute multiplication table M[i,j] = (i+1) * (j+1)
+  // Compute M[i,j] = (i+1) * (j+1) using parallel {i, j} by [3, 3]
 
-  // Print all values
+  // Print row by row: println("M[", i, ",", j, "] =", M[i, j]);
 }
 `,
   tests: [
@@ -36,5 +36,5 @@ Use \`parallel {i, j} by [3, 3]\` for 2D parallel execution.`,
       description: "Should produce 3x3 multiplication table",
     },
   ],
-  hint: "parallel {i, j} by [3, 3] { M[i, j] = (float)((i+1) * (j+1)); }",
+  hint: "Use 2D parallel to get both i and j. The value at (i,j) is the product of (i+1) and (j+1). Print row by row.",
 };

@@ -4,7 +4,7 @@ export const challenge09: Challenge = {
   id: "c09",
   title: "Tiled Copy",
   difficulty: "medium",
-  description: `Copy a 8-element global array to another using tiles of size 4.
+  description: `Copy an 8-element global array to another using tiles of size 4.
 
 1. Initialize src = [10, 20, 30, 40, 50, 60, 70, 80]
 2. For each tile of 4 elements:
@@ -45,5 +45,5 @@ dst[7] = 80
       description: "Should copy all 8 elements via 2 tiles",
     },
   ],
-  hint: "foreach t in [0:2] { dma(src[t*4:t*4+4], tile[0:4]); parallel {i} by [4] { dst[t*4+i] = tile[i]; } }",
+  hint: "Loop over 2 tiles (t = 0 and 1). For each tile, DMA 4 elements starting at t*4, then copy tile into the matching dst slice.",
 };

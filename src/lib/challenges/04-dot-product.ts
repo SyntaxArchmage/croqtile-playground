@@ -23,10 +23,16 @@ Use parallel initialization and a foreach loop for the reduction.`,
   global float B[4];
 
   // Initialize A = [1, 2, 3, 4], B = [2, 3, 4, 5]
+  parallel {i} by [4] {
+    A[i] = (float)(i + 1);
+    B[i] = (float)(i + 2);
+  }
 
-  // Compute dot product
+  // Compute dot product with a foreach reduction
+  float result = 0.0f;
+  // foreach k in [0:4] { result = result + A[k] * B[k]; }
 
-  // Print result: println("dot =", result);
+  println("dot =", result);
 }
 `,
   tests: [
@@ -35,5 +41,5 @@ Use parallel initialization and a foreach loop for the reduction.`,
       description: "Should compute dot product = 40",
     },
   ],
-  hint: "Use foreach k in [0:4] { sum = sum + A[k] * B[k]; }",
+  hint: "Accumulate A[k] * B[k] across all indices using a foreach loop and a running sum variable.",
 };

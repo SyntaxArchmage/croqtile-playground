@@ -18,9 +18,12 @@ Use a foreach loop to scan the array and track the minimum.`,
   global float data[6];
 
   // Initialize: data = [7, 2, 9, 1, 5, 3]
-  // (Can't use parallel for specific values, set each manually)
+  // Assign each element individually (values don't follow a simple index formula)
+  data[0] = 7.0f;
+  // data[1] = ...
+  // ...
 
-  // Find the minimum value
+  // Track the minimum: start with data[0], then scan the rest with foreach
 
   // Print: println("min =", min_val);
 }
@@ -31,5 +34,5 @@ Use a foreach loop to scan the array and track the minimum.`,
       description: "Should find minimum value = 1",
     },
   ],
-  hint: "Set data values individually, then: float min_val = data[0]; foreach i in [1:6] { if (data[i] < min_val) min_val = data[i]; }",
+  hint: "Initialize min_val from data[0], then loop over indices 1 through 5 and update min_val whenever you find a smaller element.",
 };

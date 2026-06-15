@@ -32,5 +32,5 @@ Print each result as: result[i] = <value>`,
     { description: "result[1] = 15", expectedOutput: "result[1] = 15" },
     { description: "result[3] = 35", expectedOutput: "result[3] = 35" },
   ],
-  hint: "Use a parallel block: parallel {i} by [4] { result[i] = data[i] + scalar; }",
+  hint: "Add scalar to each element in a parallel block — every thread handles one index of result.",
 };

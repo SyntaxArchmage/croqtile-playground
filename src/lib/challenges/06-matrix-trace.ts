@@ -23,11 +23,12 @@ trace = 34
   starterCode: `__co__ void matrix_trace() {
   global float M[4, 4];
 
-  // Initialize M[i,j] = i * 4 + j + 1
+  // Initialize M[i,j] = i * 4 + j + 1 using parallel {i, j} by [4, 4]
 
-  // Compute trace (sum of diagonal)
+  // Compute trace: sum of diagonal elements M[k,k]
+  float trace = 0.0f;
 
-  // Print: println("trace =", trace);
+  println("trace =", trace);
 }
 `,
   tests: [
@@ -36,5 +37,5 @@ trace = 34
       description: "Should compute matrix trace = 34",
     },
   ],
-  hint: "Use foreach k in [0:4] { trace = trace + M[k, k]; }",
+  hint: "The diagonal elements are where the row and column indices are equal. Sum them with a foreach loop.",
 };

@@ -16,7 +16,10 @@ Hello from thread 3
 
 Use \`parallel {i} by [4]\` and \`println()\`.`,
   starterCode: `__co__ void hello_threads() {
-  // Write your code here
+  // Launch 4 threads with parallel {i} by [4]
+  parallel {i} by [4] {
+    // Each thread prints its index, e.g. println("Hello from thread", i);
+  }
 }
 `,
   tests: [
@@ -25,5 +28,5 @@ Use \`parallel {i} by [4]\` and \`println()\`.`,
       description: "Should print hello from 4 threads",
     },
   ],
-  hint: "Use parallel {i} by [4] and println(\"Hello from thread\", i);",
+  hint: "Each thread gets its own index i. Use println() inside the parallel block to print a message that includes i.",
 };

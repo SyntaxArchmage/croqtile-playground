@@ -25,12 +25,17 @@ result[3] = 12
   shared float acc[4];
 
   // Initialize data = [1, 2, 3, 4, 5, 6, 7, 8]
+  parallel {i} by [8] {
+    data[i] = (float)(i + 1);
+  }
 
   // DMA first half into acc
 
   // DMA second half and add to acc
 
-  // Print results
+  parallel {i} by [4] {
+    println("result[", i, "] =", acc[i]);
+  }
 }
 `,
   tests: [
@@ -39,5 +44,5 @@ result[3] = 12
       description: "Should accumulate first and second halves",
     },
   ],
-  hint: "DMA data[0:4] to acc, then use parallel to add data[i+4] to acc[i].",
+  hint: "Load the first four elements into acc with DMA, then add the second four element-wise (acc[i] += data[i+4]).",
 };

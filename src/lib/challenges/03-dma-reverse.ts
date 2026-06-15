@@ -44,5 +44,5 @@ dst[3] = 10
       description: "Should reverse the array using DMA + parallel",
     },
   ],
-  hint: "After DMA, use: dst[i] = tile[3 - i];",
+  hint: "After DMA loads src into tile, write dst in reverse order — element i of dst comes from the opposite end of tile.",
 };

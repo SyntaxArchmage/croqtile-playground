@@ -29,5 +29,5 @@ Print each result as: C[i] = <value>`,
     { description: "C[1] = 40", expectedOutput: "C[1] = 40" },
     { description: "C[3] = 160", expectedOutput: "C[3] = 160" },
   ],
-  hint: "Use parallel {i} by [4] { C[i] = A[i] * B[i]; }",
+  hint: "Multiply corresponding elements of A and B in a parallel block — one thread per index.",
 };

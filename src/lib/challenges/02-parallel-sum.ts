@@ -20,8 +20,9 @@ data[7] = 49
   starterCode: `__co__ void init_squares() {
   global float data[8];
 
-  // Initialize data[i] = i * i using parallel
-  // Then print each element
+  // Initialize data[i] = i * i using parallel {i} by [8]
+
+  // Print each element: println("data[", i, "] =", data[i]);
 }
 `,
   tests: [
@@ -30,5 +31,5 @@ data[7] = 49
       description: "Should compute i*i for each index",
     },
   ],
-  hint: "parallel {i} by [8] { data[i] = (float)(i * i); }",
+  hint: "Use one parallel block to write i*i into data[i], then another parallel or foreach loop to print each element.",
 };
