@@ -70,6 +70,22 @@ describe("StatusBar", () => {
     expect(screen.getByText("2.5s")).toBeInTheDocument();
   });
 
+  it("displays 0ms for zero elapsed time", () => {
+    render(<StatusBar status="ready" lastElapsedMs={0} />);
+    expect(screen.getByText("0ms")).toBeInTheDocument();
+  });
+
+  it("prefers compilerVersion over buildManifest version", () => {
+    render(
+      <StatusBar
+        status="ready"
+        compilerVersion="2.0.0"
+        buildManifest={{ version: "1.0", commit: "abc123", commit_short: "abc", built_at: null }}
+      />
+    );
+    expect(screen.getByText(/2\.0\.0/)).toBeInTheDocument();
+  });
+
   it("does not display elapsed time when null", () => {
     const { container } = render(<StatusBar status="ready" lastElapsedMs={null} />);
     expect(container.textContent).not.toMatch(/ms|^\d+s$/);

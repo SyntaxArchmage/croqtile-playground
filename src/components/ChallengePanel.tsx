@@ -305,16 +305,6 @@ function ChallengeSuccessBanner({
       className="relative p-3 rounded border border-green-600 bg-green-950/30 text-center space-y-2 overflow-hidden"
       style={{ animation: "challengeSuccessIn 300ms ease-out forwards" }}
     >
-      <style>{`
-        @keyframes challengeSuccessIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes challengeConfetti {
-          0% { opacity: 1; transform: translate(0, 0) scale(1); }
-          100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.2); }
-        }
-      `}</style>
       {CONFETTI_PIECES.map((piece, i) => (
         <span
           key={i}

@@ -49,4 +49,13 @@ describe("parseContent", () => {
     expect(result).toHaveLength(3);
     expect(result[1]).toEqual({ type: "code", content: "foo();\n" });
   });
+
+  it("handles consecutive code blocks with no text between them", () => {
+    const input = "```js\nalpha\n```\n```py\nbeta\n```";
+    const result = parseContent(input);
+    const codeBlocks = result.filter((p) => p.type === "code");
+    expect(codeBlocks).toHaveLength(2);
+    expect(codeBlocks[0].content).toBe("alpha\n");
+    expect(codeBlocks[1].content).toBe("beta\n");
+  });
 });
