@@ -124,20 +124,28 @@ This session performed 54 development cycles on `croqtile-playground`, a browser
 
 ---
 
-### Auto-Dev Session 2026-06-15 12:31–ongoing
-- **Duration**: 180 minutes (in progress)
-- **Defects found**: 3 (P1: 1, P2: 0, P3: 1, P4: 1)
-- **Defects fixed**: 3
-- **Tests added**: 43 (184 → 227)
+### Auto-Dev Session 2026-06-15 12:31
+- **Duration**: 180 minutes
+- **Defects found**: 5 (P1: 1, P2: 0, P3: 2, P4: 2)
+- **Defects fixed**: 5
+- **Tests added**: 75 (184 → 259)
 - **Features implemented**:
-  - Cursor position (Ln/Col) display in status bar
-  - Download code as .co file button
-  - Line count display in status bar
-  - Base64url code encoding for shorter share URLs
-  - Enhanced challenge progress tracking (attempts, best code)
-  - Open File and Format Code toolbar buttons
-  - Editor settings persistence (font size, word wrap)
-  - Ctrl+Shift+D keyboard shortcut for AST dump
-- **Commits**: 20+ commits across sessions 2-4
-- **PRD progress**: Phase 1-5 complete; Phase 6 items (L2, WebGPU) remain blocked
-- **Next priority**: Visual inspection, deeper edge case testing, performance profiling
+  - Compilation target display in status bar
+  - Tutorial/challenge progress bars in settings menu
+  - Choreo code completion and snippets (Monaco IntelliSense)
+  - Keyword hover documentation
+  - Persist compilation target in editor settings
+  - Unsaved changes warning dialog
+  - Running indicator in document title
+  - Execution time display in status bar
+  - Keyboard-accessible OutputPanel resize and tab navigation
+  - Coverage thresholds (80/70/75/80) in Jest config
+- **Defects fixed**:
+  - P3: Unhandled clipboard.writeText rejection in OutputPanel
+  - P4: Confusing timeoutRef declaration ordering in useChoreoWorker
+  - P4: Unstable onTargetChange callback causing Toolbar re-renders
+  - P4: lineCount and deepLinkId recomputed on every render
+  - Duplicate test removal in OutputPanel test
+- **Commits**: 15 commits this session (86 → 101 total)
+- **PRD progress**: Phase 1-5 complete; Phase 6 items (L2, WebGPU) blocked
+- **Next priority**: Edge case testing, error handling hardening, possible tutorial expansion
