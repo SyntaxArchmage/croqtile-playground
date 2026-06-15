@@ -317,11 +317,10 @@ function ChallengeSuccessBanner({
             top: piece.top,
             backgroundColor: piece.shape === "dot" ? piece.color : undefined,
             color: piece.shape === "star" ? piece.color : undefined,
-            // @ts-expect-error CSS custom properties for confetti animation
             "--dx": `${piece.dx}px`,
             "--dy": `${piece.dy}px`,
             animation: `challengeConfetti 700ms ease-out ${piece.delay}ms forwards`,
-          }}
+          } as React.CSSProperties}
         >
           {piece.shape === "star" ? "★" : null}
         </span>

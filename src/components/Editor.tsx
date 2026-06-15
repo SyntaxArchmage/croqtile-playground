@@ -2,6 +2,7 @@
 
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import dynamic from "next/dynamic";
+import type { Monaco } from "@monaco-editor/react";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
@@ -25,7 +26,7 @@ interface Props {
   wordWrap?: boolean;
 }
 
-function registerChoreoLanguage(monaco: any) {
+function registerChoreoLanguage(monaco: Monaco) {
   if (monaco.languages.getLanguages().some((l: { id: string }) => l.id === "choreo")) return;
 
   monaco.languages.register({ id: "choreo" });
