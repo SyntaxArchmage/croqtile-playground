@@ -11,13 +11,15 @@ describe("settings", () => {
     const s = loadSettings();
     expect(s.fontSize).toBe(14);
     expect(s.wordWrap).toBe(true);
+    expect(s.lastTarget).toBe("cc");
   });
 
   it("saves and loads settings", () => {
-    saveSettings({ fontSize: 18, wordWrap: false });
+    saveSettings({ fontSize: 18, wordWrap: false, lastTarget: "cute" });
     const s = loadSettings();
     expect(s.fontSize).toBe(18);
     expect(s.wordWrap).toBe(false);
+    expect(s.lastTarget).toBe("cute");
   });
 
   it("clamps fontSize to valid range", () => {
@@ -39,5 +41,16 @@ describe("settings", () => {
     const s = loadSettings();
     expect(s.fontSize).toBe(16);
     expect(s.wordWrap).toBe(true);
+    expect(s.lastTarget).toBe("cc");
+  });
+
+  it("rejects invalid lastTarget values", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 14, wordWrap: true, lastTarget: "invalid" }));
+    expect(loadSettings().lastTarget).toBe("cc");
+  });
+
+  it("persists lastTarget across save/load", () => {
+    saveSettings({ fontSize: 14, wordWrap: true, lastTarget: "cute" });
+    expect(loadSettings().lastTarget).toBe("cute");
   });
 });
