@@ -181,6 +181,12 @@ describe("Playground", () => {
       expect(mockClearOutput).toHaveBeenCalledTimes(1);
     });
 
+    it("dispatches run on Meta+Enter (macOS)", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "Enter", metaKey: true });
+      expect(mockRun).toHaveBeenCalledTimes(1);
+    });
+
     it("toggles shortcuts overlay on ?", () => {
       renderPlayground();
       expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
@@ -376,6 +382,13 @@ describe("Playground", () => {
       renderPlayground();
       fireEvent.keyDown(window, { key: "s", ctrlKey: true });
       expect(navigator.clipboard.writeText).toHaveBeenCalled();
+      expect(window.history.replaceState).toHaveBeenCalled();
+    });
+
+    it("still updates URL when clipboard API is unavailable", () => {
+      Object.assign(navigator, { clipboard: undefined });
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "s", ctrlKey: true });
       expect(window.history.replaceState).toHaveBeenCalled();
     });
   });
