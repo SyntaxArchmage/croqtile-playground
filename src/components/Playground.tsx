@@ -74,6 +74,8 @@ export function Playground() {
   const shortcutsDialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const lastLoadedCodeRef = useRef<string>(initialSource);
+  const loadAndRunTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (loadAndRunTimerRef.current) clearTimeout(loadAndRunTimerRef.current); }, []);
   const [statusAnnouncement, setStatusAnnouncement] = useState("");
   const [prevInitSource, setPrevInitSource] = useState(initialSource);
   const [prevInitPanel, setPrevInitPanel] = useState(initialPanelMode);
@@ -190,7 +192,11 @@ export function Playground() {
   const handleLoadAndRun = useCallback(
     (code: string) => {
       if (confirmAndLoad(code)) {
-        setTimeout(() => run(code), 100);
+        if (loadAndRunTimerRef.current) clearTimeout(loadAndRunTimerRef.current);
+        loadAndRunTimerRef.current = setTimeout(() => {
+          loadAndRunTimerRef.current = null;
+          run(code);
+        }, 100);
       }
     },
     [confirmAndLoad, run],
