@@ -1,8 +1,16 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { OutputPanel } from "@/components/OutputPanel";
 
 describe("OutputPanel", () => {
+  const writeText = jest.fn().mockResolvedValue(undefined);
+
+  beforeEach(() => {
+    writeText.mockClear();
+    Object.assign(navigator, {
+      clipboard: { writeText },
+    });
+  });
   it("shows placeholder when no output", () => {
     render(<OutputPanel output="" errors="" />);
     expect(screen.getByText(/Click .Run. or .Compile/)).toBeInTheDocument();
@@ -91,5 +99,35 @@ describe("OutputPanel", () => {
     const { container } = render(<OutputPanel output="" errors="" ast="tree" />);
     const dot = container.querySelector(".bg-blue-500");
     expect(dot).toBeInTheDocument();
+  });
+
+  it("shows Copy button when active tab has content", () => {
+    render(<OutputPanel output="Hello from Croqtile!" errors="" />);
+    expect(screen.getByText("Copy")).toBeInTheDocument();
+  });
+
+  it("hides Copy button when active tab has no content", () => {
+    render(<OutputPanel output="" errors="" />);
+    expect(screen.queryByText("Copy")).not.toBeInTheDocument();
+  });
+
+  it("copies active tab content and shows Copied feedback", () => {
+    jest.useFakeTimers();
+    render(<OutputPanel output="Hello from Croqtile!" errors="some error" />);
+    fireEvent.click(screen.getByText("Copy"));
+    expect(writeText).toHaveBeenCalledWith("Hello from Croqtile!");
+    expect(screen.getByText("Copied!")).toBeInTheDocument();
+    act(() => {
+      jest.advanceTimersByTime(1500);
+    });
+    expect(screen.getByText("Copy")).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("copies errors tab content when Errors tab is active", () => {
+    render(<OutputPanel output="good" errors="bad" />);
+    fireEvent.click(screen.getByText("Errors"));
+    fireEvent.click(screen.getByText("Copy"));
+    expect(writeText).toHaveBeenCalledWith("bad");
   });
 });

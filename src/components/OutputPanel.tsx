@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, memo } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 
 type Tab = "output" | "errors" | "ast";
 
@@ -11,11 +11,17 @@ interface Props {
   onClear?: () => void;
 }
 
+const DEFAULT_HEIGHT_PCT = 35;
+const MIN_HEIGHT_PCT = 15;
+const MAX_HEIGHT_PCT = 65;
+
 export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "", onClear }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("output");
   const [prevErrors, setPrevErrors] = useState(errors);
   const [prevOutput, setPrevOutput] = useState(output);
   const [prevAst, setPrevAst] = useState(ast);
+  const [copied, setCopied] = useState(false);
+  const [heightPct, setHeightPct] = useState(DEFAULT_HEIGHT_PCT);
 
   if (errors !== prevErrors) {
     setPrevErrors(errors);
@@ -32,12 +38,73 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
 
   const content = activeTab === "ast" ? ast : activeTab === "output" ? output : errors;
   const scrollRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dragging = useRef(false);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [content]);
+
+  const handleCopy = useCallback(() => {
+    if (!content) return;
+    navigator.clipboard.writeText(content);
+    setCopied(true);
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current);
+    }
+    copyTimeoutRef.current = setTimeout(() => setCopied(false), 1500);
+  }, [content]);
+
+  const updateHeight = useCallback((clientY: number) => {
+    const parent = panelRef.current?.parentElement;
+    if (!parent) return;
+    const rect = parent.getBoundingClientRect();
+    const pct = ((rect.bottom - clientY) / rect.height) * 100;
+    setHeightPct(Math.max(MIN_HEIGHT_PCT, Math.min(MAX_HEIGHT_PCT, pct)));
+  }, []);
+
+  const onResizeMouseDown = useCallback(() => {
+    dragging.current = true;
+    document.body.style.cursor = "row-resize";
+    document.body.style.userSelect = "none";
+
+    const onMove = (e: MouseEvent) => {
+      if (!dragging.current) return;
+      updateHeight(e.clientY);
+    };
+
+    const onUp = () => {
+      dragging.current = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  }, [updateHeight]);
+
+  const onResizeTouchStart = useCallback(() => {
+    dragging.current = true;
+
+    const onTouchMove = (ev: TouchEvent) => {
+      if (!dragging.current) return;
+      updateHeight(ev.touches[0].clientY);
+    };
+
+    const onTouchEnd = () => {
+      dragging.current = false;
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+    };
+
+    document.addEventListener("touchmove", onTouchMove, { passive: true });
+    document.addEventListener("touchend", onTouchEnd);
+  }, [updateHeight]);
 
   const tabClass = (tab: Tab) => `px-2 py-0.5 text-xs rounded ${
     activeTab === tab
@@ -46,7 +113,22 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
   }`;
 
   return (
-    <div className="h-[35%] min-h-[120px] border-t border-[var(--border)] flex flex-col">
+    <div
+      ref={panelRef}
+      className="min-h-[120px] border-t border-[var(--border)] flex flex-col"
+      style={{ height: `${heightPct}%` }}
+    >
+      <div
+        role="separator"
+        aria-orientation="horizontal"
+        aria-valuenow={Math.round(heightPct)}
+        aria-valuemin={MIN_HEIGHT_PCT}
+        aria-valuemax={MAX_HEIGHT_PCT}
+        aria-label="Resize output panel"
+        onMouseDown={onResizeMouseDown}
+        onTouchStart={onResizeTouchStart}
+        className="h-1 cursor-row-resize bg-[var(--border)] hover:bg-[var(--accent)] transition-colors flex-shrink-0 touch-none"
+      />
       <div className="flex items-center gap-1 px-3 py-1 border-b border-[var(--border)] bg-[var(--bg-secondary)]" role="tablist" aria-label="Output panels">
         <button role="tab" aria-selected={activeTab === "output"} aria-controls="output-tabpanel" onClick={() => setActiveTab("output")} className={tabClass("output")}>
           Output
@@ -63,13 +145,25 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
             <span className="ml-1 w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
           )}
         </button>
-        {(output || errors || ast) && onClear && (
-          <button
-            onClick={onClear}
-            className="ml-auto px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-          >
-            Clear
-          </button>
+        {(content || ((output || errors || ast) && onClear)) && (
+          <div className="ml-auto flex items-center gap-1">
+            {content && (
+              <button
+                onClick={handleCopy}
+                className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              >
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            )}
+            {(output || errors || ast) && onClear && (
+              <button
+                onClick={onClear}
+                className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              >
+                Clear
+              </button>
+            )}
+          </div>
         )}
       </div>
       <div ref={scrollRef} id="output-tabpanel" role="tabpanel" className="flex-1 overflow-auto p-3">

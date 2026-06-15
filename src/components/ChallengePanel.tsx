@@ -25,6 +25,7 @@ interface Props {
 }
 
 export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initialId }: Props) {
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(() => {
     if (initialId) {
       return CHALLENGES.find((c) => c.id === initialId) ?? null;
@@ -55,6 +56,15 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount-only deep link init
 
   if (!selectedChallenge) {
+    const query = searchQuery.trim().toLowerCase();
+    const filteredChallenges = query
+      ? CHALLENGES.filter(
+          (c) =>
+            c.title.toLowerCase().includes(query) ||
+            c.description.toLowerCase().includes(query),
+        )
+      : CHALLENGES;
+
     return (
       <div className="h-full flex flex-col">
         <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
@@ -68,7 +78,19 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
           </button>
         </div>
         <div className="flex-1 overflow-auto p-4 space-y-3">
-          {CHALLENGES.map((c) => {
+          <input
+            type="text"
+            placeholder="Search challenges..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-3 py-1.5 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+          />
+          {filteredChallenges.length === 0 ? (
+            <div className="text-xs text-[var(--text-muted)] text-center py-4">
+              No challenges match
+            </div>
+          ) : (
+            filteredChallenges.map((c) => {
             const cp = getChallengeProgress(c.id);
             return (
               <button
@@ -96,7 +118,8 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                 </div>
               </button>
             );
-          })}
+            })
+          )}
         </div>
       </div>
     );
