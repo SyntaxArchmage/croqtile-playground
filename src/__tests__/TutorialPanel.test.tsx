@@ -167,6 +167,16 @@ describe("TutorialPanel", () => {
     expect(screen.getAllByTestId("tutorial-step-dot")).toHaveLength(3);
   });
 
+  it("marks visited dots with accent class", () => {
+    mockTutorialProgress = 1;
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    const dots = screen.getAllByTestId("tutorial-step-dot");
+    expect(dots[0].className).toContain("bg-[var(--accent)]");
+    expect(dots[1].className).toContain("bg-[var(--accent)]");
+    expect(dots[2].className).toContain("bg-[var(--border)]");
+  });
+
   it("persists step number in URL when navigating", () => {
     render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
     fireEvent.click(screen.getByText("Hello Croqtile"));

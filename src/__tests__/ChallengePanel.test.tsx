@@ -3,13 +3,14 @@ import "@testing-library/jest-dom";
 
 const mockMarkChallengePassed = jest.fn();
 const mockRecordChallengeAttempt = jest.fn();
+let mockIsChallengePassed = false;
 let mockChallengeProgress: { status: string; attempts: number; bestCode?: string } = {
   status: "not_started",
   attempts: 0,
 };
 
 jest.mock("@/lib/progress", () => ({
-  isChallengePassed: () => false,
+  isChallengePassed: () => mockIsChallengePassed,
   markChallengePassed: (...args: unknown[]) => mockMarkChallengePassed(...args),
   getChallengeProgress: () => mockChallengeProgress,
   recordChallengeAttempt: (...args: unknown[]) => mockRecordChallengeAttempt(...args),
@@ -20,6 +21,7 @@ import { ChallengePanel } from "@/components/ChallengePanel";
 describe("ChallengePanel", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockIsChallengePassed = false;
     mockChallengeProgress = { status: "not_started", attempts: 0 };
   });
 
@@ -52,6 +54,22 @@ describe("ChallengePanel", () => {
     );
     expect(screen.getAllByText("easy").length).toBeGreaterThan(0);
     expect(screen.getAllByText("medium").length).toBeGreaterThan(0);
+  });
+
+  it("shows passed badge when challenge is passed", () => {
+    mockIsChallengePassed = true;
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    expect(screen.getAllByText("passed").length).toBeGreaterThan(0);
+  });
+
+  it("shows attempt count when challenge has attempts", () => {
+    mockChallengeProgress = { status: "attempted", attempts: 3 };
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    expect(screen.getAllByText(/3 attempts/).length).toBeGreaterThan(0);
   });
 
   it("loads starter code when challenge selected", () => {
