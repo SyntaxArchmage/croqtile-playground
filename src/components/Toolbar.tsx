@@ -6,6 +6,7 @@ import type { PanelMode } from "@/lib/types";
 import { EXAMPLES } from "@/lib/examples";
 import { formatChoreoCode } from "@/lib/formatCode";
 import { resetProgress } from "@/lib/progress";
+import type { EditorSettings } from "@/lib/settings";
 
 interface Props {
   target: string;
@@ -19,6 +20,8 @@ interface Props {
   onTogglePanel: (mode: PanelMode) => void;
   panelMode: PanelMode;
   status: WorkerStatus;
+  settings: EditorSettings;
+  onSettingsChange: (settings: EditorSettings) => void;
 }
 
 export const Toolbar = memo(function Toolbar({
@@ -33,6 +36,8 @@ export const Toolbar = memo(function Toolbar({
   onTogglePanel,
   panelMode,
   status,
+  settings,
+  onSettingsChange,
 }: Props) {
   const busy = status === "running";
   const [copied, setCopied] = useState(false);
@@ -253,6 +258,49 @@ export const Toolbar = memo(function Toolbar({
         </button>
         {showMenu && (
           <div className="absolute right-0 top-full mt-1 w-48 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1">
+            <div className="px-3 py-2 flex items-center justify-between">
+              <span className="text-xs text-[var(--text-secondary)]">Font size</span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => {
+                    if (settings.fontSize > 10) {
+                      onSettingsChange({ ...settings, fontSize: settings.fontSize - 1 });
+                    }
+                  }}
+                  disabled={settings.fontSize <= 10}
+                  className="w-5 h-5 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
+                  aria-label="Decrease font size"
+                >
+                  −
+                </button>
+                <span className="text-xs text-[var(--text-primary)] w-6 text-center tabular-nums">
+                  {settings.fontSize}
+                </span>
+                <button
+                  onClick={() => {
+                    if (settings.fontSize < 24) {
+                      onSettingsChange({ ...settings, fontSize: settings.fontSize + 1 });
+                    }
+                  }}
+                  disabled={settings.fontSize >= 24}
+                  className="w-5 h-5 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
+                  aria-label="Increase font size"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <label className="flex items-center justify-between px-3 py-2 hover:bg-[var(--bg-primary)] cursor-pointer transition-colors">
+              <span className="text-xs text-[var(--text-secondary)]">Word wrap</span>
+              <input
+                type="checkbox"
+                checked={settings.wordWrap}
+                onChange={(e) => onSettingsChange({ ...settings, wordWrap: e.target.checked })}
+                className="accent-[var(--accent)]"
+                aria-label="Toggle word wrap"
+              />
+            </label>
+            <div className="border-t border-[var(--border)] my-1" />
             <button
               onClick={() => {
                 if (window.confirm("Reset all tutorial and challenge progress?")) {

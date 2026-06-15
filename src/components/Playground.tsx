@@ -12,6 +12,7 @@ import { useChoreoWorker } from "@/lib/useChoreoWorker";
 import { EXAMPLES } from "@/lib/examples";
 import type { PanelMode } from "@/lib/types";
 import { saveLastSource, loadLastSource } from "@/lib/progress";
+import { loadSettings, saveSettings, type EditorSettings } from "@/lib/settings";
 import type { CursorPosition } from "./Editor";
 import { decodeCode, encodeCode } from "@/lib/urlCodec";
 
@@ -65,6 +66,7 @@ export function Playground() {
   const [panelMode, setPanelMode] = useState(initialPanelMode);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [cursorPos, setCursorPos] = useState<CursorPosition>({ line: 1, column: 1 });
+  const [settings, setSettings] = useState(() => loadSettings());
   const editorRef = useRef<{ getValue: () => string }>(null);
   const [prevInitSource, setPrevInitSource] = useState(initialSource);
   const [prevInitPanel, setPrevInitPanel] = useState(initialPanelMode);
@@ -102,6 +104,11 @@ export function Playground() {
       if (next === "closed") clearPanelParams();
       return next;
     });
+  }, []);
+
+  const handleSettingsChange = useCallback((s: EditorSettings) => {
+    setSettings(s);
+    saveSettings(s);
   }, []);
 
   const handleShare = useCallback(() => {
@@ -203,10 +210,19 @@ export function Playground() {
         onTogglePanel={handleTogglePanel}
         panelMode={panelMode}
         status={status}
+        settings={settings}
+        onSettingsChange={handleSettingsChange}
       />
       <div className="flex-1 min-h-0 flex flex-col">
         <div className="flex-1 min-h-0">
-          <Editor ref={editorRef} value={source} onChange={setSource} onCursorChange={setCursorPos} />
+          <Editor
+            ref={editorRef}
+            value={source}
+            onChange={setSource}
+            onCursorChange={setCursorPos}
+            fontSize={settings.fontSize}
+            wordWrap={settings.wordWrap}
+          />
         </div>
         <OutputPanel output={output} errors={errors} onClear={clearOutput} />
       </div>

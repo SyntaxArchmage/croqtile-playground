@@ -21,6 +21,8 @@ interface Props {
   value: string;
   onChange: (value: string) => void;
   onCursorChange?: (pos: CursorPosition) => void;
+  fontSize?: number;
+  wordWrap?: boolean;
 }
 
 function registerChoreoLanguage(monaco: any) {
@@ -121,7 +123,7 @@ function registerChoreoLanguage(monaco: any) {
 }
 
 export const Editor = forwardRef<{ getValue: () => string }, Props>(
-  function Editor({ value, onChange, onCursorChange }, ref) {
+  function Editor({ value, onChange, onCursorChange, fontSize = 14, wordWrap = true }, ref) {
     const editorRef = useRef<unknown>(null);
 
     useImperativeHandle(ref, () => ({
@@ -156,7 +158,7 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
           </div>
         }
         options={{
-          fontSize: 14,
+          fontSize,
           fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
           minimap: { enabled: false },
           scrollBeyondLastLine: false,
@@ -166,7 +168,7 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
           bracketPairColorization: { enabled: true },
           tabSize: 2,
           automaticLayout: true,
-          wordWrap: "on",
+          wordWrap: wordWrap ? "on" : "off",
           smoothScrolling: true,
           cursorBlinking: "smooth",
           cursorSmoothCaretAnimation: "on",

@@ -7,6 +7,8 @@ const mockCompile = jest.fn();
 const mockDumpAST = jest.fn();
 const mockClearOutput = jest.fn();
 const mockLoadLastSource = jest.fn(() => null);
+const mockLoadSettings = jest.fn(() => ({ fontSize: 14, wordWrap: true }));
+const mockSaveSettings = jest.fn();
 
 jest.mock("@/lib/useChoreoWorker", () => ({
   useChoreoWorker: () => ({
@@ -34,11 +36,16 @@ jest.mock("@/lib/progress", () => ({
   resetProgress: jest.fn(),
 }));
 
+jest.mock("@/lib/settings", () => ({
+  loadSettings: (...args: unknown[]) => mockLoadSettings(...args),
+  saveSettings: (...args: unknown[]) => mockSaveSettings(...args),
+}));
+
 jest.mock("@/components/Editor", () => ({
   Editor: React.forwardRef<
     { getValue: () => string },
-    { value: string; onChange: (value: string) => void }
-  >(function MockEditor({ value, onChange }, ref) {
+    { value: string; onChange: (value: string) => void; fontSize?: number; wordWrap?: boolean }
+  >(function MockEditor({ value, onChange, fontSize, wordWrap }, ref) {
     React.useImperativeHandle(ref, () => ({
       getValue: () => value,
     }));
@@ -46,6 +53,8 @@ jest.mock("@/components/Editor", () => ({
       <textarea
         data-testid="code-editor"
         aria-label="Code editor"
+        data-font-size={fontSize}
+        data-word-wrap={wordWrap}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -80,6 +89,7 @@ function renderPlayground() {
 beforeEach(() => {
   jest.clearAllMocks();
   mockLoadLastSource.mockReturnValue(null);
+  mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true });
   mockMatchMedia(false);
   setUrl("/");
   window.history.replaceState = jest.fn();

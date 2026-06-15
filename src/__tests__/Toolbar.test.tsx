@@ -14,6 +14,8 @@ const defaultProps = {
   onTogglePanel: jest.fn(),
   panelMode: "closed" as const,
   status: "ready" as const,
+  settings: { fontSize: 14, wordWrap: true },
+  onSettingsChange: jest.fn(),
 };
 
 beforeEach(() => {
@@ -227,6 +229,39 @@ describe("Toolbar", () => {
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     expect(screen.getByText("Reset progress")).toBeInTheDocument();
+  });
+
+  it("increases font size via settings menu", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByLabelText("Increase font size"));
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 15, wordWrap: true });
+  });
+
+  it("decreases font size via settings menu", () => {
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 16, wordWrap: true }} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByLabelText("Decrease font size"));
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 15, wordWrap: true });
+  });
+
+  it("toggles word wrap via settings menu", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByLabelText("Toggle word wrap"));
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 14, wordWrap: false });
+  });
+
+  it("disables font decrease at minimum size", () => {
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 10, wordWrap: true }} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByLabelText("Decrease font size")).toBeDisabled();
+  });
+
+  it("disables font increase at maximum size", () => {
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 24, wordWrap: true }} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByLabelText("Increase font size")).toBeDisabled();
   });
 
   it("disables Compile and AST when running", () => {
