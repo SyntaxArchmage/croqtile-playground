@@ -42,4 +42,16 @@ describe("StatusBar", () => {
     render(<StatusBar status="ready" />);
     expect(screen.getByText(/—/)).toBeInTheDocument();
   });
+
+  it("displays line count after cursor position", () => {
+    render(
+      <StatusBar
+        status="ready"
+        cursorPosition={{ line: 5, column: 10 }}
+        lineCount={42}
+      />
+    );
+    expect(screen.getByText("Ln 5, Col 10")).toBeInTheDocument();
+    expect(screen.getByText("42 lines")).toBeInTheDocument();
+  });
 });

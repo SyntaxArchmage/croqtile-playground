@@ -198,6 +198,7 @@ export function Playground() {
         onCompile={handleCompile}
         onDumpAST={handleDumpAST}
         onLoadCode={setSource}
+        getCode={getCode}
         onShare={handleShare}
         onTogglePanel={handleTogglePanel}
         panelMode={panelMode}
@@ -214,6 +215,7 @@ export function Playground() {
         compilerVersion={compilerVersion}
         buildManifest={buildManifest}
         cursorPosition={cursorPos}
+        lineCount={source.split("\n").length}
       />
     </div>
   );

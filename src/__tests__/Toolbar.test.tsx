@@ -9,6 +9,7 @@ const defaultProps = {
   onCompile: jest.fn(),
   onDumpAST: jest.fn(),
   onLoadCode: jest.fn(),
+  getCode: jest.fn(() => "test code"),
   onShare: jest.fn(),
   onTogglePanel: jest.fn(),
   panelMode: "closed" as const,
@@ -38,6 +39,39 @@ describe("Toolbar", () => {
   it("renders Share button", () => {
     render(<Toolbar {...defaultProps} />);
     expect(screen.getByText("Share")).toBeInTheDocument();
+  });
+
+  it("renders Download button", () => {
+    render(<Toolbar {...defaultProps} />);
+    expect(screen.getByLabelText("Download code")).toBeInTheDocument();
+  });
+
+  it("downloads code as .co file on Download click", () => {
+    render(<Toolbar {...defaultProps} />);
+
+    const click = jest.fn();
+    const anchor = document.createElement("a");
+    anchor.click = click;
+    const origCreateElement = document.createElement.bind(document);
+    const createElementSpy = jest.spyOn(document, "createElement").mockImplementation((tag: string, options?: ElementCreationOptions) => {
+      if (tag === "a") return anchor;
+      return origCreateElement(tag, options);
+    });
+    const mockCreateObjectURL = jest.fn(() => "blob:test");
+    const mockRevokeObjectURL = jest.fn();
+    URL.createObjectURL = mockCreateObjectURL;
+    URL.revokeObjectURL = mockRevokeObjectURL;
+
+    try {
+      fireEvent.click(screen.getByLabelText("Download code"));
+      expect(defaultProps.getCode).toHaveBeenCalledTimes(1);
+      expect(mockCreateObjectURL).toHaveBeenCalled();
+      expect(anchor.download).toBe("croqtile-code.co");
+      expect(click).toHaveBeenCalledTimes(1);
+      expect(mockRevokeObjectURL).toHaveBeenCalledWith("blob:test");
+    } finally {
+      createElementSpy.mockRestore();
+    }
   });
 
   it("calls onRun when Run clicked", () => {

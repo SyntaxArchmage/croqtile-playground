@@ -13,6 +13,7 @@ interface Props {
   onCompile: () => void;
   onDumpAST: () => void;
   onLoadCode: (code: string) => void;
+  getCode: () => string;
   onShare: () => void;
   onTogglePanel: (mode: PanelMode) => void;
   panelMode: PanelMode;
@@ -26,6 +27,7 @@ export const Toolbar = memo(function Toolbar({
   onCompile,
   onDumpAST,
   onLoadCode,
+  getCode,
   onShare,
   onTogglePanel,
   panelMode,
@@ -44,6 +46,17 @@ export const Toolbar = memo(function Toolbar({
     }
     shareTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
   }, [onShare]);
+
+  const handleDownload = useCallback(() => {
+    const code = getCode();
+    const blob = new Blob([code], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "croqtile-code.co";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [getCode]);
 
   useEffect(() => {
     return () => {
@@ -153,6 +166,20 @@ export const Toolbar = memo(function Toolbar({
         aria-label="Share code"
       >
         {copied ? "Copied!" : "Share"}
+      </button>
+
+      <button
+        onClick={handleDownload}
+        className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)] inline-flex items-center gap-1"
+        title="Download code as .co file"
+        aria-label="Download code"
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        Download
       </button>
 
       <div className="flex-1" />

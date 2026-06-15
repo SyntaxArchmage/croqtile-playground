@@ -9,6 +9,7 @@ interface Props {
   compilerVersion?: string | null;
   buildManifest?: BuildManifest | null;
   cursorPosition?: CursorPosition;
+  lineCount?: number;
 }
 
 const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
@@ -18,7 +19,7 @@ const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
   error: { label: "Error", color: "text-[var(--error)]" },
 };
 
-export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, cursorPosition }: Props) {
+export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, cursorPosition, lineCount }: Props) {
   const { label, color } = statusConfig[status];
   const version = compilerVersion ?? buildManifest?.version ?? null;
   const commit = buildManifest?.commit_short ?? null;
@@ -38,6 +39,12 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
         <>
           <span className="text-[var(--border)]">|</span>
           <span>Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
+        </>
+      )}
+      {lineCount !== undefined && (
+        <>
+          <span className="text-[var(--border)]">|</span>
+          <span>{lineCount} lines</span>
         </>
       )}
       <div className="flex-1" />
