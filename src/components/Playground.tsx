@@ -164,8 +164,9 @@ export function Playground() {
 
   const confirmAndLoad = useCallback(
     (code: string): boolean => {
-      const isModified = source !== lastLoadedCodeRef.current;
-      const isDifferent = source !== code;
+      const currentSource = editorRef.current?.getValue() ?? sourceRef.current;
+      const isModified = currentSource !== lastLoadedCodeRef.current;
+      const isDifferent = currentSource !== code;
       if (
         !skipLoadConfirmRef.current &&
         isModified &&
@@ -178,7 +179,7 @@ export function Playground() {
       setSource(code);
       return true;
     },
-    [source],
+    [],
   );
 
   const handleLoadCode = useCallback(
