@@ -342,4 +342,25 @@ describe("ChallengePanel", () => {
     );
     expect(screen.getByText("(no output)")).toBeInTheDocument();
   });
+
+  it("updates URL param when selecting a challenge", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    fireEvent.click(screen.getByText("Hello Threads"));
+    const params = new URLSearchParams(window.location.search);
+    expect(params.get("challenge")).toBe("c01");
+    window.history.pushState({}, "", "/");
+  });
+
+  it("removes challenge URL param on back", () => {
+    window.history.pushState({}, "", "/?challenge=c01");
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+    );
+    fireEvent.click(screen.getByText("← Back"));
+    const params = new URLSearchParams(window.location.search);
+    expect(params.get("challenge")).toBeNull();
+    window.history.pushState({}, "", "/");
+  });
 });
