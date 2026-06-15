@@ -579,6 +579,22 @@ describe("Playground", () => {
     });
   });
 
+  describe("status announcements", () => {
+    it("announces running status in sr-only live region", () => {
+      mockStatus = "ready";
+      const { rerender } = renderPlayground();
+
+      const liveRegion = document.querySelector('.sr-only[aria-live="polite"]');
+      expect(liveRegion).toBeInTheDocument();
+      expect(liveRegion).toHaveAttribute("aria-atomic", "true");
+
+      mockStatus = "running";
+      rerender(<Playground />);
+
+      expect(liveRegion).toHaveTextContent("Running code");
+    });
+  });
+
   describe("document title", () => {
     it("shows running indicator in title when status is running", () => {
       mockStatus = "running";

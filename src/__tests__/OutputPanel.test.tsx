@@ -163,6 +163,40 @@ describe("OutputPanel", () => {
     expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
   });
 
+  it("updates aria-valuenow during mouse resize when parent has bounds", () => {
+    const { container } = render(
+      <div data-testid="resize-parent" style={{ height: 600 }}>
+        <OutputPanel output="data" errors="" />
+      </div>
+    );
+
+    const parent = container.querySelector('[data-testid="resize-parent"]')!;
+    parent.getBoundingClientRect = jest.fn(() => ({
+      top: 0,
+      bottom: 600,
+      height: 600,
+      left: 0,
+      right: 800,
+      width: 800,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }));
+
+    const sep = screen.getByRole("separator");
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(35);
+
+    fireEvent.mouseDown(sep);
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 300 }));
+    });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(50);
+
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mouseup"));
+    });
+  });
+
   it("resizes via mouse drag on separator", () => {
     const { container } = render(
       <div style={{ height: 600 }}>
