@@ -60,6 +60,14 @@ describe("progress", () => {
     expect(getTutorialProgress("unknown")).toBe(-1);
   });
 
+  it("returns null from loadLastSource when localStorage throws", () => {
+    jest.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("storage error");
+    });
+    expect(loadLastSource()).toBeNull();
+    (Storage.prototype.getItem as jest.Mock).mockRestore();
+  });
+
   it("saves and loads last source", () => {
     expect(loadLastSource()).toBeNull();
     saveLastSource("__co__ void hello() {}");
