@@ -1,12 +1,12 @@
 # Croqtile Playground — Session Handoff
 
 **Date**: 2026-06-15
-**Sessions**: auto-dev (multiple invocations, 120+ total commits)
+**Sessions**: auto-dev (multiple invocations, 130+ total commits)
 
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (335 tests, 26 suites)
+- `npm test` ✅ (351 tests, 26 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -47,8 +47,8 @@
 - ESLint flat config for Next.js 16
 - GitHub Actions CI: type check, lint, test, build
 - WASM build script with version tracking (build-manifest.json)
-- 335 unit/component tests across 26 suites
-- Coverage: 95% statements, 84% branches, 86% functions, 97% lines
+- 351 unit/component tests across 26 suites
+- Coverage: ~95% statements, ~84% branches, ~87% functions, ~97% lines
 - Coverage thresholds: 80% statements, 70% branches, 75% functions, 80% lines
 - Worker execution timeout (30s) with elapsed time reporting
 

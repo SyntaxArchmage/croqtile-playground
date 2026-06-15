@@ -228,12 +228,15 @@ export function Playground() {
   const handleShare = useCallback(() => {
     const code = getCode();
     const encoded = encodeCode(code);
-    const url = `${window.location.origin}${window.location.pathname}#${encoded}`;
-    navigator.clipboard.writeText(url).then(
+    const shareUrl = `${window.location.origin}${window.location.pathname}#${encoded}`;
+    navigator.clipboard.writeText(shareUrl).then(
       () => {},
       () => { window.alert("Could not copy link. Try copying the URL manually."); }
     );
-    window.history.replaceState(null, "", `#${encoded}`);
+    const clean = new URL(window.location.href);
+    clean.search = "";
+    clean.hash = encoded;
+    window.history.replaceState(null, "", clean.toString());
   }, [getCode]);
 
   const handleFormatCode = useCallback(() => {
