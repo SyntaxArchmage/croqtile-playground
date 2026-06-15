@@ -151,10 +151,10 @@ This session performed 54 development cycles on `croqtile-playground`, a browser
 - **Next priority**: Edge case testing, error handling hardening, possible tutorial expansion
 
 ### Auto-Dev Session 2026-06-15 12:31 (continued)
-- **Duration**: ~180 minutes (extended from previous session)
-- **Defects found**: 3 (P2: 1, P3: 1, P4: 1)
-- **Defects fixed**: 3
-- **Tests added**: 50 (259 → 309)
+- **Duration**: 180 minutes
+- **Defects found**: 4 (P2: 2, P3: 1, P4: 1)
+- **Defects fixed**: 4
+- **Tests added**: 52 (259 → 311)
 - **Features implemented**:
   - Error line highlighting in output panel (red left border for error lines)
   - Keyboard navigation for File/Settings dropdown menus (Escape, arrows, Home/End)
@@ -167,12 +167,14 @@ This session performed 54 development cycles on `croqtile-playground`, a browser
   - Attempt count display on challenge success
   - Responsive toolbar (hidden elements on small screens)
   - Floating Run button (FAB) for mobile users
-  - Command palette (Ctrl+P) with fuzzy search
+  - Command palette (Ctrl+P) with fuzzy search, extracted to own component
   - Code formatter bugfix (division operator vs comments)
+  - ChallengePanel testResults memoization
 - **Defects fixed**:
   - P2: Code formatter countBraces mishandled division operators before braces in comments
+  - P2: ESLint react-hooks/refs violations in command palette (extracted CommandPalette component)
   - P3: OutputPanel copyTimeoutRef not cleaned up on unmount
   - P4: Duplicate mobile layout code in Playground component
-- **Commits**: 14 commits this session (101 → 115 total)
+- **Commits**: 18 commits this session (101 → 118 total)
 - **PRD progress**: Phase 1-5 fully polished; Phase 6 items (L2, WebGPU) blocked on infrastructure
 - **Next priority**: Visual inspection with browser tools, E2E testing when WASM is available
