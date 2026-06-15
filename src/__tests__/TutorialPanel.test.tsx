@@ -127,6 +127,19 @@ describe("TutorialPanel", () => {
     expect(onLoadCode).toHaveBeenCalledTimes(1);
   });
 
+  it("shows tutorial list when initialId is invalid", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="nonexistent" />);
+    expect(screen.getByText("Hello Croqtile")).toBeInTheDocument();
+    expect(screen.queryByText("← Back")).not.toBeInTheDocument();
+  });
+
+  it("defaults to step 0 when URL step is NaN", () => {
+    window.history.pushState({}, "", "?tutorial=ch01&step=abc");
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="ch01" />);
+    expect(screen.getByText(/1 \/ 3/)).toBeInTheDocument();
+    window.history.pushState({}, "", "/");
+  });
+
   it("filters tutorials by search query", () => {
     render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
     const search = screen.getByLabelText("Search tutorials");
