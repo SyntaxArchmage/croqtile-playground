@@ -117,6 +117,17 @@ x();
 }`);
   });
 
+  it("ignores braces inside block comments", () => {
+    const input = `__co__ void f() {
+/* { block comment } */
+println("ok");
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  /* { block comment } */
+  println("ok");
+}`);
+  });
+
   it("handles single char strings containing backslash", () => {
     const input = `__co__ void f() {
 char c = '\\\\';
