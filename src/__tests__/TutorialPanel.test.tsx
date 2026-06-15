@@ -1,14 +1,20 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+let mockTutorialProgress = -1;
+
 jest.mock("@/lib/progress", () => ({
-  getTutorialProgress: () => -1,
+  getTutorialProgress: () => mockTutorialProgress,
   markTutorialStep: () => {},
 }));
 
 import { TutorialPanel } from "@/components/TutorialPanel";
 
 describe("TutorialPanel", () => {
+  beforeEach(() => {
+    mockTutorialProgress = -1;
+  });
+
   it("renders tutorials header", () => {
     render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
     expect(screen.getByText("Tutorials")).toBeInTheDocument();
@@ -192,6 +198,19 @@ describe("TutorialPanel", () => {
     render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} initialId="ch01" />);
     expect(screen.getByText("1 / 3")).toBeInTheDocument();
     window.history.pushState({}, "", "/");
+  });
+
+  it("shows done badge when tutorial progress reaches last step", () => {
+    mockTutorialProgress = 99;
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    const doneBadges = screen.getAllByText("done");
+    expect(doneBadges.length).toBeGreaterThan(0);
+  });
+
+  it("does not show done badge when tutorial not completed", () => {
+    mockTutorialProgress = 0;
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    expect(screen.queryByText("done")).not.toBeInTheDocument();
   });
 
   it("calls onLoadCode when Try it button is clicked", () => {
