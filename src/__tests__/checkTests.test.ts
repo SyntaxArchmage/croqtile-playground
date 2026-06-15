@@ -84,4 +84,12 @@ describe("checkTests", () => {
     expect(results[0].passed).toBe(true);
     expect(results[1].passed).toBe(false);
   });
+
+  it("requires multi-line expected lines in order", () => {
+    const c = makeChallenge([
+      { expectedOutput: "a\nb", description: "ordered" },
+    ]);
+    const results = checkTests(c, "b\na\n");
+    expect(results[0].passed).toBe(false);
+  });
 });

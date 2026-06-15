@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, act, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 const mockRun = jest.fn();
@@ -110,7 +110,7 @@ describe("Playground", () => {
       renderPlayground();
       expect(screen.getByText("Croqtile")).toBeInTheDocument();
       expect(screen.getByText("Playground")).toBeInTheDocument();
-      expect(screen.getByLabelText("Run code")).toBeInTheDocument();
+      expect(within(screen.getByLabelText("Playground toolbar")).getByLabelText("Run code")).toBeInTheDocument();
       expect(screen.getByLabelText("Playground toolbar")).toBeInTheDocument();
     });
 
@@ -287,8 +287,23 @@ describe("Playground", () => {
   describe("run from toolbar", () => {
     it("calls run when Run button is clicked", () => {
       renderPlayground();
-      fireEvent.click(screen.getByLabelText("Run code"));
+      const toolbar = screen.getByLabelText("Playground toolbar");
+      fireEvent.click(within(toolbar).getByLabelText("Run code"));
       expect(mockRun).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("floating run button", () => {
+    it("shows floating run button when ready", () => {
+      mockStatus = "ready";
+      renderPlayground();
+      expect(screen.getByTitle("Run (Ctrl+Enter)")).toBeInTheDocument();
+    });
+
+    it("hides floating run button when running", () => {
+      mockStatus = "running";
+      renderPlayground();
+      expect(screen.queryByTitle("Run (Ctrl+Enter)")).not.toBeInTheDocument();
     });
   });
 

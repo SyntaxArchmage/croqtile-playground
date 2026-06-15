@@ -8,6 +8,8 @@ import {
   saveLastSource,
   loadLastSource,
   resetProgress,
+  recordChallengeAttempt,
+  getChallengeProgress,
 } from "@/lib/progress";
 
 const STORAGE_KEY = "croqtile-playground-progress";
@@ -65,11 +67,38 @@ describe("progress", () => {
   });
 
   it("resetProgress clears everything including last source", () => {
-    saveProgress({ tutorialSteps: { ch01: 2 }, challengesPassed: ["c1"] });
+    saveProgress({ tutorialSteps: { ch01: 2 }, challengesPassed: ["c1"], challengeProgress: {} });
     saveLastSource("some code");
     resetProgress();
     expect(loadProgress().tutorialSteps).toEqual({});
     expect(loadProgress().challengesPassed).toEqual([]);
     expect(loadLastSource()).toBeNull();
+  });
+
+  it("recordChallengeAttempt increments attempts and sets status", () => {
+    expect(getChallengeProgress("c1")).toEqual({ status: "not_started", attempts: 0 });
+    recordChallengeAttempt("c1");
+    expect(getChallengeProgress("c1")).toEqual({ status: "attempted", attempts: 1 });
+    recordChallengeAttempt("c1");
+    expect(getChallengeProgress("c1")).toEqual({ status: "attempted", attempts: 2 });
+  });
+
+  it("markChallengePassed stores best code", () => {
+    recordChallengeAttempt("c1");
+    markChallengePassed("c1", "my solution");
+    const cp = getChallengeProgress("c1");
+    expect(cp.status).toBe("passed");
+    expect(cp.bestCode).toBe("my solution");
+    expect(cp.attempts).toBe(1);
+  });
+
+  it("handles partial progress data from localStorage", () => {
+    localStorage.setItem("croqtile-playground-progress", JSON.stringify({
+      tutorialSteps: { ch01: 1 },
+    }));
+    const p = loadProgress();
+    expect(p.tutorialSteps).toEqual({ ch01: 1 });
+    expect(p.challengesPassed).toEqual([]);
+    expect(p.challengeProgress).toEqual({});
   });
 });
