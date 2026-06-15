@@ -4,6 +4,8 @@ export interface TestResult {
   passed: boolean;
   ran: boolean;
   description: string;
+  expected?: string;
+  actual?: string;
 }
 
 export function checkTests(challenge: Challenge, output: string): TestResult[] {
@@ -12,6 +14,7 @@ export function checkTests(challenge: Challenge, output: string): TestResult[] {
       passed: false,
       ran: false,
       description: t.description,
+      expected: t.expectedOutput.trim(),
     }));
   }
 
@@ -26,6 +29,12 @@ export function checkTests(challenge: Challenge, output: string): TestResult[] {
       searchFrom = idx + 1;
       return true;
     });
-    return { passed, ran: true, description: t.description };
+    return {
+      passed,
+      ran: true,
+      description: t.description,
+      expected: t.expectedOutput.trim(),
+      actual: output.trim(),
+    };
   });
 }

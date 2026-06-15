@@ -133,7 +133,13 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
                   : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-muted)]"
               }`}
             >
-              {t.passed ? "✓" : t.ran ? "✗" : "○"} {t.description}
+              <div>{t.passed ? "✓" : t.ran ? "✗" : "○"} {t.description}</div>
+              {t.ran && !t.passed && t.expected && (
+                <div className="mt-1.5 pt-1.5 border-t border-red-800/50 space-y-1 font-mono text-[10px]">
+                  <div><span className="text-red-400/70">Expected:</span> <span className="text-red-200">{t.expected.length > 80 ? t.expected.slice(0, 80) + "..." : t.expected}</span></div>
+                  <div><span className="text-red-400/70">Got:</span> <span className="text-red-200">{t.actual ? (t.actual.length > 80 ? t.actual.slice(0, 80) + "..." : t.actual) : "(no output)"}</span></div>
+                </div>
+              )}
             </div>
           ))}
         </div>

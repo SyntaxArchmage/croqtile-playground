@@ -34,7 +34,7 @@ function registerChoreoLanguage(monaco: any) {
       "__co__", "__cok__", "dma", "tma", "mma", "exec", "shared", "local",
       "global", "inthreads", "ingroups", "inblocks", "foreach", "pipeline",
       "event", "signal", "wait", "arrive", "println", "print", "assert_true",
-      "parallel",
+      "parallel", "rotate",
     ],
     typeKeywords: [
       "f16", "f32", "f64", "bf16", "i8", "i16", "i32", "i64",

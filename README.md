@@ -58,7 +58,7 @@ src/
   lib/              # Hooks, utilities, content data
     challenges/     # 15 coding challenges
     tutorials/      # 9 tutorial chapters (ch01–ch09)
-    examples.ts     # 8 example programs
+    examples.ts     # 10 example programs
     types.ts        # Shared TypeScript types
     parseContent.ts # Tutorial content parser (Try-it blocks)
     progress.ts     # localStorage progress tracking
