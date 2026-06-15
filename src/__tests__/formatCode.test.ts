@@ -177,6 +177,38 @@ println(k);
 }`);
   });
 
+  it("formats 2D parallel {i,j} by [M,N] syntax", () => {
+    const input = `__co__ void grid() {
+parallel {i, j} by [4, 4] {
+println(i, j);
+}
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void grid() {
+  parallel {i, j} by [4, 4] {
+    println(i, j);
+  }
+}`);
+  });
+
+  it("formats multiple consecutive blocks", () => {
+    const input = `__co__ void f() {
+parallel {i} by [8] {
+a[i] = 0;
+}
+parallel {i} by [8] {
+b[i] = a[i];
+}
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  parallel {i} by [8] {
+    a[i] = 0;
+  }
+  parallel {i} by [8] {
+    b[i] = a[i];
+  }
+}`);
+  });
+
   it("handles single char strings containing backslash", () => {
     const input = `__co__ void f() {
 char c = '\\\\';
