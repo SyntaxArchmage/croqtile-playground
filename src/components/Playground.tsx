@@ -68,6 +68,9 @@ export function Playground() {
   const [cursorPos, setCursorPos] = useState<CursorPosition>({ line: 1, column: 1 });
   const [settings, setSettings] = useState(() => loadSettings());
   const editorRef = useRef<{ getValue: () => string }>(null);
+  const shortcutsDialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const [statusAnnouncement, setStatusAnnouncement] = useState("");
   const [prevInitSource, setPrevInitSource] = useState(initialSource);
   const [prevInitPanel, setPrevInitPanel] = useState(initialPanelMode);
 
@@ -83,12 +86,65 @@ export function Playground() {
   const { status, output, errors, ast, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput } =
     useChoreoWorker();
 
+  const prevStatusRef = useRef(status);
+  const prevOutputRef = useRef(output);
+  const prevErrorsRef = useRef(errors);
+  const prevAstRef = useRef(ast);
+
   const isMobile = useIsMobile();
 
   useEffect(() => {
     const timer = setTimeout(() => saveLastSource(source), 1000);
     return () => clearTimeout(timer);
   }, [source]);
+
+  useEffect(() => {
+    if (status === "running" && prevStatusRef.current !== "running") {
+      setStatusAnnouncement("Running code");
+    } else if (output && output !== prevOutputRef.current) {
+      setStatusAnnouncement(errors ? "Run finished with errors" : "Run finished. Output is available");
+    } else if (errors && errors !== prevErrorsRef.current) {
+      setStatusAnnouncement("Errors found");
+    } else if (ast && ast !== prevAstRef.current) {
+      setStatusAnnouncement("AST dump ready");
+    }
+    prevStatusRef.current = status;
+    prevOutputRef.current = output;
+    prevErrorsRef.current = errors;
+    prevAstRef.current = ast;
+  }, [status, output, errors, ast]);
+
+  useEffect(() => {
+    if (!showShortcuts) return;
+
+    previousFocusRef.current = document.activeElement as HTMLElement;
+    const dialog = shortcutsDialogRef.current;
+    const focusable = dialog?.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    const first = focusable?.[0];
+    const last = focusable?.[focusable.length - 1];
+    first?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !focusable?.length) return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        }
+      } else if (document.activeElement === last) {
+        e.preventDefault();
+        first?.focus();
+      }
+    };
+
+    dialog?.addEventListener("keydown", handleKeyDown);
+    return () => {
+      dialog?.removeEventListener("keydown", handleKeyDown);
+      previousFocusRef.current?.focus();
+    };
+  }, [showShortcuts]);
 
   const sourceRef = useRef(source);
   useEffect(() => { sourceRef.current = source; }, [source]);
@@ -156,11 +212,21 @@ export function Playground() {
     : null;
 
   const shortcutsOverlay = showShortcuts && (
-    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowShortcuts(false)}>
-      <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="absolute inset-0 z-50 flex items-center justify-center bg-black/60"
+      onClick={() => setShowShortcuts(false)}
+    >
+      <div
+        ref={shortcutsDialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="shortcuts-dialog-title"
+        className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Keyboard Shortcuts</h2>
-          <button onClick={() => setShowShortcuts(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" aria-label="Close">×</button>
+          <h2 id="shortcuts-dialog-title" className="text-sm font-semibold text-[var(--text-primary)]">Keyboard Shortcuts</h2>
+          <button onClick={() => setShowShortcuts(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" aria-label="Close keyboard shortcuts">×</button>
         </div>
         <div className="space-y-2 text-xs">
           {[
@@ -183,6 +249,9 @@ export function Playground() {
 
   const idePanel = (
     <div className="h-full flex flex-col relative">
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {statusAnnouncement}
+      </div>
       {shortcutsOverlay}
       {status === "loading" && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/80 backdrop-blur-sm" role="alert" aria-live="polite">

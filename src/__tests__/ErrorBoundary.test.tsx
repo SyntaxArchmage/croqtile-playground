@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-function ThrowingComponent(): JSX.Element {
-  throw new Error("Test error");
+function ThrowingComponent({ msg }: { msg?: string }): JSX.Element {
+  throw new Error(msg);
 }
 
 function GoodComponent() {
@@ -31,11 +31,21 @@ describe("ErrorBoundary", () => {
   it("renders error UI when child throws", () => {
     render(
       <ErrorBoundary>
-        <ThrowingComponent />
+        <ThrowingComponent msg="Test error" />
       </ErrorBoundary>
     );
     expect(screen.getByText("Something went wrong")).toBeInTheDocument();
     expect(screen.getByText("Test error")).toBeInTheDocument();
     expect(screen.getByText("Reload")).toBeInTheDocument();
+  });
+
+  it("shows fallback message when error has no message", () => {
+    render(
+      <ErrorBoundary>
+        <ThrowingComponent />
+      </ErrorBoundary>
+    );
+    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(screen.getByText("An unexpected error occurred.")).toBeInTheDocument();
   });
 });

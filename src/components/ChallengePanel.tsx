@@ -81,6 +81,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
           <input
             type="text"
             placeholder="Search challenges..."
+            aria-label="Search challenges"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full px-3 py-1.5 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
@@ -246,12 +247,15 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
 
 function DifficultyBadge({ difficulty }: { difficulty: Challenge["difficulty"] }) {
   const colors = {
-    easy: "text-green-400 border-green-800",
-    medium: "text-yellow-400 border-yellow-800",
-    hard: "text-red-400 border-red-800",
+    easy: "text-green-300 border-green-700 bg-green-950/40",
+    medium: "text-yellow-200 border-yellow-700 bg-yellow-950/40",
+    hard: "text-red-300 border-red-700 bg-red-950/40",
   };
   return (
-    <span className={`text-[10px] px-1.5 py-0.5 rounded border ${colors[difficulty]}`}>
+    <span
+      className={`text-[10px] px-1.5 py-0.5 rounded border ${colors[difficulty]}`}
+      aria-label={`Difficulty: ${difficulty}`}
+    >
       {difficulty}
     </span>
   );

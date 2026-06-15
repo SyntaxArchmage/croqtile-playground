@@ -130,19 +130,19 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
         className="h-1 cursor-row-resize bg-[var(--border)] hover:bg-[var(--accent)] transition-colors flex-shrink-0 touch-none"
       />
       <div className="flex items-center gap-1 px-3 py-1 border-b border-[var(--border)] bg-[var(--bg-secondary)]" role="tablist" aria-label="Output panels">
-        <button role="tab" aria-selected={activeTab === "output"} aria-controls="output-tabpanel" onClick={() => setActiveTab("output")} className={tabClass("output")}>
+        <button id="output-tab" role="tab" aria-selected={activeTab === "output"} aria-controls="output-tabpanel" onClick={() => setActiveTab("output")} className={tabClass("output")}>
           Output
         </button>
-        <button role="tab" aria-selected={activeTab === "errors"} aria-controls="output-tabpanel" onClick={() => setActiveTab("errors")} className={tabClass("errors")}>
+        <button id="errors-tab" role="tab" aria-selected={activeTab === "errors"} aria-controls="output-tabpanel" onClick={() => setActiveTab("errors")} className={tabClass("errors")}>
           Errors
           {errors && (
-            <span className="ml-1 w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />
+            <span className="ml-1 w-1.5 h-1.5 rounded-full bg-red-500 inline-block" aria-hidden="true" />
           )}
         </button>
-        <button role="tab" aria-selected={activeTab === "ast"} aria-controls="output-tabpanel" onClick={() => setActiveTab("ast")} className={tabClass("ast")}>
+        <button id="ast-tab" role="tab" aria-selected={activeTab === "ast"} aria-controls="output-tabpanel" onClick={() => setActiveTab("ast")} className={tabClass("ast")}>
           AST
           {ast && (
-            <span className="ml-1 w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
+            <span className="ml-1 w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" aria-hidden="true" />
           )}
         </button>
         {(content || ((output || errors || ast) && onClear)) && (
@@ -151,6 +151,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
               <button
                 onClick={handleCopy}
                 className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                aria-label="Copy output"
               >
                 {copied ? "Copied!" : "Copy"}
               </button>
@@ -159,6 +160,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
               <button
                 onClick={onClear}
                 className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                aria-label="Clear output"
               >
                 Clear
               </button>
@@ -166,7 +168,13 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
           </div>
         )}
       </div>
-      <div ref={scrollRef} id="output-tabpanel" role="tabpanel" className="flex-1 overflow-auto p-3">
+      <div
+        ref={scrollRef}
+        id="output-tabpanel"
+        role="tabpanel"
+        aria-labelledby={`${activeTab}-tab`}
+        className="flex-1 overflow-auto p-3"
+      >
         <pre className="text-xs font-mono text-[var(--text-primary)] whitespace-pre-wrap">
           {content || (
             <span className="text-[var(--text-muted)]">

@@ -225,26 +225,30 @@ export const Toolbar = memo(function Toolbar({
           onClick={() => setShowFileMenu((v) => !v)}
           className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
           aria-label="File menu"
+          aria-haspopup="menu"
           aria-expanded={showFileMenu}
         >
           File ▾
         </button>
         {showFileMenu && (
-          <div className="absolute left-0 top-full mt-1 w-40 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1">
+          <div role="menu" aria-label="File" className="absolute left-0 top-full mt-1 w-40 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1">
             <button
+              role="menuitem"
               onClick={() => { handleOpenClick(); setShowFileMenu(false); }}
               className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
             >
               Open file...
             </button>
             <button
+              role="menuitem"
               onClick={() => { handleDownload(); setShowFileMenu(false); }}
               className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
             >
               Download .co
             </button>
-            <div className="border-t border-[var(--border)] my-1" />
+            <div role="separator" className="border-t border-[var(--border)] my-1" />
             <button
+              role="menuitem"
               onClick={() => { handleFormat(); setShowFileMenu(false); }}
               className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
             >
@@ -262,6 +266,7 @@ export const Toolbar = memo(function Toolbar({
           className="p-1.5 rounded hover:bg-[var(--bg-surface)] text-[var(--text-muted)] transition-colors"
           title="Settings"
           aria-label="Settings menu"
+          aria-haspopup="menu"
           aria-expanded={showMenu}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -270,11 +275,12 @@ export const Toolbar = memo(function Toolbar({
           </svg>
         </button>
         {showMenu && (
-          <div className="absolute right-0 top-full mt-1 w-48 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1">
-            <div className="px-3 py-2 flex items-center justify-between">
+          <div role="menu" aria-label="Settings" className="absolute right-0 top-full mt-1 w-48 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1">
+            <div role="none" className="px-3 py-2 flex items-center justify-between">
               <span className="text-xs text-[var(--text-secondary)]">Font size</span>
               <div className="flex items-center gap-1">
                 <button
+                  role="menuitem"
                   onClick={() => {
                     if (settings.fontSize > 10) {
                       onSettingsChange({ ...settings, fontSize: settings.fontSize - 1 });
@@ -286,10 +292,11 @@ export const Toolbar = memo(function Toolbar({
                 >
                   −
                 </button>
-                <span className="text-xs text-[var(--text-primary)] w-6 text-center tabular-nums">
+                <span className="text-xs text-[var(--text-primary)] w-6 text-center tabular-nums" aria-hidden="true">
                   {settings.fontSize}
                 </span>
                 <button
+                  role="menuitem"
                   onClick={() => {
                     if (settings.fontSize < 24) {
                       onSettingsChange({ ...settings, fontSize: settings.fontSize + 1 });
@@ -303,7 +310,7 @@ export const Toolbar = memo(function Toolbar({
                 </button>
               </div>
             </div>
-            <label className="flex items-center justify-between px-3 py-2 hover:bg-[var(--bg-primary)] cursor-pointer transition-colors">
+            <label role="menuitemcheckbox" aria-checked={settings.wordWrap} className="flex items-center justify-between px-3 py-2 hover:bg-[var(--bg-primary)] cursor-pointer transition-colors">
               <span className="text-xs text-[var(--text-secondary)]">Word wrap</span>
               <input
                 type="checkbox"
@@ -311,10 +318,11 @@ export const Toolbar = memo(function Toolbar({
                 onChange={(e) => onSettingsChange({ ...settings, wordWrap: e.target.checked })}
                 className="accent-[var(--accent)]"
                 aria-label="Toggle word wrap"
+                tabIndex={-1}
               />
             </label>
-            <div className="border-t border-[var(--border)] my-1" />
-            <div className="px-3 py-2 space-y-2">
+            <div role="separator" className="border-t border-[var(--border)] my-1" />
+            <div role="group" aria-label="Progress" className="px-3 py-2 space-y-2">
               <div>
                 <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-1">
                   <span>Tutorials</span>
@@ -344,8 +352,9 @@ export const Toolbar = memo(function Toolbar({
                 </div>
               </div>
             </div>
-            <div className="border-t border-[var(--border)] my-1" />
+            <div role="separator" className="border-t border-[var(--border)] my-1" />
             <button
+              role="menuitem"
               onClick={() => {
                 if (window.confirm("Reset all tutorial and challenge progress?")) {
                   resetProgress();

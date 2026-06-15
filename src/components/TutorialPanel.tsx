@@ -106,6 +106,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
           <input
             type="text"
             placeholder="Search tutorials..."
+            aria-label="Search tutorials"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full px-3 py-1.5 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
