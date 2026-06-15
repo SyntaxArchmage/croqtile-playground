@@ -178,3 +178,36 @@ This session performed 54 development cycles on `croqtile-playground`, a browser
 - **Commits**: 18 commits this session (101 → 118 total)
 - **PRD progress**: Phase 1-5 fully polished; Phase 6 items (L2, WebGPU) blocked on infrastructure
 - **Next priority**: Visual inspection with browser tools, E2E testing when WASM is available
+
+### Auto-Dev Session 2026-06-15 19:08
+- **Duration**: 60 minutes
+- **Defects found**: 2 (P3: 1, P4: 1)
+- **Defects fixed**: 2
+- **Tests added**: 40 (311 → 351)
+- **Features implemented**:
+  - Tutorial step number persistence in URL for shareable deep links
+  - Block comment handling in code formatter (countBraces)
+  - Char literal handling in code formatter
+  - `<main>` landmark added to page for accessibility
+- **Defects fixed**:
+  - P3: Worker timeout did not set lastElapsedMs or null out timeoutRef
+  - P4: Duplicated confirm-and-load logic in Playground (extracted confirmAndLoad helper)
+- **Tests added for coverage**:
+  - Toolbar: ArrowUp/Home/End keyboard navigation, share timeout reset, outside-click close, reset-progress confirm
+  - CommandPalette: Document mousedown outside close, comprehensive test suite (12 tests)
+  - ResizableSplit: No-op key press branch
+  - ErrorBoundary: Reload button rendering
+  - useChoreoWorker: Null fields, versionless ready, cleanup on unmount, clearOutput
+  - OutputPanel: Resize with parent bounds, status announcements
+  - Playground: Status announcement live region
+  - ChallengePanel: Last challenge no-Next button
+  - progress.ts: loadLastSource catch branch
+  - checkTests: Non-consecutive matches, wrong order, numeric output
+- **Coverage**:
+  - Statements: 93.65% → 95.53%
+  - Branches: 82.97% → 85.71%
+  - Functions: 85.76% → 94.80%
+  - Lines: 95.08% → 97.35%
+- **Commits**: 15 commits this session (119 → 134 total)
+- **PRD progress**: Phase 1-5 fully polished; Phase 6 items blocked on infrastructure
+- **Next priority**: Visual inspection, E2E testing when WASM available, Playwright integration tests
