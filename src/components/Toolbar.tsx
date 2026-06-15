@@ -135,7 +135,7 @@ export const Toolbar = memo(function Toolbar({
       if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
-        onLoadCode(reader.result as string);
+        if (typeof reader.result === "string") onLoadCode(reader.result);
       };
       reader.readAsText(file);
       e.target.value = "";
