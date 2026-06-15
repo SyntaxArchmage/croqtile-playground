@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 
 type Tab = "output" | "errors";
 
@@ -10,7 +10,7 @@ interface Props {
   onClear?: () => void;
 }
 
-export function OutputPanel({ output, errors, onClear }: Props) {
+export const OutputPanel = memo(function OutputPanel({ output, errors, onClear }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("output");
   const [prevErrors, setPrevErrors] = useState(errors);
   const [prevOutput, setPrevOutput] = useState(output);
@@ -85,4 +85,4 @@ export function OutputPanel({ output, errors, onClear }: Props) {
       </div>
     </div>
   );
-}
+});

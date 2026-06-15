@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import type { WorkerStatus, BuildManifest } from "@/lib/useChoreoWorker";
 
 interface Props {
@@ -15,7 +16,7 @@ const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
   error: { label: "Error", color: "text-[var(--error)]" },
 };
 
-export function StatusBar({ status, compilerVersion, buildManifest }: Props) {
+export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest }: Props) {
   const { label, color } = statusConfig[status];
   const version = compilerVersion ?? buildManifest?.version ?? null;
   const commit = buildManifest?.commit_short ?? null;
@@ -32,7 +33,7 @@ export function StatusBar({ status, compilerVersion, buildManifest }: Props) {
         {commit && <span className="ml-1 opacity-60">({commit})</span>}
       </span>
       <div className="flex-1" />
-      <span className="hidden sm:inline opacity-50">Ctrl+Enter: Run | Ctrl+Shift+Enter: Compile | Ctrl+S: Share</span>
+      <span className="hidden sm:inline opacity-50">Ctrl+Enter: Run | Ctrl+Shift+Enter: Compile | Ctrl+S: Share | ?: Help</span>
     </div>
   );
-}
+});

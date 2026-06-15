@@ -13,7 +13,15 @@ import { EXAMPLES } from "@/lib/examples";
 import type { PanelMode } from "@/lib/types";
 import { saveLastSource, loadLastSource } from "@/lib/progress";
 
-const subscribe = () => () => {};
+const noop = () => () => {};
+
+function clearPanelParams() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("tutorial");
+  url.searchParams.delete("challenge");
+  url.searchParams.delete("step");
+  window.history.replaceState(null, "", url.toString());
+}
 
 function useIsMobile(breakpoint = 768): boolean {
   return useSyncExternalStore(
@@ -47,12 +55,13 @@ function readInitialPanelMode(): PanelMode {
 }
 
 export function Playground() {
-  const initialSource = useSyncExternalStore(subscribe, readInitialSource, () => EXAMPLES[0].code);
-  const initialPanelMode = useSyncExternalStore(subscribe, readInitialPanelMode, () => "closed" as PanelMode);
+  const initialSource = useSyncExternalStore(noop, readInitialSource, () => EXAMPLES[0].code);
+  const initialPanelMode = useSyncExternalStore(noop, readInitialPanelMode, () => "closed" as PanelMode);
 
   const [source, setSource] = useState(initialSource);
   const [target, setTarget] = useState("cc");
   const [panelMode, setPanelMode] = useState(initialPanelMode);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const editorRef = useRef<{ getValue: () => string }>(null);
   const [prevInitSource, setPrevInitSource] = useState(initialSource);
   const [prevInitPanel, setPrevInitPanel] = useState(initialPanelMode);
@@ -106,6 +115,12 @@ export function Playground() {
         e.preventDefault();
         handleShare();
       }
+      if (e.key === "?" && !e.ctrlKey && !e.metaKey && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+        setShowShortcuts((v) => !v);
+      }
+      if (e.key === "Escape") {
+        setShowShortcuts(false);
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -115,8 +130,34 @@ export function Playground() {
     ? new URLSearchParams(window.location.search).get(panelMode === "tutorial" ? "tutorial" : "challenge")
     : null;
 
+  const shortcutsOverlay = showShortcuts && (
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowShortcuts(false)}>
+      <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Keyboard Shortcuts</h2>
+          <button onClick={() => setShowShortcuts(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" aria-label="Close">×</button>
+        </div>
+        <div className="space-y-2 text-xs">
+          {[
+            ["Ctrl+Enter", "Run code"],
+            ["Ctrl+Shift+Enter", "Compile code"],
+            ["Ctrl+S", "Share link"],
+            ["?", "Toggle this help"],
+            ["Esc", "Close dialog"],
+          ].map(([key, desc]) => (
+            <div key={key} className="flex items-center justify-between py-1">
+              <kbd className="px-2 py-0.5 rounded bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-secondary)] font-mono text-[10px]">{key}</kbd>
+              <span className="text-[var(--text-muted)]">{desc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   const idePanel = (
     <div className="h-full flex flex-col relative">
+      {shortcutsOverlay}
       {status === "loading" && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/80 backdrop-blur-sm" role="alert" aria-live="polite">
           <div className="flex flex-col items-center gap-3">
@@ -146,13 +187,7 @@ export function Playground() {
         onShare={handleShare}
         onTogglePanel={(mode) => setPanelMode((p) => {
           const next = p === mode ? "closed" : mode;
-          if (next === "closed") {
-            const url = new URL(window.location.href);
-            url.searchParams.delete("tutorial");
-            url.searchParams.delete("challenge");
-            url.searchParams.delete("step");
-            window.history.replaceState(null, "", url.toString());
-          }
+          if (next === "closed") clearPanelParams();
           return next;
         })}
         panelMode={panelMode}
@@ -174,11 +209,7 @@ export function Playground() {
 
   const closePanel = useCallback(() => {
     setPanelMode("closed");
-    const url = new URL(window.location.href);
-    url.searchParams.delete("tutorial");
-    url.searchParams.delete("challenge");
-    url.searchParams.delete("step");
-    window.history.replaceState(null, "", url.toString());
+    clearPanelParams();
   }, []);
 
   if (panelMode === "closed") {
