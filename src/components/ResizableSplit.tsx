@@ -66,9 +66,21 @@ export function ResizableSplit({ left, right, initialRatio = 0.35 }: Props) {
         {left}
       </div>
       <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-valuenow={Math.round(ratio * 100)}
+        aria-valuemin={20}
+        aria-valuemax={60}
+        aria-label="Resize panels"
+        tabIndex={0}
         onMouseDown={onMouseDown}
         onTouchStart={onTouchStart}
-        className="w-1 cursor-col-resize bg-[var(--border)] hover:bg-[var(--accent)] transition-colors flex-shrink-0 touch-none"
+        onKeyDown={(e) => {
+          const step = 0.02;
+          if (e.key === "ArrowLeft") { e.preventDefault(); setRatio((r) => Math.max(0.2, r - step)); }
+          if (e.key === "ArrowRight") { e.preventDefault(); setRatio((r) => Math.min(0.6, r + step)); }
+        }}
+        className="w-1 cursor-col-resize bg-[var(--border)] hover:bg-[var(--accent)] focus:bg-[var(--accent)] focus:outline-none transition-colors flex-shrink-0 touch-none"
       />
       <div style={{ width: `${(1 - ratio) * 100}%` }} className="min-w-0 overflow-hidden">
         {right}

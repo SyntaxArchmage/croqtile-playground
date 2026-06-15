@@ -66,7 +66,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
     if (initialId && selectedTutorial) {
       onLoadCode(selectedTutorial.steps[stepIndex]?.code ?? selectedTutorial.steps[0].code);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount-only deep link init
 
   if (!selectedTutorial) {
     return (

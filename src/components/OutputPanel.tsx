@@ -10,31 +10,19 @@ interface Props {
   onClear?: () => void;
 }
 
-function useAutoTab(output: string, errors: string): Tab {
-  const [tab, setTab] = useState<Tab>("output");
+export function OutputPanel({ output, errors, onClear }: Props) {
+  const [activeTab, setActiveTab] = useState<Tab>("output");
   const [prevErrors, setPrevErrors] = useState(errors);
   const [prevOutput, setPrevOutput] = useState(output);
 
   if (errors !== prevErrors) {
     setPrevErrors(errors);
-    if (errors) setTab("errors");
+    if (errors) setActiveTab("errors");
   }
   if (output !== prevOutput) {
     setPrevOutput(output);
-    if (output && !errors) setTab("output");
+    if (output && !errors) setActiveTab("output");
   }
-
-  return tab;
-}
-
-export function OutputPanel({ output, errors, onClear }: Props) {
-  const autoTab = useAutoTab(output, errors);
-  const [manualTab, setManualTab] = useState<Tab | null>(null);
-  const activeTab = manualTab ?? autoTab;
-
-  useEffect(() => {
-    setManualTab(null);
-  }, [autoTab]);
 
   const content = activeTab === "output" ? output : errors;
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -52,7 +40,7 @@ export function OutputPanel({ output, errors, onClear }: Props) {
           role="tab"
           aria-selected={activeTab === "output"}
           aria-controls="output-tabpanel"
-          onClick={() => setManualTab("output")}
+          onClick={() => setActiveTab("output")}
           className={`px-2 py-0.5 text-xs rounded ${
             activeTab === "output"
               ? "bg-[var(--bg-surface)] text-[var(--text-primary)]"
@@ -65,7 +53,7 @@ export function OutputPanel({ output, errors, onClear }: Props) {
           role="tab"
           aria-selected={activeTab === "errors"}
           aria-controls="output-tabpanel"
-          onClick={() => setManualTab("errors")}
+          onClick={() => setActiveTab("errors")}
           className={`px-2 py-0.5 text-xs rounded ${
             activeTab === "errors"
               ? "bg-[var(--bg-surface)] text-[var(--text-primary)]"

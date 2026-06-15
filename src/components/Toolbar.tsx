@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { WorkerStatus } from "@/lib/useChoreoWorker";
 import type { PanelMode } from "@/lib/types";
 import { EXAMPLES } from "@/lib/examples";
+import { resetProgress } from "@/lib/progress";
 
 interface Props {
   target: string;
@@ -32,11 +33,25 @@ export function Toolbar({
 }: Props) {
   const busy = status === "running";
   const [copied, setCopied] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+
   const handleShareClick = useCallback(() => {
     onShare();
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const id = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(id);
   }, [onShare]);
+
+  useEffect(() => {
+    if (!showMenu) return;
+    const close = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement)?.closest("[data-settings-menu]")) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [showMenu]);
 
   return (
     <nav className="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]" aria-label="Playground toolbar">
@@ -130,6 +145,37 @@ export function Toolbar({
       </button>
 
       <div className="flex-1" />
+
+      <div className="relative" data-settings-menu>
+        <button
+          onClick={() => setShowMenu((v) => !v)}
+          className="p-1.5 rounded hover:bg-[var(--bg-surface)] text-[var(--text-muted)] transition-colors"
+          title="Settings"
+          aria-label="Settings menu"
+          aria-expanded={showMenu}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+          </svg>
+        </button>
+        {showMenu && (
+          <div className="absolute right-0 top-full mt-1 w-48 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1">
+            <button
+              onClick={() => {
+                if (window.confirm("Reset all tutorial and challenge progress?")) {
+                  resetProgress();
+                  setShowMenu(false);
+                  window.location.reload();
+                }
+              }}
+              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+            >
+              Reset progress
+            </button>
+          </div>
+        )}
+      </div>
 
       <select
         onChange={(e) => {

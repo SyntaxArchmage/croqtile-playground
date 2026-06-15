@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useSyncExternalStore } from "react";
 import { Editor } from "./Editor";
 import { Toolbar } from "./Toolbar";
 import { OutputPanel } from "./OutputPanel";
@@ -13,24 +13,58 @@ import { EXAMPLES } from "@/lib/examples";
 import type { PanelMode } from "@/lib/types";
 import { saveLastSource, loadLastSource } from "@/lib/progress";
 
+const subscribe = () => () => {};
+
 function useIsMobile(breakpoint = 768): boolean {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-    setIsMobile(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, [breakpoint]);
-  return isMobile;
+  return useSyncExternalStore(
+    (cb) => {
+      const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+      mql.addEventListener("change", cb);
+      return () => mql.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(`(max-width: ${breakpoint - 1}px)`).matches,
+    () => false,
+  );
+}
+
+function readInitialSource(): string {
+  if (typeof window !== "undefined" && window.location.hash.length > 1) {
+    try { return decodeURIComponent(window.location.hash.slice(1)); } catch { /* fall through */ }
+  }
+  if (typeof window !== "undefined") {
+    const saved = loadLastSource();
+    if (saved) return saved;
+  }
+  return EXAMPLES[0].code;
+}
+
+function readInitialPanelMode(): PanelMode {
+  if (typeof window === "undefined") return "closed";
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("tutorial")) return "tutorial";
+  if (params.has("challenge")) return "challenge";
+  return "closed";
 }
 
 export function Playground() {
-  const [source, setSource] = useState<string>(EXAMPLES[0].code);
+  const initialSource = useSyncExternalStore(subscribe, readInitialSource, () => EXAMPLES[0].code);
+  const initialPanelMode = useSyncExternalStore(subscribe, readInitialPanelMode, () => "closed" as PanelMode);
+
+  const [source, setSource] = useState(initialSource);
   const [target, setTarget] = useState("cc");
-  const [panelMode, setPanelMode] = useState<PanelMode>("closed");
-  const [hydrated, setHydrated] = useState(false);
+  const [panelMode, setPanelMode] = useState(initialPanelMode);
   const editorRef = useRef<{ getValue: () => string }>(null);
+  const prevInitSource = useRef(initialSource);
+  const prevInitPanel = useRef(initialPanelMode);
+
+  if (initialSource !== prevInitSource.current) {
+    prevInitSource.current = initialSource;
+    setSource(initialSource);
+  }
+  if (initialPanelMode !== prevInitPanel.current) {
+    prevInitPanel.current = initialPanelMode;
+    setPanelMode(initialPanelMode);
+  }
 
   const { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput } =
     useChoreoWorker();
@@ -38,28 +72,9 @@ export function Playground() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (hydrated) return;
-    setHydrated(true);
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.has("tutorial")) setPanelMode("tutorial");
-    else if (params.has("challenge")) setPanelMode("challenge");
-
-    if (window.location.hash.length > 1) {
-      try {
-        setSource(decodeURIComponent(window.location.hash.slice(1)));
-        return;
-      } catch { /* fall through */ }
-    }
-    const saved = loadLastSource();
-    if (saved) setSource(saved);
-  }, [hydrated]);
-
-  useEffect(() => {
-    if (!hydrated) return;
     const timer = setTimeout(() => saveLastSource(source), 1000);
     return () => clearTimeout(timer);
-  }, [source, hydrated]);
+  }, [source]);
 
   const getCode = useCallback(() => editorRef.current?.getValue() ?? source, [source]);
 
@@ -96,7 +111,7 @@ export function Playground() {
     return () => window.removeEventListener("keydown", handler);
   }, [handleRun, handleCompile, handleShare]);
 
-  const deepLinkId = hydrated
+  const deepLinkId = typeof window !== "undefined"
     ? new URLSearchParams(window.location.search).get(panelMode === "tutorial" ? "tutorial" : "challenge")
     : null;
 
