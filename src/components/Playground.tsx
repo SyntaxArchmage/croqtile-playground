@@ -12,6 +12,7 @@ import { useChoreoWorker } from "@/lib/useChoreoWorker";
 import { EXAMPLES } from "@/lib/examples";
 import type { PanelMode } from "@/lib/types";
 import { saveLastSource, loadLastSource } from "@/lib/progress";
+import { decodeCode, encodeCode } from "@/lib/urlCodec";
 
 const noop = () => () => {};
 
@@ -37,7 +38,7 @@ function useIsMobile(breakpoint = 768): boolean {
 
 function readInitialSource(): string {
   if (typeof window !== "undefined" && window.location.hash.length > 1) {
-    try { return decodeURIComponent(window.location.hash.slice(1)); } catch { /* fall through */ }
+    return decodeCode(window.location.hash.slice(1));
   }
   if (typeof window !== "undefined") {
     const saved = loadLastSource();
@@ -93,12 +94,13 @@ export function Playground() {
 
   const handleShare = useCallback(() => {
     const code = getCode();
-    const url = `${window.location.origin}${window.location.pathname}#${encodeURIComponent(code)}`;
+    const encoded = encodeCode(code);
+    const url = `${window.location.origin}${window.location.pathname}#${encoded}`;
     navigator.clipboard.writeText(url).then(
       () => {},
       () => { window.alert("Could not copy link. Try copying the URL manually."); }
     );
-    window.history.replaceState(null, "", `#${encodeURIComponent(code)}`);
+    window.history.replaceState(null, "", `#${encoded}`);
   }, [getCode]);
 
   useEffect(() => {
