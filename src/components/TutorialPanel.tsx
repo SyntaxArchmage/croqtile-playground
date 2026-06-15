@@ -34,12 +34,17 @@ function renderContent(
   });
 }
 
-function updateUrlParam(key: string, value: string | null) {
+function updateUrlParam(key: string, value: string | null, step?: number) {
   const url = new URL(window.location.href);
   if (value) {
     url.searchParams.set(key, value);
   } else {
     url.searchParams.delete(key);
+  }
+  if (step !== undefined && step > 0) {
+    url.searchParams.set("step", String(step + 1));
+  } else {
+    url.searchParams.delete("step");
   }
   url.searchParams.delete("challenge");
   window.history.replaceState(null, "", url.toString());
@@ -125,7 +130,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
                 setStepIndex(resumeStep);
                 onLoadCode(t.steps[resumeStep].code);
                 markTutorialStep(t.id, resumeStep);
-                updateUrlParam("tutorial", t.id);
+                updateUrlParam("tutorial", t.id, resumeStep);
               }}
               className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
             >
@@ -195,7 +200,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
             setStepIndex(prev);
             onLoadCode(selectedTutorial.steps[prev].code);
             markTutorialStep(selectedTutorial.id, prev);
-            updateUrlParam("tutorial", selectedTutorial.id);
+            updateUrlParam("tutorial", selectedTutorial.id, prev);
           }}
           disabled={stepIndex === 0}
           className="px-3 py-1 text-xs rounded border border-[var(--border)] disabled:opacity-30 hover:bg-[var(--bg-surface)]"
@@ -230,7 +235,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
             setStepIndex(next);
             onLoadCode(selectedTutorial.steps[next].code);
             markTutorialStep(selectedTutorial.id, next);
-            updateUrlParam("tutorial", selectedTutorial.id);
+            updateUrlParam("tutorial", selectedTutorial.id, next);
           }}
           disabled={stepIndex === totalSteps - 1}
           className="px-3 py-1 text-xs rounded border border-[var(--border)] disabled:opacity-30 hover:bg-[var(--bg-surface)]"

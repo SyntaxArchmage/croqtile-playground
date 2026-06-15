@@ -148,6 +148,15 @@ describe("TutorialPanel", () => {
     expect(screen.getAllByTestId("tutorial-step-dot")).toHaveLength(3);
   });
 
+  it("persists step number in URL when navigating", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    fireEvent.click(screen.getByText("Next →"));
+    const params = new URLSearchParams(window.location.search);
+    expect(params.get("step")).toBe("2");
+    window.history.pushState({}, "", "/");
+  });
+
   it("calls onLoadCode when Try it button is clicked", () => {
     const onLoadCode = jest.fn();
     render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} />);

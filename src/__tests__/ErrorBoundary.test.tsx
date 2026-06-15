@@ -39,6 +39,17 @@ describe("ErrorBoundary", () => {
     expect(screen.getByText("Reload")).toBeInTheDocument();
   });
 
+  it("renders Reload button that is clickable", () => {
+    render(
+      <ErrorBoundary>
+        <ThrowingComponent msg="crash" />
+      </ErrorBoundary>
+    );
+    const btn = screen.getByText("Reload");
+    expect(btn.tagName).toBe("BUTTON");
+    expect(btn).not.toBeDisabled();
+  });
+
   it("shows fallback message when error has no message", () => {
     render(
       <ErrorBoundary>
