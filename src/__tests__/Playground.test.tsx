@@ -282,6 +282,49 @@ describe("Playground", () => {
     });
   });
 
+  describe("share functionality", () => {
+    it("dispatches share on Ctrl+S", () => {
+      Object.assign(navigator, {
+        clipboard: { writeText: jest.fn(() => Promise.resolve()) },
+      });
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "s", ctrlKey: true });
+      expect(navigator.clipboard.writeText).toHaveBeenCalled();
+      expect(window.history.replaceState).toHaveBeenCalled();
+    });
+  });
+
+  describe("settings", () => {
+    it("passes settings to editor", () => {
+      mockLoadSettings.mockReturnValue({ fontSize: 18, wordWrap: false });
+      renderPlayground();
+      const editor = screen.getByTestId("code-editor");
+      expect(editor).toHaveAttribute("data-font-size", "18");
+      expect(editor).toHaveAttribute("data-word-wrap", "false");
+    });
+  });
+
+  describe("mobile layout", () => {
+    it("renders stacked layout on mobile", () => {
+      mockMatchMedia(true);
+      setUrl("/?tutorial=ch01");
+      const { container } = renderPlayground();
+      expect(container.querySelector(".flex-col")).toBeTruthy();
+    });
+  });
+
+  describe("close panel from context panel", () => {
+    it("closes panel and clears URL params when close button clicked", () => {
+      setUrl("/?tutorial=ch01");
+      renderPlayground();
+      expect(screen.getByText("← Back")).toBeInTheDocument();
+      const closeBtn = screen.getAllByLabelText("Close tutorials panel");
+      fireEvent.click(closeBtn[0]);
+      expect(screen.queryByText("← Back")).not.toBeInTheDocument();
+      expect(window.history.replaceState).toHaveBeenCalled();
+    });
+  });
+
   describe("source persistence", () => {
     it("schedules saveLastSource after source changes", () => {
       jest.useFakeTimers();
