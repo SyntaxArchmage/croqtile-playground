@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef, memo } from "react";
 import type { WorkerStatus } from "@/lib/useChoreoWorker";
 import type { PanelMode } from "@/lib/types";
 import { EXAMPLES } from "@/lib/examples";
-import { formatChoreoCode } from "@/lib/formatCode";
+
 import { TUTORIALS } from "@/lib/tutorials";
 import { CHALLENGES } from "@/lib/challenges";
 import { getTutorialProgress, isChallengePassed, resetProgress } from "@/lib/progress";
@@ -19,6 +19,7 @@ interface Props {
   onLoadCode: (code: string) => void;
   getCode: () => string;
   onShare: () => void;
+  onFormat: () => void;
   onTogglePanel: (mode: PanelMode) => void;
   panelMode: PanelMode;
   status: WorkerStatus;
@@ -35,6 +36,7 @@ export const Toolbar = memo(function Toolbar({
   onLoadCode,
   getCode,
   onShare,
+  onFormat,
   onTogglePanel,
   panelMode,
   status,
@@ -144,8 +146,8 @@ export const Toolbar = memo(function Toolbar({
   );
 
   const handleFormat = useCallback(() => {
-    onLoadCode(formatChoreoCode(getCode()));
-  }, [getCode, onLoadCode]);
+    onFormat();
+  }, [onFormat]);
 
   useEffect(() => {
     return () => {

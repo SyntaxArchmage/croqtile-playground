@@ -390,6 +390,7 @@ export function Playground() {
         onLoadCode={handleLoadCode}
         getCode={getCode}
         onShare={handleShare}
+        onFormat={handleFormatCode}
         onTogglePanel={handleTogglePanel}
         panelMode={panelMode}
         status={status}

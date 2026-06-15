@@ -12,6 +12,7 @@ const defaultProps = {
   onLoadCode: jest.fn(),
   getCode: jest.fn(() => "test code"),
   onShare: jest.fn(),
+  onFormat: jest.fn(),
   onTogglePanel: jest.fn(),
   panelMode: "closed" as const,
   status: "ready" as const,
@@ -97,15 +98,12 @@ describe("Toolbar", () => {
     expect(clickSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("formats code when Format code clicked in File menu", () => {
-    const getCode = jest.fn(() => "__co__ void hello() {\nprintln(\"hi\");\n}");
-    render(<Toolbar {...defaultProps} getCode={getCode} />);
+  it("calls onFormat when Format code clicked in File menu", () => {
+    const onFormat = jest.fn();
+    render(<Toolbar {...defaultProps} onFormat={onFormat} />);
     fireEvent.click(screen.getByLabelText("File menu"));
     fireEvent.click(screen.getByText("Format code"));
-    expect(getCode).toHaveBeenCalledTimes(1);
-    expect(defaultProps.onLoadCode).toHaveBeenCalledWith(`__co__ void hello() {
-  println("hi");
-}`);
+    expect(onFormat).toHaveBeenCalledTimes(1);
   });
 
   it("downloads code as .co file via File menu", () => {
