@@ -135,17 +135,36 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
         }}
         className="h-1 cursor-row-resize bg-[var(--border)] hover:bg-[var(--accent)] focus:bg-[var(--accent)] focus:outline-none transition-colors flex-shrink-0 touch-none"
       />
-      <div className="flex items-center gap-1 px-3 py-1 border-b border-[var(--border)] bg-[var(--bg-secondary)]" role="tablist" aria-label="Output panels">
-        <button id="output-tab" role="tab" aria-selected={activeTab === "output"} aria-controls="output-tabpanel" onClick={() => setActiveTab("output")} className={tabClass("output")}>
+      <div
+        className="flex items-center gap-1 px-3 py-1 border-b border-[var(--border)] bg-[var(--bg-secondary)]"
+        role="tablist"
+        aria-label="Output panels"
+        onKeyDown={(e) => {
+          const tabs: Tab[] = ["output", "errors", "ast"];
+          const idx = tabs.indexOf(activeTab);
+          if (e.key === "ArrowRight") {
+            e.preventDefault();
+            const next = tabs[(idx + 1) % tabs.length];
+            setActiveTab(next);
+            document.getElementById(`${next}-tab`)?.focus();
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            const prev = tabs[(idx - 1 + tabs.length) % tabs.length];
+            setActiveTab(prev);
+            document.getElementById(`${prev}-tab`)?.focus();
+          }
+        }}
+      >
+        <button id="output-tab" role="tab" tabIndex={activeTab === "output" ? 0 : -1} aria-selected={activeTab === "output"} aria-controls="output-tabpanel" onClick={() => setActiveTab("output")} className={tabClass("output")}>
           Output
         </button>
-        <button id="errors-tab" role="tab" aria-selected={activeTab === "errors"} aria-controls="output-tabpanel" onClick={() => setActiveTab("errors")} className={tabClass("errors")}>
+        <button id="errors-tab" role="tab" tabIndex={activeTab === "errors" ? 0 : -1} aria-selected={activeTab === "errors"} aria-controls="output-tabpanel" onClick={() => setActiveTab("errors")} className={tabClass("errors")}>
           Errors
           {errors && (
             <span className="ml-1 w-1.5 h-1.5 rounded-full bg-red-500 inline-block" aria-hidden="true" />
           )}
         </button>
-        <button id="ast-tab" role="tab" aria-selected={activeTab === "ast"} aria-controls="output-tabpanel" onClick={() => setActiveTab("ast")} className={tabClass("ast")}>
+        <button id="ast-tab" role="tab" tabIndex={activeTab === "ast" ? 0 : -1} aria-selected={activeTab === "ast"} aria-controls="output-tabpanel" onClick={() => setActiveTab("ast")} className={tabClass("ast")}>
           AST
           {ast && (
             <span className="ml-1 w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" aria-hidden="true" />

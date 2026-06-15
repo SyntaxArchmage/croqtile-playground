@@ -141,13 +141,14 @@ describe("OutputPanel", () => {
     expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialValue);
   });
 
-  it("adjusts height via keyboard on separator", () => {
-    render(<OutputPanel output="data" errors="" />);
-    const sep = screen.getByRole("separator");
-    const initialValue = Number(sep.getAttribute("aria-valuenow"));
-    fireEvent.keyDown(sep, { key: "ArrowUp" });
-    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialValue + 2);
-    fireEvent.keyDown(sep, { key: "ArrowDown" });
-    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialValue);
+  it("navigates tabs with arrow keys", () => {
+    render(<OutputPanel output="out" errors="err" ast="tree" />);
+    const outputTab = screen.getByRole("tab", { name: /Output/ });
+    fireEvent.keyDown(outputTab, { key: "ArrowRight" });
+    expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
+    fireEvent.keyDown(screen.getByRole("tab", { name: /Errors/ }), { key: "ArrowRight" });
+    expect(screen.getByRole("tab", { name: /AST/ })).toHaveAttribute("aria-selected", "true");
+    fireEvent.keyDown(screen.getByRole("tab", { name: /AST/ }), { key: "ArrowLeft" });
+    expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
   });
 });
