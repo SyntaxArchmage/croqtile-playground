@@ -9,10 +9,11 @@ const mockClearOutput = jest.fn();
 const mockLoadLastSource = jest.fn(() => null);
 const mockLoadSettings = jest.fn(() => ({ fontSize: 14, wordWrap: true, lastTarget: "cc" }));
 const mockSaveSettings = jest.fn();
+let mockStatus: "ready" | "running" | "loading" | "error" = "ready";
 
 jest.mock("@/lib/useChoreoWorker", () => ({
   useChoreoWorker: () => ({
-    status: "ready" as const,
+    status: mockStatus,
     output: "",
     errors: "",
     ast: "",
@@ -89,11 +90,14 @@ function renderPlayground() {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockStatus = "ready";
   mockLoadLastSource.mockReturnValue(null);
   mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, lastTarget: "cc" });
   mockMatchMedia(false);
   setUrl("/");
   window.history.replaceState = jest.fn();
+  document.title = "Croqtile Playground";
+  window.confirm = jest.fn(() => true);
 });
 
 describe("Playground", () => {
@@ -338,6 +342,90 @@ describe("Playground", () => {
       const { saveLastSource } = jest.requireMock("@/lib/progress");
       expect(saveLastSource).toHaveBeenCalledWith("__co__ void edited() {}");
       jest.useRealTimers();
+    });
+  });
+
+  describe("unsaved changes warning", () => {
+    async function flushInitialLoadConfirm() {
+      await act(async () => {
+        jest.runAllTimers();
+      });
+    }
+
+    it("does not confirm when loading tutorial code on initial deep link", async () => {
+      jest.useFakeTimers();
+      const hashCode = '__co__ void fromHash() { println("hash"); }';
+      setUrl(`/?tutorial=ch01#${encodeURIComponent(hashCode)}`);
+      renderPlayground();
+      await flushInitialLoadConfirm();
+      expect(window.confirm).not.toHaveBeenCalled();
+      jest.useRealTimers();
+    });
+
+    it("confirms before loading example when source was modified", async () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      await flushInitialLoadConfirm();
+      jest.useRealTimers();
+
+      fireEvent.change(screen.getByTestId("code-editor"), {
+        target: { value: "__co__ void edited() {}" },
+      });
+
+      (window.confirm as jest.Mock).mockReturnValue(false);
+      fireEvent.change(screen.getByLabelText("Load example code"), {
+        target: { value: "parallel" },
+      });
+
+      expect(window.confirm).toHaveBeenCalledWith("You have unsaved changes. Load new code?");
+      expect(screen.getByTestId("code-editor")).toHaveValue("__co__ void edited() {}");
+    });
+
+    it("loads example when user confirms overwrite", async () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      await flushInitialLoadConfirm();
+      jest.useRealTimers();
+
+      fireEvent.change(screen.getByTestId("code-editor"), {
+        target: { value: "__co__ void edited() {}" },
+      });
+
+      (window.confirm as jest.Mock).mockReturnValue(true);
+      fireEvent.change(screen.getByLabelText("Load example code"), {
+        target: { value: "parallel" },
+      });
+
+      expect(window.confirm).toHaveBeenCalled();
+      expect(screen.getByTestId("code-editor")).toHaveValue(EXAMPLES[1].code);
+    });
+
+    it("does not confirm when source is still the default example", async () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      await flushInitialLoadConfirm();
+      jest.useRealTimers();
+
+      fireEvent.change(screen.getByLabelText("Load example code"), {
+        target: { value: "parallel" },
+      });
+
+      expect(window.confirm).not.toHaveBeenCalled();
+      expect(screen.getByTestId("code-editor")).toHaveValue(EXAMPLES[1].code);
+    });
+  });
+
+  describe("document title", () => {
+    it("shows running indicator in title when status is running", () => {
+      mockStatus = "running";
+      renderPlayground();
+      expect(document.title).toBe("⏳ Running... | Croqtile Playground");
+    });
+
+    it("shows default title when not running", () => {
+      mockStatus = "ready";
+      renderPlayground();
+      expect(document.title).toBe("Croqtile Playground");
     });
   });
 });

@@ -150,6 +150,36 @@ export function Playground() {
   useEffect(() => { sourceRef.current = source; }, [source]);
   const getCode = useCallback(() => editorRef.current?.getValue() ?? sourceRef.current, []);
 
+  const skipLoadConfirmRef = useRef(true);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      skipLoadConfirmRef.current = false;
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleLoadCode = useCallback(
+    (code: string) => {
+      const isModified = source !== EXAMPLES[0].code;
+      const isDifferent = source !== code;
+      if (
+        !skipLoadConfirmRef.current &&
+        isModified &&
+        isDifferent &&
+        !window.confirm("You have unsaved changes. Load new code?")
+      ) {
+        return;
+      }
+      setSource(code);
+    },
+    [source],
+  );
+
+  useEffect(() => {
+    document.title =
+      status === "running" ? "⏳ Running... | Croqtile Playground" : "Croqtile Playground";
+  }, [status]);
+
   const handleRun = useCallback(() => run(getCode()), [getCode, run]);
   const handleCompile = useCallback(() => compile(getCode(), target), [getCode, target, compile]);
   const handleDumpAST = useCallback(() => dumpAST(getCode()), [getCode, dumpAST]);
@@ -289,7 +319,7 @@ export function Playground() {
         onRun={handleRun}
         onCompile={handleCompile}
         onDumpAST={handleDumpAST}
-        onLoadCode={setSource}
+        onLoadCode={handleLoadCode}
         getCode={getCode}
         onShare={handleShare}
         onTogglePanel={handleTogglePanel}
@@ -333,13 +363,13 @@ export function Playground() {
 
   const contextPanel = panelMode === "tutorial" ? (
     <TutorialPanel
-      onLoadCode={setSource}
+      onLoadCode={handleLoadCode}
       onClose={closePanel}
       initialId={deepLinkId ?? undefined}
     />
   ) : (
     <ChallengePanel
-      onLoadCode={setSource}
+      onLoadCode={handleLoadCode}
       onClose={closePanel}
       lastOutput={output}
       getCode={getCode}
