@@ -46,6 +46,18 @@ describe("CommandPalette", () => {
     expect(screen.getByText("No matching commands")).toBeInTheDocument();
   });
 
+  it("Enter is a no-op when no commands match", () => {
+    const cmds = makeCommands();
+    const onClose = jest.fn();
+    render(<CommandPalette commands={cmds} onClose={onClose} />);
+    fireEvent.change(screen.getByLabelText("Search commands"), {
+      target: { value: "zzzznotfound" },
+    });
+    fireEvent.keyDown(screen.getByLabelText("Search commands"), { key: "Enter" });
+    expect(onClose).not.toHaveBeenCalled();
+    cmds.forEach((cmd) => expect(cmd.action).not.toHaveBeenCalled());
+  });
+
   it("executes command and closes on click", () => {
     const cmds = makeCommands();
     const onClose = jest.fn();
