@@ -206,4 +206,14 @@ describe("ResizableSplit", () => {
     const left = container.querySelectorAll("[style]")[0] as HTMLElement;
     expect(parseFloat(left.style.width)).toBe(35);
   });
+
+  it("does not change ratio on other key presses", () => {
+    const { container } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} initialRatio={0.35} />
+    );
+    const sep = screen.getByRole("separator");
+    fireEvent.keyDown(sep, { key: "Enter" });
+    const left = container.querySelectorAll("[style]")[0];
+    expect(left).toHaveStyle({ width: "35%" });
+  });
 });

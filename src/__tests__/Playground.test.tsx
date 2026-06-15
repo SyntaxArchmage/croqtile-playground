@@ -539,6 +539,32 @@ describe("Playground", () => {
     expect(screen.getByText("Share link")).toBeInTheDocument();
   });
 
+  describe("command palette", () => {
+    it("opens command palette on Ctrl+P", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+      expect(screen.getByLabelText("Search commands")).toBeInTheDocument();
+    });
+
+    it("runs a command from the palette", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+      fireEvent.change(screen.getByLabelText("Search commands"), {
+        target: { value: "Run" },
+      });
+      fireEvent.keyDown(screen.getByLabelText("Search commands"), { key: "Enter" });
+      expect(mockRun).toHaveBeenCalled();
+    });
+
+    it("closes command palette on Escape", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+      expect(screen.getByLabelText("Search commands")).toBeInTheDocument();
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(screen.queryByLabelText("Search commands")).not.toBeInTheDocument();
+    });
+  });
+
   describe("WASM status overlays", () => {
     it("shows loading overlay when status is loading", () => {
       mockStatus = "loading";

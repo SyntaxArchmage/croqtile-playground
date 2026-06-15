@@ -73,6 +73,7 @@ export function Playground() {
   const editorRef = useRef<{ getValue: () => string }>(null);
   const shortcutsDialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const lastLoadedCodeRef = useRef<string>(initialSource);
   const [statusAnnouncement, setStatusAnnouncement] = useState("");
   const [prevInitSource, setPrevInitSource] = useState(initialSource);
   const [prevInitPanel, setPrevInitPanel] = useState(initialPanelMode);
@@ -161,9 +162,9 @@ export function Playground() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleLoadCode = useCallback(
-    (code: string) => {
-      const isModified = source !== EXAMPLES[0].code;
+  const confirmAndLoad = useCallback(
+    (code: string): boolean => {
+      const isModified = source !== lastLoadedCodeRef.current;
       const isDifferent = source !== code;
       if (
         !skipLoadConfirmRef.current &&
@@ -171,29 +172,27 @@ export function Playground() {
         isDifferent &&
         !window.confirm("You have unsaved changes. Load new code?")
       ) {
-        return;
+        return false;
       }
+      lastLoadedCodeRef.current = code;
       setSource(code);
+      return true;
     },
     [source],
   );
 
+  const handleLoadCode = useCallback(
+    (code: string) => { confirmAndLoad(code); },
+    [confirmAndLoad],
+  );
+
   const handleLoadAndRun = useCallback(
     (code: string) => {
-      const isModified = source !== EXAMPLES[0].code;
-      const isDifferent = source !== code;
-      if (
-        !skipLoadConfirmRef.current &&
-        isModified &&
-        isDifferent &&
-        !window.confirm("You have unsaved changes. Load new code?")
-      ) {
-        return;
+      if (confirmAndLoad(code)) {
+        setTimeout(() => run(code), 100);
       }
-      setSource(code);
-      setTimeout(() => run(code), 100);
     },
-    [source, run],
+    [confirmAndLoad, run],
   );
 
   useEffect(() => {

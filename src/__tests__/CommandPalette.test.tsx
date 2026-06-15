@@ -124,4 +124,11 @@ describe("CommandPalette", () => {
     fireEvent.keyDown(input, { key: "Enter" });
     expect(cmds[1].action).toHaveBeenCalledTimes(1);
   });
+
+  it("closes on document mousedown outside dialog", () => {
+    const onClose = jest.fn();
+    render(<CommandPalette commands={makeCommands()} onClose={onClose} />);
+    fireEvent.mouseDown(document, { target: document.body });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
 });

@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { Toolbar } from "@/components/Toolbar";
+import * as progress from "@/lib/progress";
 
 const defaultProps = {
   target: "cc",
@@ -312,5 +313,93 @@ describe("Toolbar", () => {
     expect(openItem).toHaveFocus();
     fireEvent.keyDown(fileMenu, { key: "ArrowDown" });
     expect(downloadItem).toHaveFocus();
+  });
+
+  it("moves focus within File menu with ArrowUp", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    const fileMenu = screen.getByRole("menu", { name: "File" });
+    const openItem = screen.getByText("Open file...");
+    const downloadItem = screen.getByText("Download .co");
+    expect(openItem).toHaveFocus();
+    fireEvent.keyDown(fileMenu, { key: "ArrowDown" });
+    expect(downloadItem).toHaveFocus();
+    fireEvent.keyDown(fileMenu, { key: "ArrowUp" });
+    expect(openItem).toHaveFocus();
+  });
+
+  it("moves focus to first item in File menu with Home", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    const fileMenu = screen.getByRole("menu", { name: "File" });
+    const openItem = screen.getByText("Open file...");
+    const formatItem = screen.getByText("Format code");
+    fireEvent.keyDown(fileMenu, { key: "End" });
+    expect(formatItem).toHaveFocus();
+    fireEvent.keyDown(fileMenu, { key: "Home" });
+    expect(openItem).toHaveFocus();
+  });
+
+  it("moves focus to last item in File menu with End", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    const fileMenu = screen.getByRole("menu", { name: "File" });
+    const openItem = screen.getByText("Open file...");
+    const formatItem = screen.getByText("Format code");
+    expect(openItem).toHaveFocus();
+    fireEvent.keyDown(fileMenu, { key: "End" });
+    expect(formatItem).toHaveFocus();
+  });
+
+  it("resets share copied timeout on rapid Share clicks", () => {
+    jest.useFakeTimers();
+    render(<Toolbar {...defaultProps} />);
+    const shareBtn = screen.getByLabelText("Share code");
+    fireEvent.click(shareBtn);
+    expect(defaultProps.onShare).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Copied!")).toBeInTheDocument();
+    act(() => {
+      jest.advanceTimersByTime(1500);
+    });
+    fireEvent.click(shareBtn);
+    expect(defaultProps.onShare).toHaveBeenCalledTimes(2);
+    expect(screen.getByText("Copied!")).toBeInTheDocument();
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    expect(screen.getByText("Copied!")).toBeInTheDocument();
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    expect(screen.getByText("Share")).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("closes settings menu when clicking outside", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByText("Reset progress")).toBeInTheDocument();
+    fireEvent.click(document.body);
+    expect(screen.queryByText("Reset progress")).not.toBeInTheDocument();
+  });
+
+  it("resets progress when reset confirmed", () => {
+    const resetProgressSpy = jest.spyOn(progress, "resetProgress");
+    const confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(true);
+    const origReload = window.location.reload;
+    window.location.reload = jest.fn();
+
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByText("Reset progress"));
+
+    expect(confirmSpy).toHaveBeenCalledWith("Reset all tutorial and challenge progress?");
+    expect(resetProgressSpy).toHaveBeenCalledTimes(1);
+    expect(window.location.reload).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("Reset progress")).not.toBeInTheDocument();
+
+    window.location.reload = origReload;
+    confirmSpy.mockRestore();
+    resetProgressSpy.mockRestore();
   });
 });
