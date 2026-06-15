@@ -600,6 +600,20 @@ describe("Playground", () => {
       expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
     });
 
+    it("formats code via palette command", () => {
+      renderPlayground();
+      const editor = screen.getByTestId("code-editor");
+      fireEvent.change(editor, { target: { value: "__co__ void f() {\nprintln(\"ok\");\n}" } });
+      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+      fireEvent.change(screen.getByLabelText("Search commands"), {
+        target: { value: "Format Code" },
+      });
+      fireEvent.keyDown(screen.getByLabelText("Search commands"), { key: "Enter" });
+      expect(screen.getByTestId("code-editor")).toHaveValue(
+        '__co__ void f() {\n  println("ok");\n}'
+      );
+    });
+
     it("closes command palette on Escape", () => {
       renderPlayground();
       fireEvent.keyDown(window, { key: "p", ctrlKey: true });
