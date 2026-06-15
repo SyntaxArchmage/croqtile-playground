@@ -10,13 +10,16 @@ const mockLoadLastSource = jest.fn(() => null);
 const mockLoadSettings = jest.fn(() => ({ fontSize: 14, wordWrap: true, lastTarget: "cc" }));
 const mockSaveSettings = jest.fn();
 let mockStatus: "ready" | "running" | "loading" | "error" = "ready";
+let mockOutput = "";
+let mockErrors = "";
+let mockAst = "";
 
 jest.mock("@/lib/useChoreoWorker", () => ({
   useChoreoWorker: () => ({
     status: mockStatus,
-    output: "",
-    errors: "",
-    ast: "",
+    output: mockOutput,
+    errors: mockErrors,
+    ast: mockAst,
     compilerVersion: "1.0.0",
     buildManifest: null,
     run: mockRun,
@@ -91,6 +94,9 @@ function renderPlayground() {
 beforeEach(() => {
   jest.clearAllMocks();
   mockStatus = "ready";
+  mockOutput = "";
+  mockErrors = "";
+  mockAst = "";
   mockLoadLastSource.mockReturnValue(null);
   mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, lastTarget: "cc" });
   mockMatchMedia(false);
@@ -614,6 +620,16 @@ describe("Playground", () => {
       );
     });
 
+    it("opens challenges via palette command", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+      fireEvent.change(screen.getByLabelText("Search commands"), {
+        target: { value: "Open Challenges" },
+      });
+      fireEvent.keyDown(screen.getByLabelText("Search commands"), { key: "Enter" });
+      expect(screen.getByText("Challenges")).toBeInTheDocument();
+    });
+
     it("closes command palette on Escape", () => {
       renderPlayground();
       fireEvent.keyDown(window, { key: "p", ctrlKey: true });
@@ -650,6 +666,71 @@ describe("Playground", () => {
       rerender(<Playground />);
 
       expect(liveRegion).toHaveTextContent("Running code");
+    });
+
+    it("announces run finished with errors", () => {
+      mockStatus = "running";
+      const { rerender } = renderPlayground();
+      const liveRegion = document.querySelector('.sr-only[aria-live="polite"]');
+
+      mockStatus = "ready";
+      mockOutput = "some output";
+      mockErrors = "some error";
+      rerender(<Playground />);
+
+      expect(liveRegion).toHaveTextContent("Run finished with errors");
+    });
+
+    it("announces errors found when only errors change", () => {
+      mockStatus = "ready";
+      const { rerender } = renderPlayground();
+      const liveRegion = document.querySelector('.sr-only[aria-live="polite"]');
+
+      mockErrors = "compilation error";
+      rerender(<Playground />);
+
+      expect(liveRegion).toHaveTextContent("Errors found");
+    });
+
+    it("announces AST dump ready", () => {
+      mockStatus = "ready";
+      const { rerender } = renderPlayground();
+      const liveRegion = document.querySelector('.sr-only[aria-live="polite"]');
+
+      mockAst = "AST output here";
+      rerender(<Playground />);
+
+      expect(liveRegion).toHaveTextContent("AST dump ready");
+    });
+  });
+
+  describe("shortcuts dialog", () => {
+    it("closes shortcuts dialog on backdrop click", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "?" });
+      expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
+
+      const backdrop = screen.getByRole("dialog").parentElement!;
+      fireEvent.click(backdrop);
+      expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
+    });
+
+    it("does not close when clicking inside the dialog", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "?" });
+      expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole("dialog"));
+      expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
+    });
+
+    it("closes via the close button", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "?" });
+      expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByLabelText("Close keyboard shortcuts"));
+      expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
     });
   });
 
