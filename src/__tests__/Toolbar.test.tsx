@@ -46,6 +46,65 @@ describe("Toolbar", () => {
     expect(screen.getByLabelText("Download code")).toBeInTheDocument();
   });
 
+  it("renders Open file button", () => {
+    render(<Toolbar {...defaultProps} />);
+    expect(screen.getByLabelText("Open file")).toBeInTheDocument();
+  });
+
+  it("renders Format button", () => {
+    render(<Toolbar {...defaultProps} />);
+    expect(screen.getByLabelText("Format code")).toBeInTheDocument();
+  });
+
+  it("loads file content via Open button", () => {
+    render(<Toolbar {...defaultProps} />);
+
+    const fileContent = "__co__ void loaded() {\n  println(\"ok\");\n}\n";
+    const file = new File([fileContent], "test.co", { type: "text/plain" });
+
+    let loadHandler: ((ev: ProgressEvent<FileReader>) => void) | null = null;
+    const readAsText = jest.fn(function (this: FileReader) {
+      loadHandler = this.onload as (ev: ProgressEvent<FileReader>) => void;
+    });
+    jest.spyOn(window, "FileReader").mockImplementation(function (this: FileReader) {
+      this.readAsText = readAsText;
+      Object.defineProperty(this, "result", {
+        get: () => fileContent,
+      });
+      return this;
+    } as unknown as typeof FileReader);
+
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(input).toBeInTheDocument();
+    expect(input.accept).toBe(".co,.txt");
+
+    Object.defineProperty(input, "files", { value: [file] });
+    fireEvent.change(input);
+
+    expect(readAsText).toHaveBeenCalledWith(file);
+    expect(loadHandler).not.toBeNull();
+    loadHandler!({} as ProgressEvent<FileReader>);
+    expect(defaultProps.onLoadCode).toHaveBeenCalledWith(fileContent);
+  });
+
+  it("opens file picker when Open button clicked", () => {
+    render(<Toolbar {...defaultProps} />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const clickSpy = jest.spyOn(input, "click");
+    fireEvent.click(screen.getByLabelText("Open file"));
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("formats code when Format clicked", () => {
+    const getCode = jest.fn(() => "__co__ void hello() {\nprintln(\"hi\");\n}");
+    render(<Toolbar {...defaultProps} getCode={getCode} />);
+    fireEvent.click(screen.getByLabelText("Format code"));
+    expect(getCode).toHaveBeenCalledTimes(1);
+    expect(defaultProps.onLoadCode).toHaveBeenCalledWith(`__co__ void hello() {
+  println("hi");
+}`);
+  });
+
   it("downloads code as .co file on Download click", () => {
     render(<Toolbar {...defaultProps} />);
 
