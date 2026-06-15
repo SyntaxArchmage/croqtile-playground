@@ -128,6 +128,17 @@ println("ok");
 }`);
   });
 
+  it("ignores braces inside char literals", () => {
+    const input = `__co__ void f() {
+char c = '{';
+println("ok");
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  char c = '{';
+  println("ok");
+}`);
+  });
+
   it("handles single char strings containing backslash", () => {
     const input = `__co__ void f() {
 char c = '\\\\';

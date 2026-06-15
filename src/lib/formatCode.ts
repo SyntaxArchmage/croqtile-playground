@@ -2,6 +2,7 @@ function countBraces(line: string): { opens: number; closes: number } {
   let opens = 0;
   let closes = 0;
   let inString = false;
+  let inChar = false;
   let inBlockComment = false;
   let escape = false;
   for (let i = 0; i < line.length; i++) {
@@ -12,8 +13,9 @@ function countBraces(line: string): { opens: number; closes: number } {
     }
     if (escape) { escape = false; continue; }
     if (ch === "\\") { escape = true; continue; }
-    if (ch === '"') { inString = !inString; continue; }
-    if (inString) continue;
+    if (ch === "'" && !inString) { inChar = !inChar; continue; }
+    if (ch === '"' && !inChar) { inString = !inString; continue; }
+    if (inString || inChar) continue;
     if (ch === "/" && line[i + 1] === "/") break;
     if (ch === "/" && line[i + 1] === "*") { inBlockComment = true; i++; continue; }
     if (ch === "{") opens++;
