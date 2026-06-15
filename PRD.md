@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (9 tutorials):
+**Current content** (10 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -215,6 +215,7 @@ interface Tutorial {
 | ch07 | Functions & Modularity | 3 | Helper functions, multi-param, composition |
 | ch08 | Conditionals & Control Flow | 3 | if/else in parallel, conditional processing, guards |
 | ch09 | Common GPU Patterns | 3 | Map, reduce, stencil patterns |
+| ch10 | Debugging & Best Practices | 3 | println debugging, DMA validation, performance tips |
 
 All tutorials include interactive "Try it" inline code blocks.
 

@@ -244,6 +244,7 @@ describe("TutorialPanel", () => {
     mockTutorialProgress = 99;
     render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
     const summary = screen.getByTestId("tutorial-progress-summary");
-    expect(summary).not.toHaveTextContent("0/");
+    expect(summary.textContent).toMatch(/^\d+\/\d+ done$/);
+    expect(summary.textContent).not.toMatch(/^0\//);
   });
 });
