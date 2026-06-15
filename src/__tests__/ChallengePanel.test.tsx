@@ -248,6 +248,20 @@ describe("ChallengePanel", () => {
     expect(screen.queryByRole("button", { name: /Next/ })).not.toBeInTheDocument();
   });
 
+  it("scrolls to first failing test when scrollIntoView is available", () => {
+    const scrollIntoView = jest.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+
+    const { rerender } = render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+    );
+    rerender(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="wrong output" initialId="c01" />
+    );
+    expect(scrollIntoView).toHaveBeenCalled();
+    delete (Element.prototype as Record<string, unknown>).scrollIntoView;
+  });
+
   it("shows Load Best button when challenge has best code saved", () => {
     const passingOutput = "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3";
     mockChallengeProgress = { status: "passed", attempts: 3, bestCode: "saved solution" };

@@ -454,6 +454,64 @@ describe("Toolbar", () => {
     (window.FileReader as unknown as jest.SpyInstance).mockRestore();
   });
 
+  it("does not decrease font size below minimum (10)", () => {
+    const onSettingsChange = jest.fn();
+    render(
+      <Toolbar {...defaultProps} settings={{ fontSize: 10, wordWrap: true, lastTarget: "cc" }} onSettingsChange={onSettingsChange} />
+    );
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByLabelText("Decrease font size"));
+    expect(onSettingsChange).not.toHaveBeenCalled();
+  });
+
+  it("does not increase font size above maximum (24)", () => {
+    const onSettingsChange = jest.fn();
+    render(
+      <Toolbar {...defaultProps} settings={{ fontSize: 24, wordWrap: true, lastTarget: "cc" }} onSettingsChange={onSettingsChange} />
+    );
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByLabelText("Increase font size"));
+    expect(onSettingsChange).not.toHaveBeenCalled();
+  });
+
+  it("navigates settings menu with ArrowDown/ArrowUp keys", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    const menu = screen.getByRole("menu");
+    const items = screen.getAllByRole("menuitem");
+    expect(items.length).toBeGreaterThan(0);
+
+    fireEvent.keyDown(menu, { key: "ArrowDown" });
+    fireEvent.keyDown(menu, { key: "ArrowUp" });
+    fireEvent.keyDown(menu, { key: "Home" });
+    fireEvent.keyDown(menu, { key: "End" });
+  });
+
+  it("closes settings menu on Escape key", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+    const menu = screen.getByRole("menu");
+    fireEvent.keyDown(menu, { key: "Escape" });
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+
+  it("closes file menu on outside click", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+    act(() => { fireEvent.click(document.body); });
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+
+  it("closes settings menu on outside click", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+    act(() => { fireEvent.click(document.body); });
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+
   it("resets progress when reset confirmed", () => {
     const resetProgressSpy = jest.spyOn(progress, "resetProgress");
     const confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(true);
