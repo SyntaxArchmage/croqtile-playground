@@ -97,9 +97,10 @@ describe("Content integrity", () => {
     }
   });
 
-  it("all tutorials have non-empty title", () => {
+  it("all tutorials have non-empty title and description", () => {
     for (const t of TUTORIALS) {
       expect(t.title.trim().length).toBeGreaterThan(0);
+      expect(t.description.trim().length).toBeGreaterThan(0);
     }
   });
 
@@ -107,6 +108,12 @@ describe("Content integrity", () => {
     for (const ex of EXAMPLES) {
       expect(ex.name.trim().length).toBeGreaterThan(0);
       expect(ex.code.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("all challenge starter codes contain __co__ entry point", () => {
+    for (const c of CHALLENGES) {
+      expect(c.starterCode).toContain("__co__");
     }
   });
 
