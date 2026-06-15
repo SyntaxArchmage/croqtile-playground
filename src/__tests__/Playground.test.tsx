@@ -292,6 +292,32 @@ describe("Playground", () => {
     });
   });
 
+  describe("tutorial autorun", () => {
+    it("auto-runs code loaded from tutorial panel", async () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      await act(async () => {
+        jest.runAllTimers();
+      });
+
+      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+      mockRun.mockClear();
+
+      fireEvent.click(screen.getByText("Hello Croqtile"));
+      expect(mockRun).not.toHaveBeenCalled();
+
+      act(() => {
+        jest.advanceTimersByTime(100);
+      });
+      expect(mockRun).toHaveBeenCalledTimes(1);
+      expect(mockRun).toHaveBeenCalledWith(
+        expect.stringContaining('println("Hello from Croqtile!")'),
+      );
+
+      jest.useRealTimers();
+    });
+  });
+
   describe("share functionality", () => {
     it("dispatches share on Ctrl+S", () => {
       Object.assign(navigator, {
@@ -433,13 +459,40 @@ describe("Playground", () => {
 
     it("saves settings when font size is changed", () => {
       renderPlayground();
-      fireEvent.click(screen.getByText("Settings"));
+      fireEvent.click(screen.getByLabelText("Settings menu"));
       const increase = screen.getByLabelText("Increase font size");
       fireEvent.click(increase);
       expect(mockSaveSettings).toHaveBeenCalledWith(
         expect.objectContaining({ fontSize: 15 })
       );
     });
+  });
+
+  it("shows alert when clipboard write fails on share", async () => {
+    const writeText = jest.fn().mockRejectedValue(new Error("denied"));
+    Object.assign(navigator, { clipboard: { writeText } });
+    window.alert = jest.fn();
+    renderPlayground();
+
+    await act(async () => {
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "s", ctrlKey: true })
+      );
+    });
+    await act(async () => { await Promise.resolve(); });
+
+    expect(window.alert).toHaveBeenCalledWith(
+      "Could not copy link. Try copying the URL manually."
+    );
+  });
+
+  it("renders shortcuts overlay with keyboard shortcut descriptions", () => {
+    renderPlayground();
+    fireEvent.keyDown(window, { key: "?" });
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
+    expect(screen.getByText("Run code")).toBeInTheDocument();
+    expect(screen.getByText("Share link")).toBeInTheDocument();
   });
 
   describe("WASM status overlays", () => {

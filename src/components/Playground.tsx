@@ -175,6 +175,24 @@ export function Playground() {
     [source],
   );
 
+  const handleLoadAndRun = useCallback(
+    (code: string) => {
+      const isModified = source !== EXAMPLES[0].code;
+      const isDifferent = source !== code;
+      if (
+        !skipLoadConfirmRef.current &&
+        isModified &&
+        isDifferent &&
+        !window.confirm("You have unsaved changes. Load new code?")
+      ) {
+        return;
+      }
+      setSource(code);
+      setTimeout(() => run(code), 100);
+    },
+    [source, run],
+  );
+
   useEffect(() => {
     document.title =
       status === "running" ? "⏳ Running... | Croqtile Playground" : "Croqtile Playground";
@@ -369,7 +387,7 @@ export function Playground() {
 
   const contextPanel = panelMode === "tutorial" ? (
     <TutorialPanel
-      onLoadCode={handleLoadCode}
+      onLoadCode={handleLoadAndRun}
       onClose={closePanel}
       initialId={deepLinkId ?? undefined}
     />
