@@ -96,4 +96,33 @@ println("he said \\"hi\\"");
   println("he said \\"hi\\"");
 }`);
   });
+
+  it("counts braces after division operator when comment follows", () => {
+    const input = `__co__ void f() {
+int x = a / b; // division {
+println(x);
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  int x = a / b; // division {
+  println(x);
+}`);
+  });
+
+  it("counts braces between division and line comment", () => {
+    const input = `if (a / b) { // comment
+x();
+}`;
+    expect(formatChoreoCode(input)).toBe(`if (a / b) { // comment
+  x();
+}`);
+  });
+
+  it("handles single char strings containing backslash", () => {
+    const input = `__co__ void f() {
+char c = '\\\\';
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  char c = '\\\\';
+}`);
+  });
 });

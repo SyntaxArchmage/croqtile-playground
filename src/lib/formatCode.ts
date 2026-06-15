@@ -3,15 +3,13 @@ function countBraces(line: string): { opens: number; closes: number } {
   let closes = 0;
   let inString = false;
   let escape = false;
-  for (const ch of line) {
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
     if (escape) { escape = false; continue; }
     if (ch === "\\") { escape = true; continue; }
     if (ch === '"') { inString = !inString; continue; }
     if (inString) continue;
-    if (ch === "/" && !inString) {
-      const idx = line.indexOf("//");
-      if (idx !== -1 && line[idx] === "/" && line[idx + 1] === "/") break;
-    }
+    if (ch === "/" && line[i + 1] === "/") break;
     if (ch === "{") opens++;
     else if (ch === "}") closes++;
   }
