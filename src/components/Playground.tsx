@@ -352,7 +352,7 @@ export function Playground() {
         onSettingsChange={handleSettingsChange}
       />
       <div className="flex-1 min-h-0 flex flex-col">
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 relative">
           <Editor
             ref={editorRef}
             value={source}
@@ -361,6 +361,17 @@ export function Playground() {
             fontSize={settings.fontSize}
             wordWrap={settings.wordWrap}
           />
+          {status === "ready" && (
+            <button
+              type="button"
+              onClick={handleRun}
+              className="absolute bottom-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-green-600 hover:bg-green-700 text-white opacity-70 hover:opacity-100 shadow-lg transition-opacity"
+              aria-label="Run code"
+              title="Run (Ctrl+Enter)"
+            >
+              ▶
+            </button>
+          )}
         </div>
         <OutputPanel output={output} errors={errors} ast={ast} onClear={clearOutput} />
       </div>
