@@ -76,4 +76,24 @@ b();
   b();
 }`);
   });
+
+  it("ignores braces in line comments", () => {
+    const input = `__co__ void f() {
+// { not a block }
+println("ok");
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  // { not a block }
+  println("ok");
+}`);
+  });
+
+  it("handles escaped quotes in strings", () => {
+    const input = `__co__ void f() {
+println("he said \\"hi\\"");
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  println("he said \\"hi\\"");
+}`);
+  });
 });

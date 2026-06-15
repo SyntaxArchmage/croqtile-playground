@@ -270,4 +270,20 @@ describe("Toolbar", () => {
     expect(screen.getByText("Compile").closest("button")).toBeDisabled();
     expect(screen.getByText("AST").closest("button")).toBeDisabled();
   });
+
+  it("shows progress bars in settings menu", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByText("Tutorials")).toBeInTheDocument();
+    expect(screen.getByText("Challenges")).toBeInTheDocument();
+  });
+
+  it("confirms before resetting progress", () => {
+    const confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(false);
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByText("Reset progress"));
+    expect(confirmSpy).toHaveBeenCalledWith("Reset all tutorial and challenge progress?");
+    confirmSpy.mockRestore();
+  });
 });

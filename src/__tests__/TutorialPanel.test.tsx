@@ -94,4 +94,36 @@ describe("TutorialPanel", () => {
     render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="ch01" />);
     expect(screen.getByText("← Back")).toBeInTheDocument();
   });
+
+  it("navigates backward through steps", () => {
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    fireEvent.click(screen.getByText("Next →"));
+    onLoadCode.mockClear();
+    fireEvent.click(screen.getByText("← Prev"));
+    expect(onLoadCode).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("← Prev")).toBeDisabled();
+  });
+
+  it("disables Next on last step", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    fireEvent.click(screen.getByText("Next →"));
+    fireEvent.click(screen.getByText("Next →"));
+    expect(screen.getByText("Next →")).toBeDisabled();
+  });
+
+  it("respects step parameter from URL", () => {
+    window.history.pushState({}, "", "?tutorial=ch01&step=2");
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="ch01" />);
+    expect(screen.getByText(/2 \/ 3/)).toBeInTheDocument();
+    window.history.pushState({}, "", "/");
+  });
+
+  it("loads code for initialId on mount", () => {
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} initialId="ch01" />);
+    expect(onLoadCode).toHaveBeenCalledTimes(1);
+  });
 });
