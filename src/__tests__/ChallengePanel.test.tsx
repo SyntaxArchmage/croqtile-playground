@@ -151,4 +151,23 @@ describe("ChallengePanel", () => {
     fireEvent.click(nextBtn);
     expect(onLoadCode).toHaveBeenCalled();
   });
+
+  it("filters challenges by search query", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    const search = screen.getByLabelText("Search challenges");
+    fireEvent.change(search, { target: { value: "DMA" } });
+    expect(screen.getByText("DMA Reverse")).toBeInTheDocument();
+    expect(screen.queryByText("Hello Threads")).not.toBeInTheDocument();
+  });
+
+  it("shows no-results message for unmatched search", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    const search = screen.getByLabelText("Search challenges");
+    fireEvent.change(search, { target: { value: "zzzznotfound" } });
+    expect(screen.getByText("No challenges match")).toBeInTheDocument();
+  });
 });

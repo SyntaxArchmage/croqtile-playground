@@ -126,4 +126,19 @@ describe("TutorialPanel", () => {
     render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} initialId="ch01" />);
     expect(onLoadCode).toHaveBeenCalledTimes(1);
   });
+
+  it("filters tutorials by search query", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    const search = screen.getByLabelText("Search tutorials");
+    fireEvent.change(search, { target: { value: "Parallel" } });
+    expect(screen.getByText("Parallel Execution")).toBeInTheDocument();
+    expect(screen.queryByText("Hello Croqtile")).not.toBeInTheDocument();
+  });
+
+  it("shows no-results message for unmatched search", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    const search = screen.getByLabelText("Search tutorials");
+    fireEvent.change(search, { target: { value: "zzzznotfound" } });
+    expect(screen.getByText("No tutorials match")).toBeInTheDocument();
+  });
 });
