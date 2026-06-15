@@ -121,3 +121,23 @@ This session performed 54 development cycles on `croqtile-playground`, a browser
 - WebGPU exploration (L3)
 - Code sharing via short links
 - Extend MockInterpreter to support mma
+
+---
+
+### Auto-Dev Session 2026-06-15 12:31–ongoing
+- **Duration**: 180 minutes (in progress)
+- **Defects found**: 3 (P1: 1, P2: 0, P3: 1, P4: 1)
+- **Defects fixed**: 3
+- **Tests added**: 43 (184 → 227)
+- **Features implemented**:
+  - Cursor position (Ln/Col) display in status bar
+  - Download code as .co file button
+  - Line count display in status bar
+  - Base64url code encoding for shorter share URLs
+  - Enhanced challenge progress tracking (attempts, best code)
+  - Open File and Format Code toolbar buttons
+  - Editor settings persistence (font size, word wrap)
+  - Ctrl+Shift+D keyboard shortcut for AST dump
+- **Commits**: 20+ commits across sessions 2-4
+- **PRD progress**: Phase 1-5 complete; Phase 6 items (L2, WebGPU) remain blocked
+- **Next priority**: Visual inspection, deeper edge case testing, performance profiling

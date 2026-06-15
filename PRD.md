@@ -405,7 +405,7 @@ src/
 - [x] Status bar
 - [x] Resizable split layout
 - [x] WASM worker architecture (`useChoreoWorker` hook)
-- [x] Example programs (8)
+- [x] Example programs (10)
 
 ### Phase 2: Tutorial Panel (DONE)
 
@@ -444,7 +444,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (79 tests across 15 suites)
+- [x] Unit tests (227 tests across 25 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
@@ -457,7 +457,7 @@ src/
 - [ ] Extend MockInterpreter to support mma (CPU simulation)
 - [x] ~~Additional tutorials (ch04–ch09)~~ — Done
 - [x] ~~Additional challenges (9–15 total)~~ — Done (15 total)
-- [ ] Code sharing via short links
+- [x] ~~Code sharing via short links~~ — Done (base64url encoding)
 - [ ] WebGPU exploration (L3)
 
 ---
