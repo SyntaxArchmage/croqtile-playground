@@ -249,6 +249,32 @@ describe("OutputPanel", () => {
     expect(pre).toHaveClass("whitespace-pre-wrap");
   });
 
+  it("navigates tabs with ArrowRight keyboard", () => {
+    render(<OutputPanel output="data" errors="err" ast="tree" />);
+    const tablist = screen.getByRole("tablist");
+    expect(screen.getByRole("tab", { name: /Output/ })).toHaveAttribute("aria-selected", "true");
+
+    fireEvent.keyDown(tablist, { key: "ArrowRight" });
+    expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
+
+    fireEvent.keyDown(tablist, { key: "ArrowRight" });
+    expect(screen.getByRole("tab", { name: /AST/ })).toHaveAttribute("aria-selected", "true");
+
+    fireEvent.keyDown(tablist, { key: "ArrowRight" });
+    expect(screen.getByRole("tab", { name: /Output/ })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("navigates tabs with ArrowLeft keyboard", () => {
+    render(<OutputPanel output="data" errors="err" ast="tree" />);
+    const tablist = screen.getByRole("tablist");
+
+    fireEvent.keyDown(tablist, { key: "ArrowLeft" });
+    expect(screen.getByRole("tab", { name: /AST/ })).toHaveAttribute("aria-selected", "true");
+
+    fireEvent.keyDown(tablist, { key: "ArrowLeft" });
+    expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
+  });
+
   it("clears existing copy timeout on rapid re-copy", () => {
     jest.useFakeTimers();
     render(<OutputPanel output="data" errors="" />);
