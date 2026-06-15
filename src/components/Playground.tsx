@@ -306,7 +306,13 @@ export function Playground() {
     return () => window.removeEventListener("keydown", handler);
   }, [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput]);
 
-  const lineCount = useMemo(() => source.split("\n").length, [source]);
+  const lineCount = useMemo(() => {
+    let count = 1;
+    for (let i = 0; i < source.length; i++) {
+      if (source.charCodeAt(i) === 10) count++;
+    }
+    return count;
+  }, [source]);
 
   const deepLinkId = useMemo(() => {
     if (typeof window === "undefined") return null;
