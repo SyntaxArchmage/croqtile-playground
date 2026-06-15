@@ -220,6 +220,30 @@ describe("useChoreoWorker", () => {
     });
   });
 
+  describe("dumpAST edge cases", () => {
+    it("routes compile-result to ast with null output field", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+      act(() => { result.current.dumpAST("code"); });
+      postWorkerMessage("compile-result", {});
+      expect(result.current.ast).toBe("");
+    });
+  });
+
+  describe("timeout when status already changed", () => {
+    it("no-ops if status changed from running before timeout fires", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+      act(() => { result.current.run("code"); });
+      postWorkerMessage("error", { message: "crash" });
+      expect(result.current.status).toBe("error");
+
+      act(() => { jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS); });
+      expect(result.current.status).toBe("error");
+      expect(result.current.errors).toBe("crash");
+    });
+  });
+
   describe("clearOutput", () => {
     it("resets output, errors, and ast to empty strings", () => {
       const { result } = renderHook(() => useChoreoWorker());

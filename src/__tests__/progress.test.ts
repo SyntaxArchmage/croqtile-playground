@@ -122,6 +122,32 @@ describe("progress", () => {
     expect(p.challengeProgress).toEqual({});
   });
 
+  describe("localStorage exception handling", () => {
+    it("saveProgress catches when localStorage.setItem throws", () => {
+      jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+        throw new Error("quota exceeded");
+      });
+      expect(() => saveProgress({ tutorialSteps: {}, challengesPassed: [], challengeProgress: {} })).not.toThrow();
+      (Storage.prototype.setItem as jest.Mock).mockRestore();
+    });
+
+    it("resetProgress catches when localStorage.removeItem throws", () => {
+      jest.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {
+        throw new Error("storage error");
+      });
+      expect(() => resetProgress()).not.toThrow();
+      (Storage.prototype.removeItem as jest.Mock).mockRestore();
+    });
+
+    it("saveLastSource catches when localStorage.setItem throws", () => {
+      jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+        throw new Error("quota exceeded");
+      });
+      expect(() => saveLastSource("code")).not.toThrow();
+      (Storage.prototype.setItem as jest.Mock).mockRestore();
+    });
+  });
+
   describe("challenge attempt and pass edge cases", () => {
     it("recordChallengeAttempt increments attempt count across many calls and persists", () => {
       for (let i = 1; i <= 5; i++) {

@@ -80,6 +80,14 @@ describe("settings", () => {
       expect(loadSettings().wordWrap).toBe(true);
     });
 
+    it("saveSettings catches when localStorage.setItem throws", () => {
+      jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+        throw new Error("quota exceeded");
+      });
+      expect(() => saveSettings({ fontSize: 14, wordWrap: true, lastTarget: "cc" })).not.toThrow();
+      (Storage.prototype.setItem as jest.Mock).mockRestore();
+    });
+
     it("very large fontSize values are clamped to default on load", () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 999, wordWrap: true }));
       expect(loadSettings().fontSize).toBe(14);
