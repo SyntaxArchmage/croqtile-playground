@@ -14,22 +14,6 @@ export interface Challenge {
   hint?: string;
 }
 
-export { challenge01 } from "./01-hello";
-export { challenge02 } from "./02-parallel-sum";
-export { challenge03 } from "./03-dma-reverse";
-export { challenge04 } from "./04-dot-product";
-export { challenge05 } from "./05-shared-accumulate";
-export { challenge06 } from "./06-matrix-trace";
-export { challenge07 } from "./07-pipeline-stages";
-export { challenge08 } from "./08-nested-parallel";
-export { challenge09 } from "./09-tiled-copy";
-export { challenge10 } from "./10-parallel-min";
-export { challenge11 } from "./11-prefix-sum";
-export { challenge12 } from "./12-broadcast";
-export { challenge13 } from "./13-element-wise-mul";
-export { challenge14 } from "./14-row-sum";
-export { challenge15 } from "./15-scale-vector";
-
 import { challenge01 } from "./01-hello";
 import { challenge02 } from "./02-parallel-sum";
 import { challenge03 } from "./03-dma-reverse";
