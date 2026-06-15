@@ -55,6 +55,13 @@ describe("useChoreoWorker", () => {
       expect(result.current.compilerVersion).toBe("2.1.0");
     });
 
+    it("handles ready without version field", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      postWorkerMessage("ready", {});
+      expect(result.current.status).toBe("ready");
+      expect(result.current.compilerVersion).toBeNull();
+    });
+
     it("handles compile-result for run/compile commands", () => {
       const { result } = renderHook(() => useChoreoWorker());
       makeReady();
@@ -68,6 +75,22 @@ describe("useChoreoWorker", () => {
       expect(result.current.status).toBe("ready");
       expect(result.current.output).toBe("hello");
       expect(result.current.errors).toBe("");
+    });
+
+    it("handles compile-result with null output/errors fields", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+      act(() => { result.current.run("code"); });
+      postWorkerMessage("compile-result", {});
+      expect(result.current.output).toBe("");
+      expect(result.current.errors).toBe("");
+    });
+
+    it("handles error message with missing message field", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+      postWorkerMessage("error", {});
+      expect(result.current.errors).toBe("Unknown error");
     });
 
     it("routes compile-result to ast when last command was dumpAST", () => {
@@ -158,6 +181,16 @@ describe("useChoreoWorker", () => {
         jest.advanceTimersByTime(2000);
       });
       expect(result.current.errors).toBe("");
+    });
+  });
+
+  describe("cleanup", () => {
+    it("clears pending timeout on unmount", () => {
+      const { result, unmount } = renderHook(() => useChoreoWorker());
+      makeReady();
+      act(() => { result.current.run("code"); });
+      unmount();
+      expect(mockWorker.terminate).toHaveBeenCalled();
     });
   });
 
