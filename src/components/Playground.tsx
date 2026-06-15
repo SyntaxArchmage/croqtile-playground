@@ -230,10 +230,12 @@ export function Playground() {
     const code = getCode();
     const encoded = encodeCode(code);
     const shareUrl = `${window.location.origin}${window.location.pathname}#${encoded}`;
-    navigator.clipboard.writeText(shareUrl).then(
-      () => {},
-      () => { window.alert("Could not copy link. Try copying the URL manually."); }
-    );
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(
+        () => {},
+        () => { window.alert("Could not copy link. Try copying the URL manually."); }
+      );
+    }
     const clean = new URL(window.location.href);
     clean.search = "";
     clean.hash = encoded;
