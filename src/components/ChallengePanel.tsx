@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import { checkTests } from "@/lib/checkTests";
 import { isChallengePassed, markChallengePassed, getChallengeProgress, recordChallengeAttempt } from "@/lib/progress";
@@ -37,10 +37,25 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
   });
   const [showHint, setShowHint] = useState(false);
 
-  const testResults = selectedChallenge ? checkTests(selectedChallenge, lastOutput) : [];
+  const testResults = useMemo(
+    () => selectedChallenge ? checkTests(selectedChallenge, lastOutput) : [],
+    [selectedChallenge, lastOutput],
+  );
   const allPassed = testResults.length > 0 && testResults.every((r) => r.passed);
 
+  const testContainerRef = useRef<HTMLDivElement>(null);
   const prevOutputRef = useRef(lastOutput);
+
+  useEffect(() => {
+    if (!lastOutput || !testContainerRef.current) return;
+    const firstFailure = testContainerRef.current.querySelector<HTMLElement>(
+      '[data-testid="test-result"].border-red-800'
+    );
+    if (typeof firstFailure?.scrollIntoView === "function") {
+      firstFailure.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [testResults, lastOutput]);
+
   useEffect(() => {
     if (!selectedChallenge || !lastOutput) return;
     if (lastOutput !== prevOutputRef.current) {
@@ -175,7 +190,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
         </button>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 space-y-4">
+      <div ref={testContainerRef} className="flex-1 overflow-auto p-4 space-y-4">
         <h2 className="text-base font-semibold text-[var(--text-primary)]">
           {selectedChallenge.title}
         </h2>
@@ -190,6 +205,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
           {testResults.map((t, i) => (
             <div
               key={i}
+              data-testid="test-result"
               className={`p-2 rounded text-xs border ${
                 t.passed
                   ? "border-green-800 bg-green-950/30 text-green-300"
