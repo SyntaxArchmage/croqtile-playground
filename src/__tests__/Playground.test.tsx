@@ -673,12 +673,14 @@ describe("Playground", () => {
       expect(screen.getByText("Challenges")).toBeInTheDocument();
     });
 
-    it("closes command palette on Escape", () => {
+    it("clears output via palette command", () => {
       renderPlayground();
       fireEvent.keyDown(window, { key: "p", ctrlKey: true });
-      expect(screen.getByLabelText("Search commands")).toBeInTheDocument();
-      fireEvent.keyDown(window, { key: "Escape" });
-      expect(screen.queryByLabelText("Search commands")).not.toBeInTheDocument();
+      fireEvent.change(screen.getByLabelText("Search commands"), {
+        target: { value: "Clear Output" },
+      });
+      fireEvent.keyDown(screen.getByLabelText("Search commands"), { key: "Enter" });
+      expect(mockClearOutput).toHaveBeenCalledTimes(1);
     });
   });
 
