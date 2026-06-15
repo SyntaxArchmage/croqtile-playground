@@ -8,6 +8,7 @@ interface Props {
   status: WorkerStatus;
   compilerVersion?: string | null;
   buildManifest?: BuildManifest | null;
+  target?: string;
   cursorPosition?: CursorPosition;
   lineCount?: number;
 }
@@ -19,7 +20,7 @@ const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
   error: { label: "Error", color: "text-[var(--error)]" },
 };
 
-export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, cursorPosition, lineCount }: Props) {
+export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount }: Props) {
   const { label, color } = statusConfig[status];
   const version = compilerVersion ?? buildManifest?.version ?? null;
   const commit = buildManifest?.commit_short ?? null;
@@ -35,6 +36,12 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
         Croqtile {version ?? "—"}
         {commit && <span className="ml-1 opacity-60">({commit})</span>}
       </span>
+      {target && (
+        <>
+          <span className="text-[var(--border)]">|</span>
+          <span>Target: {target}</span>
+        </>
+      )}
       {cursorPosition && (
         <>
           <span className="text-[var(--border)]">|</span>

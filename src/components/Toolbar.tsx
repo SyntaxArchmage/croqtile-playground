@@ -5,7 +5,9 @@ import type { WorkerStatus } from "@/lib/useChoreoWorker";
 import type { PanelMode } from "@/lib/types";
 import { EXAMPLES } from "@/lib/examples";
 import { formatChoreoCode } from "@/lib/formatCode";
-import { resetProgress } from "@/lib/progress";
+import { TUTORIALS } from "@/lib/tutorials";
+import { CHALLENGES } from "@/lib/challenges";
+import { getTutorialProgress, isChallengePassed, resetProgress } from "@/lib/progress";
 import type { EditorSettings } from "@/lib/settings";
 
 interface Props {
@@ -40,6 +42,12 @@ export const Toolbar = memo(function Toolbar({
   onSettingsChange,
 }: Props) {
   const busy = status === "running";
+  const tutorialsCompleted = TUTORIALS.filter(
+    (t) => getTutorialProgress(t.id) >= t.steps.length - 1,
+  ).length;
+  const challengesPassed = CHALLENGES.filter((c) => isChallengePassed(c.id)).length;
+  const tutorialProgressPct = (tutorialsCompleted / TUTORIALS.length) * 100;
+  const challengeProgressPct = (challengesPassed / CHALLENGES.length) * 100;
   const [copied, setCopied] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showFileMenu, setShowFileMenu] = useState(false);
@@ -305,6 +313,37 @@ export const Toolbar = memo(function Toolbar({
                 aria-label="Toggle word wrap"
               />
             </label>
+            <div className="border-t border-[var(--border)] my-1" />
+            <div className="px-3 py-2 space-y-2">
+              <div>
+                <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-1">
+                  <span>Tutorials</span>
+                  <span className="tabular-nums">
+                    {tutorialsCompleted}/{TUTORIALS.length} completed
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[var(--success)] transition-all"
+                    style={{ width: `${tutorialProgressPct}%` }}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-1">
+                  <span>Challenges</span>
+                  <span className="tabular-nums">
+                    {challengesPassed}/{CHALLENGES.length} passed
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[var(--success)] transition-all"
+                    style={{ width: `${challengeProgressPct}%` }}
+                  />
+                </div>
+              </div>
+            </div>
             <div className="border-t border-[var(--border)] my-1" />
             <button
               onClick={() => {

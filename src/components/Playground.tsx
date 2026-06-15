@@ -235,6 +235,7 @@ export function Playground() {
         status={status}
         compilerVersion={compilerVersion}
         buildManifest={buildManifest}
+        target={target}
         cursorPosition={cursorPos}
         lineCount={source.split("\n").length}
       />
