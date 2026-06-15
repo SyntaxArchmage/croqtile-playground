@@ -144,7 +144,17 @@ export function Playground() {
         onDumpAST={handleDumpAST}
         onLoadCode={setSource}
         onShare={handleShare}
-        onTogglePanel={(mode) => setPanelMode((p) => p === mode ? "closed" : mode)}
+        onTogglePanel={(mode) => setPanelMode((p) => {
+          const next = p === mode ? "closed" : mode;
+          if (next === "closed") {
+            const url = new URL(window.location.href);
+            url.searchParams.delete("tutorial");
+            url.searchParams.delete("challenge");
+            url.searchParams.delete("step");
+            window.history.replaceState(null, "", url.toString());
+          }
+          return next;
+        })}
         panelMode={panelMode}
         status={status}
       />
@@ -162,6 +172,15 @@ export function Playground() {
     </div>
   );
 
+  const closePanel = useCallback(() => {
+    setPanelMode("closed");
+    const url = new URL(window.location.href);
+    url.searchParams.delete("tutorial");
+    url.searchParams.delete("challenge");
+    url.searchParams.delete("step");
+    window.history.replaceState(null, "", url.toString());
+  }, []);
+
   if (panelMode === "closed") {
     return <div className="h-screen">{idePanel}</div>;
   }
@@ -169,13 +188,13 @@ export function Playground() {
   const contextPanel = panelMode === "tutorial" ? (
     <TutorialPanel
       onLoadCode={setSource}
-      onClose={() => setPanelMode("closed")}
+      onClose={closePanel}
       initialId={deepLinkId ?? undefined}
     />
   ) : (
     <ChallengePanel
       onLoadCode={setSource}
-      onClose={() => setPanelMode("closed")}
+      onClose={closePanel}
       lastOutput={output}
       initialId={deepLinkId ?? undefined}
     />

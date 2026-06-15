@@ -5,6 +5,17 @@ import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import { checkTests } from "@/lib/checkTests";
 import { isChallengePassed, markChallengePassed } from "@/lib/progress";
 
+function updateUrlParam(key: string, value: string | null) {
+  const url = new URL(window.location.href);
+  if (value) {
+    url.searchParams.set(key, value);
+  } else {
+    url.searchParams.delete(key);
+  }
+  url.searchParams.delete("tutorial");
+  window.history.replaceState(null, "", url.toString());
+}
+
 interface Props {
   onLoadCode: (code: string) => void;
   onClose: () => void;
@@ -57,6 +68,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
                 setSelectedChallenge(c);
                 setShowHint(false);
                 onLoadCode(c.starterCode);
+                updateUrlParam("challenge", c.id);
               }}
               className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
             >
@@ -83,7 +95,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
         <button
-          onClick={() => setSelectedChallenge(null)}
+          onClick={() => { setSelectedChallenge(null); updateUrlParam("challenge", null); }}
           className="text-xs text-[var(--accent)] hover:underline"
         >
           ← Back
@@ -140,6 +152,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
                     setSelectedChallenge(next);
                     setShowHint(false);
                     onLoadCode(next.starterCode);
+                    updateUrlParam("challenge", next.id);
                   }}
                   className="px-3 py-1 text-xs rounded bg-[var(--accent)] text-[var(--bg-primary)] font-medium hover:opacity-90"
                 >

@@ -34,6 +34,17 @@ function renderContent(
   });
 }
 
+function updateUrlParam(key: string, value: string | null) {
+  const url = new URL(window.location.href);
+  if (value) {
+    url.searchParams.set(key, value);
+  } else {
+    url.searchParams.delete(key);
+  }
+  url.searchParams.delete("challenge");
+  window.history.replaceState(null, "", url.toString());
+}
+
 interface Props {
   onLoadCode: (code: string) => void;
   onClose: () => void;
@@ -91,6 +102,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
                 setStepIndex(resumeStep);
                 onLoadCode(t.steps[resumeStep].code);
                 markTutorialStep(t.id, resumeStep);
+                updateUrlParam("tutorial", t.id);
               }}
               className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
             >
@@ -118,7 +130,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
         <button
-          onClick={() => setSelectedTutorial(null)}
+          onClick={() => { setSelectedTutorial(null); updateUrlParam("tutorial", null); }}
           className="text-xs text-[var(--accent)] hover:underline"
         >
           ← Back
@@ -158,6 +170,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
             setStepIndex(prev);
             onLoadCode(selectedTutorial.steps[prev].code);
             markTutorialStep(selectedTutorial.id, prev);
+            updateUrlParam("tutorial", selectedTutorial.id);
           }}
           disabled={stepIndex === 0}
           className="px-3 py-1 text-xs rounded border border-[var(--border)] disabled:opacity-30 hover:bg-[var(--bg-surface)]"
@@ -177,6 +190,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
             setStepIndex(next);
             onLoadCode(selectedTutorial.steps[next].code);
             markTutorialStep(selectedTutorial.id, next);
+            updateUrlParam("tutorial", selectedTutorial.id);
           }}
           disabled={stepIndex === totalSteps - 1}
           className="px-3 py-1 text-xs rounded border border-[var(--border)] disabled:opacity-30 hover:bg-[var(--bg-surface)]"
