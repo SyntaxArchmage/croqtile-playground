@@ -400,4 +400,21 @@ describe("ChallengePanel", () => {
     fireEvent.click(screen.getByText("To Do"));
     expect(screen.getByText("Hello Threads")).toBeInTheDocument();
   });
+
+  it("shows progress summary with passed count", () => {
+    mockIsChallengePassed = false;
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    expect(screen.getByTestId("challenge-progress-summary")).toHaveTextContent(/0\/\d+ passed/);
+  });
+
+  it("shows nonzero progress when challenges are passed", () => {
+    mockIsChallengePassed = true;
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    const summary = screen.getByTestId("challenge-progress-summary");
+    expect(summary).not.toHaveTextContent("0/");
+  });
 });

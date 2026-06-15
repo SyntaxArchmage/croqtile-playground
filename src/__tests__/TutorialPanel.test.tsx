@@ -233,4 +233,17 @@ describe("TutorialPanel", () => {
     fireEvent.click(tryButtons[0]);
     expect(onLoadCode).toHaveBeenCalled();
   });
+
+  it("shows progress summary with done count", () => {
+    mockTutorialProgress = -1;
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    expect(screen.getByTestId("tutorial-progress-summary")).toHaveTextContent(/0\/\d+ done/);
+  });
+
+  it("shows nonzero progress in summary when tutorials completed", () => {
+    mockTutorialProgress = 99;
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    const summary = screen.getByTestId("tutorial-progress-summary");
+    expect(summary).not.toHaveTextContent("0/");
+  });
 });

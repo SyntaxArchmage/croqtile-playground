@@ -108,6 +108,25 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
           </button>
         </div>
         <div className="flex-1 overflow-auto p-4 space-y-3">
+          {(() => {
+            const completed = TUTORIALS.filter(
+              (t) => getTutorialProgress(t.id) >= t.steps.length - 1,
+            ).length;
+            const pct = Math.round((completed / TUTORIALS.length) * 100);
+            return (
+              <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                <div className="flex-1 h-1.5 rounded bg-[var(--bg-surface)]">
+                  <div
+                    className="h-full rounded bg-[var(--accent)] transition-all"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <span data-testid="tutorial-progress-summary">
+                  {completed}/{TUTORIALS.length} done
+                </span>
+              </div>
+            );
+          })()}
           <input
             type="text"
             placeholder="Search tutorials..."
