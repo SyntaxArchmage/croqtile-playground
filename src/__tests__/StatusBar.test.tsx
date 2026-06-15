@@ -54,4 +54,24 @@ describe("StatusBar", () => {
     expect(screen.getByText("Ln 5, Col 10")).toBeInTheDocument();
     expect(screen.getByText("42 lines")).toBeInTheDocument();
   });
+
+  it("displays compilation target", () => {
+    render(<StatusBar status="ready" target="cute" />);
+    expect(screen.getByText("Target: cute")).toBeInTheDocument();
+  });
+
+  it("displays execution time in milliseconds", () => {
+    render(<StatusBar status="ready" lastElapsedMs={456} />);
+    expect(screen.getByText("456ms")).toBeInTheDocument();
+  });
+
+  it("displays execution time in seconds when >= 1000ms", () => {
+    render(<StatusBar status="ready" lastElapsedMs={2500} />);
+    expect(screen.getByText("2.5s")).toBeInTheDocument();
+  });
+
+  it("does not display elapsed time when null", () => {
+    const { container } = render(<StatusBar status="ready" lastElapsedMs={null} />);
+    expect(container.textContent).not.toMatch(/ms|^\d+s$/);
+  });
 });
