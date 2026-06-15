@@ -248,21 +248,21 @@ interface Challenge {
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
-| ch01 | Hello Threads | Easy | `parallel`, `println` |
-| ch02 | Parallel Sum | Medium | `parallel`, reduction |
-| ch03 | DMA Reverse | Medium | `dma`, array reversal |
-| ch04 | Dot Product | Medium | `parallel`, `foreach`, accumulation |
-| ch05 | Shared Memory Accumulate | Medium | `shared`, `dma`, reduction |
-| ch06 | Matrix Trace | Medium | 2D indexing, diagonal access |
-| ch07 | Two-Stage Pipeline | Hard | `pipeline`, multi-stage processing |
-| ch08 | Nested Parallel | Medium | Multi-dimensional `parallel` |
-| ch09 | Tiled Copy | Hard | `dma`, tiled data movement |
-| ch10 | Find Minimum | Medium | `foreach`, conditional reduction |
-| ch11 | Prefix Sum | Medium | Sequential scan, inclusive prefix sum |
-| ch12 | Broadcast Add | Easy | Scalar broadcast, element-wise ops |
-| ch13 | Element-wise Multiply | Easy | `parallel`, element-wise multiply |
-| ch14 | Row Sum | Medium | 2D arrays, row-wise reduction |
-| ch15 | Scale Vector (DMA) | Hard | `shared`, `dma`, scale operation |
+| c01 | Hello Threads | Easy | `parallel`, `println` |
+| c02 | Parallel Initialize | Easy | `parallel`, array initialization |
+| c03 | DMA Reverse | Medium | `dma`, array reversal |
+| c04 | Dot Product | Medium | `parallel`, `foreach`, accumulation |
+| c05 | Shared Memory Accumulate | Medium | `shared`, `dma`, reduction |
+| c06 | Matrix Trace | Hard | 2D indexing, diagonal access |
+| c07 | Two-Stage Pipeline | Hard | `pipeline`, multi-stage processing |
+| c08 | Nested Parallel | Hard | Multi-dimensional `parallel` |
+| c09 | Tiled Copy | Medium | `dma`, tiled data movement |
+| c10 | Find Minimum | Easy | `foreach`, conditional reduction |
+| c11 | Prefix Sum | Medium | Sequential scan, inclusive prefix sum |
+| c12 | Broadcast Add | Easy | Scalar broadcast, element-wise ops |
+| c13 | Element-wise Multiply | Easy | `parallel`, element-wise multiply |
+| c14 | Row Sum | Medium | 2D arrays, row-wise reduction |
+| c15 | Scale Vector (DMA) | Hard | `shared`, `dma`, scale operation |
 
 ### 5.6 Example Programs
 
@@ -444,7 +444,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (468 tests across 27 suites)
+- [x] Unit tests (478 tests across 27 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
