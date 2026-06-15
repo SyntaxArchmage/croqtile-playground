@@ -180,6 +180,39 @@ function registerChoreoLanguage(monaco: any) {
       return { suggestions };
     },
   });
+
+  const keywordDocs: Record<string, string> = {
+    __co__: "Declares a Croqtile function entry point.",
+    __cok__: "Declares a Croqtile kernel function.",
+    parallel: "Execute a block across multiple threads. Syntax: parallel {idx} by [N] { ... }",
+    foreach: "Sequential loop over a range. Syntax: foreach i in [start:end] { ... }",
+    dma: "Direct Memory Access transfer. Syntax: dma(src[a:b], dst[c:d])",
+    tma: "Tensor Memory Access operation.",
+    mma: "Matrix Multiply-Accumulate operation.",
+    pipeline: "Multi-stage execution pipeline.",
+    println: "Print a value followed by a newline.",
+    print: "Print a value without a newline.",
+    inthreads: "Execute within thread context.",
+    rotate: "Rotate data within a group.",
+    shared: "Declare shared memory (accessible by all threads in a block).",
+    global: "Declare global memory (accessible by all threads).",
+    local: "Declare local/register memory (per-thread).",
+    signal: "Signal an event for synchronization.",
+    wait: "Wait for an event signal.",
+    arrive: "Arrive at a synchronization barrier.",
+  };
+
+  monaco.languages.registerHoverProvider("choreo", {
+    provideHover: (model: { getWordAtPosition: (p: unknown) => { word: string } | null }, position: unknown) => {
+      const word = model.getWordAtPosition(position);
+      if (word && keywordDocs[word.word]) {
+        return {
+          contents: [{ value: keywordDocs[word.word] }],
+        };
+      }
+      return null;
+    },
+  });
 }
 
 export const Editor = forwardRef<{ getValue: () => string }, Props>(
@@ -227,6 +260,10 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
           renderLineHighlight: "line",
           bracketPairColorization: { enabled: true },
           tabSize: 2,
+          insertSpaces: true,
+          autoIndent: "full",
+          formatOnPaste: true,
+          matchBrackets: "always",
           automaticLayout: true,
           wordWrap: wordWrap ? "on" : "off",
           smoothScrolling: true,

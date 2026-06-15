@@ -415,6 +415,20 @@ describe("Playground", () => {
     });
   });
 
+  describe("WASM status overlays", () => {
+    it("shows loading overlay when status is loading", () => {
+      mockStatus = "loading";
+      renderPlayground();
+      expect(screen.getByText("Loading WASM compiler...")).toBeInTheDocument();
+    });
+
+    it("shows error overlay when status is error and no errors text", () => {
+      mockStatus = "error";
+      renderPlayground();
+      expect(screen.getByText("WASM Load Failed")).toBeInTheDocument();
+    });
+  });
+
   describe("document title", () => {
     it("shows running indicator in title when status is running", () => {
       mockStatus = "running";
