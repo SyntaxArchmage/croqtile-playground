@@ -234,6 +234,10 @@ export function Playground() {
         e.preventDefault();
         handleDumpAST();
       }
+      if ((e.ctrlKey || e.metaKey) && (e.key === "l" || e.key === "L")) {
+        e.preventDefault();
+        clearOutput();
+      }
       if (e.key === "?" && !e.ctrlKey && !e.metaKey && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
         setShowShortcuts((v) => !v);
       }
@@ -243,7 +247,7 @@ export function Playground() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [handleRun, handleCompile, handleDumpAST, handleShare]);
+  }, [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput]);
 
   const lineCount = useMemo(() => source.split("\n").length, [source]);
 
@@ -275,6 +279,7 @@ export function Playground() {
             ["Ctrl+Shift+Enter", "Compile code"],
             ["Ctrl+Shift+D", "Dump AST"],
             ["Ctrl+S", "Share link"],
+            ["Ctrl+L", "Clear output"],
             ["?", "Toggle this help"],
             ["Esc", "Close dialog"],
           ].map(([key, desc]) => (

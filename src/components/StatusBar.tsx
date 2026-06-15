@@ -67,7 +67,7 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
         </>
       )}
       <div className="flex-1" />
-      <span className="hidden sm:inline opacity-50">Ctrl+Enter: Run | Ctrl+Shift+Enter: Compile | Ctrl+S: Share | ?: Help</span>
+      <span className="hidden sm:inline opacity-50">Ctrl+Enter: Run | Ctrl+Shift+Enter: Compile | Ctrl+S: Share | Ctrl+L: Clear | ?: Help</span>
     </div>
   );
 });

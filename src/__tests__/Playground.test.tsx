@@ -169,6 +169,12 @@ describe("Playground", () => {
       expect(mockDumpAST).toHaveBeenCalledTimes(1);
     });
 
+    it("dispatches clearOutput on Ctrl+L", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "l", ctrlKey: true });
+      expect(mockClearOutput).toHaveBeenCalledTimes(1);
+    });
+
     it("toggles shortcuts overlay on ?", () => {
       renderPlayground();
       expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
@@ -412,6 +418,27 @@ describe("Playground", () => {
 
       expect(window.confirm).not.toHaveBeenCalled();
       expect(screen.getByTestId("code-editor")).toHaveValue(EXAMPLES[1].code);
+    });
+  });
+
+  describe("target and settings callbacks", () => {
+    it("saves settings when compilation target changes", () => {
+      renderPlayground();
+      const targetSelect = screen.getByLabelText("Compilation target");
+      fireEvent.change(targetSelect, { target: { value: "cute" } });
+      expect(mockSaveSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ lastTarget: "cute" })
+      );
+    });
+
+    it("saves settings when font size is changed", () => {
+      renderPlayground();
+      fireEvent.click(screen.getByText("Settings"));
+      const increase = screen.getByLabelText("Increase font size");
+      fireEvent.click(increase);
+      expect(mockSaveSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ fontSize: 15 })
+      );
     });
   });
 
