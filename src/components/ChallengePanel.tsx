@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import { checkTests } from "@/lib/checkTests";
 import { isChallengePassed, markChallengePassed } from "@/lib/progress";
@@ -20,22 +20,34 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
     return null;
   });
   const [showHint, setShowHint] = useState(false);
+  const lastChallengeOutput = useRef("");
+  const prevChallengeId = useRef(selectedChallenge?.id);
 
-  const testResults = selectedChallenge ? checkTests(selectedChallenge, lastOutput) : [];
+  if (selectedChallenge && prevChallengeId.current !== selectedChallenge.id) {
+    prevChallengeId.current = selectedChallenge.id;
+    lastChallengeOutput.current = "";
+  }
+
+  if (lastOutput && selectedChallenge && lastOutput !== lastChallengeOutput.current) {
+    lastChallengeOutput.current = lastOutput;
+  }
+
+  const testResults = useMemo(
+    () => selectedChallenge ? checkTests(selectedChallenge, lastChallengeOutput.current) : [],
+    [selectedChallenge, lastChallengeOutput.current],
+  );
   const allPassed = testResults.length > 0 && testResults.every((r) => r.passed);
 
   useEffect(() => {
-    if (selectedChallenge && allPassed && lastOutput) {
+    if (selectedChallenge && allPassed && lastChallengeOutput.current) {
       markChallengePassed(selectedChallenge.id);
     }
-  }, [selectedChallenge, allPassed, lastOutput]);
+  }, [selectedChallenge, allPassed]);
 
   useEffect(() => {
     if (initialId && selectedChallenge) {
       onLoadCode(selectedChallenge.starterCode);
     }
-    // Only on mount with deep link
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!selectedChallenge) {
@@ -46,6 +58,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
           <button
             onClick={onClose}
             className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg"
+            aria-label="Close challenges panel"
           >
             ×
           </button>
@@ -93,6 +106,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
         <button
           onClick={onClose}
           className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg"
+          aria-label="Close challenges panel"
         >
           ×
         </button>
@@ -126,7 +140,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
           ))}
         </div>
 
-        {allPassed && lastOutput && (
+        {allPassed && lastChallengeOutput.current && (
           <div className="p-3 rounded border border-green-600 bg-green-950/30 text-center space-y-2">
             <div className="text-green-300 text-sm font-medium">
               All tests passed!
@@ -192,4 +206,3 @@ function DifficultyBadge({ difficulty }: { difficulty: Challenge["difficulty"] }
     </span>
   );
 }
-

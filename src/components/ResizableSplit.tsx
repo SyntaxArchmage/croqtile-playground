@@ -42,9 +42,8 @@ export function ResizableSplit({ left, right, initialRatio = 0.35 }: Props) {
     document.addEventListener("mouseup", onUp);
   }, [updateRatio]);
 
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
+  const onTouchStart = useCallback(() => {
     dragging.current = true;
-    const touch = e.touches[0];
 
     const onTouchMove = (ev: TouchEvent) => {
       if (!dragging.current) return;
@@ -59,7 +58,6 @@ export function ResizableSplit({ left, right, initialRatio = 0.35 }: Props) {
 
     document.addEventListener("touchmove", onTouchMove, { passive: true });
     document.addEventListener("touchend", onTouchEnd);
-    void touch;
   }, [updateRatio]);
 
   return (

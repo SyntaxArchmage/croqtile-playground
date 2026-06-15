@@ -5,7 +5,7 @@ import { OutputPanel } from "@/components/OutputPanel";
 describe("OutputPanel", () => {
   it("shows placeholder when no output", () => {
     render(<OutputPanel output="" errors="" />);
-    expect(screen.getByText(/Click "Run" or "Compile"/)).toBeInTheDocument();
+    expect(screen.getByText(/Click .Run. or .Compile/)).toBeInTheDocument();
   });
 
   it("displays output text", () => {

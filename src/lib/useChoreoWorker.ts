@@ -22,7 +22,7 @@ export function useChoreoWorker() {
 
   useEffect(() => {
     fetch("/wasm/build-manifest.json")
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
       .then((m) => setBuildManifest(m))
       .catch(() => {});
   }, []);
@@ -67,7 +67,7 @@ export function useChoreoWorker() {
   }, []);
 
   const postIfReady = useCallback((msg: Record<string, unknown>) => {
-    if (!workerRef.current || statusRef.current === "loading") return;
+    if (!workerRef.current || statusRef.current === "loading" || statusRef.current === "error") return;
     statusRef.current = "running";
     setStatus("running");
     setErrors("");

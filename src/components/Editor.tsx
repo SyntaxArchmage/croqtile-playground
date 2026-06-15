@@ -17,7 +17,6 @@ interface Props {
   onChange: (value: string) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function registerChoreoLanguage(monaco: any) {
   if (monaco.languages.getLanguages().some((l: { id: string }) => l.id === "choreo")) return;
 

@@ -22,8 +22,8 @@ export function StatusBar({ status, compilerVersion, buildManifest }: Props) {
 
   return (
     <div className="flex items-center gap-2 px-4 py-1 border-t border-[var(--border)] bg-[var(--bg-secondary)] text-xs text-[var(--text-muted)]">
-      <span className={`flex items-center gap-1 ${color}`}>
-        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+      <span className={`flex items-center gap-1 ${color}`} aria-label={`Compiler status: ${label}`}>
+        <span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />
         {label}
       </span>
       <span className="text-[var(--border)]">|</span>

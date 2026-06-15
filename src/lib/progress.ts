@@ -1,4 +1,5 @@
 const STORAGE_KEY = "croqtile-playground-progress";
+const LAST_SOURCE_KEY = "croqtile-playground-last-source";
 
 export interface Progress {
   tutorialSteps: Record<string, number>;
@@ -63,8 +64,6 @@ export function resetProgress(): void {
     // noop
   }
 }
-
-const LAST_SOURCE_KEY = "croqtile-playground-last-source";
 
 export function saveLastSource(source: string): void {
   if (typeof window === "undefined") return;

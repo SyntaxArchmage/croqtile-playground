@@ -51,17 +51,21 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
     if (initialId) {
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
       const stepParam = params?.get("step");
-      return stepParam ? Math.max(0, parseInt(stepParam, 10) - 1) : 0;
+      if (stepParam) {
+        const parsed = parseInt(stepParam, 10);
+        const tut = TUTORIALS.find((t) => t.id === initialId);
+        if (!isNaN(parsed) && tut) {
+          return Math.max(0, Math.min(parsed - 1, tut.steps.length - 1));
+        }
+      }
     }
     return 0;
   });
 
   useEffect(() => {
     if (initialId && selectedTutorial) {
-      onLoadCode(selectedTutorial.steps[stepIndex].code);
+      onLoadCode(selectedTutorial.steps[stepIndex]?.code ?? selectedTutorial.steps[0].code);
     }
-    // Only on mount with deep link
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!selectedTutorial) {
@@ -72,6 +76,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
           <button
             onClick={onClose}
             className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg"
+            aria-label="Close tutorials panel"
           >
             ×
           </button>
@@ -124,6 +129,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
         <button
           onClick={onClose}
           className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg"
+          aria-label="Close tutorials panel"
         >
           ×
         </button>

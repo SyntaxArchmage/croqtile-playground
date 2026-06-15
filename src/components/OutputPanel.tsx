@@ -12,16 +12,23 @@ interface Props {
 
 export function OutputPanel({ output, errors, onClear }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("output");
-  const prevErrors = useRef(errors);
+  const prevErrorsRef = useRef(errors);
+  const prevOutputRef = useRef(output);
 
-  useEffect(() => {
-    if (errors && errors !== prevErrors.current) {
-      setActiveTab("errors");
-    } else if (output && !errors) {
-      setActiveTab("output");
-    }
-    prevErrors.current = errors;
-  }, [errors, output]);
+  const prevErrors = prevErrorsRef.current;
+  const prevOutput = prevOutputRef.current;
+  prevErrorsRef.current = errors;
+  prevOutputRef.current = output;
+
+  let computedTab = activeTab;
+  if (errors && errors !== prevErrors) {
+    computedTab = "errors";
+  } else if (output && output !== prevOutput && !errors) {
+    computedTab = "output";
+  }
+  if (computedTab !== activeTab) {
+    setActiveTab(computedTab);
+  }
 
   const content = activeTab === "output" ? output : errors;
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -34,8 +41,11 @@ export function OutputPanel({ output, errors, onClear }: Props) {
 
   return (
     <div className="h-[35%] min-h-[120px] border-t border-[var(--border)] flex flex-col">
-      <div className="flex items-center gap-1 px-3 py-1 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
+      <div className="flex items-center gap-1 px-3 py-1 border-b border-[var(--border)] bg-[var(--bg-secondary)]" role="tablist" aria-label="Output panels">
         <button
+          role="tab"
+          aria-selected={activeTab === "output"}
+          aria-controls="output-tabpanel"
           onClick={() => setActiveTab("output")}
           className={`px-2 py-0.5 text-xs rounded ${
             activeTab === "output"
@@ -46,6 +56,9 @@ export function OutputPanel({ output, errors, onClear }: Props) {
           Output
         </button>
         <button
+          role="tab"
+          aria-selected={activeTab === "errors"}
+          aria-controls="output-tabpanel"
           onClick={() => setActiveTab("errors")}
           className={`px-2 py-0.5 text-xs rounded ${
             activeTab === "errors"
@@ -67,11 +80,11 @@ export function OutputPanel({ output, errors, onClear }: Props) {
           </button>
         )}
       </div>
-      <div ref={scrollRef} className="flex-1 overflow-auto p-3">
+      <div ref={scrollRef} id="output-tabpanel" role="tabpanel" className="flex-1 overflow-auto p-3">
         <pre className="text-xs font-mono text-[var(--text-primary)] whitespace-pre-wrap">
           {content || (
             <span className="text-[var(--text-muted)]">
-              Click "Run" or "Compile" to see output.
+              Click &ldquo;Run&rdquo; or &ldquo;Compile&rdquo; to see output.
             </span>
           )}
         </pre>

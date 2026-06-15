@@ -19,9 +19,13 @@ export function checkTests(challenge: Challenge, output: string): TestResult[] {
 
   return challenge.tests.map((t) => {
     const expectedLines = t.expectedOutput.trim().split("\n");
-    const passed = expectedLines.every((exp) =>
-      lines.some((line) => line.trim() === exp.trim())
-    );
+    let searchFrom = 0;
+    const passed = expectedLines.every((exp) => {
+      const idx = lines.findIndex((line, i) => i >= searchFrom && line.trim() === exp.trim());
+      if (idx === -1) return false;
+      searchFrom = idx + 1;
+      return true;
+    });
     return { passed, ran: true, description: t.description };
   });
 }

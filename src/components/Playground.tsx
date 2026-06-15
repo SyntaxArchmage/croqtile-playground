@@ -25,31 +25,11 @@ function useIsMobile(breakpoint = 768): boolean {
   return isMobile;
 }
 
-function getInitialSource(): string {
-  if (typeof window !== "undefined" && window.location.hash.length > 1) {
-    try {
-      return decodeURIComponent(window.location.hash.slice(1));
-    } catch {
-      // fall through
-    }
-  }
-  const saved = loadLastSource();
-  if (saved) return saved;
-  return EXAMPLES[0].code;
-}
-
-function getInitialPanelMode(): PanelMode {
-  if (typeof window === "undefined") return "closed";
-  const params = new URLSearchParams(window.location.search);
-  if (params.has("tutorial")) return "tutorial";
-  if (params.has("challenge")) return "challenge";
-  return "closed";
-}
-
 export function Playground() {
-  const [source, setSource] = useState<string>(getInitialSource);
+  const [source, setSource] = useState<string>(EXAMPLES[0].code);
   const [target, setTarget] = useState("cc");
-  const [panelMode, setPanelMode] = useState<PanelMode>(getInitialPanelMode);
+  const [panelMode, setPanelMode] = useState<PanelMode>("closed");
+  const [hydrated, setHydrated] = useState(false);
   const editorRef = useRef<{ getValue: () => string }>(null);
 
   const { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput } =
@@ -58,9 +38,28 @@ export function Playground() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
+    if (hydrated) return;
+    setHydrated(true);
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("tutorial")) setPanelMode("tutorial");
+    else if (params.has("challenge")) setPanelMode("challenge");
+
+    if (window.location.hash.length > 1) {
+      try {
+        setSource(decodeURIComponent(window.location.hash.slice(1)));
+        return;
+      } catch { /* fall through */ }
+    }
+    const saved = loadLastSource();
+    if (saved) setSource(saved);
+  }, [hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
     const timer = setTimeout(() => saveLastSource(source), 1000);
     return () => clearTimeout(timer);
-  }, [source]);
+  }, [source, hydrated]);
 
   const getCode = useCallback(() => editorRef.current?.getValue() ?? source, [source]);
 
@@ -71,7 +70,10 @@ export function Playground() {
   const handleShare = useCallback(() => {
     const code = getCode();
     const url = `${window.location.origin}${window.location.pathname}#${encodeURIComponent(code)}`;
-    navigator.clipboard.writeText(url).catch(() => {});
+    navigator.clipboard.writeText(url).then(
+      () => {},
+      () => { window.alert("Could not copy link. Try copying the URL manually."); }
+    );
     window.history.replaceState(null, "", `#${encodeURIComponent(code)}`);
   }, [getCode]);
 
@@ -94,10 +96,14 @@ export function Playground() {
     return () => window.removeEventListener("keydown", handler);
   }, [handleRun, handleCompile, handleShare]);
 
+  const deepLinkId = hydrated
+    ? new URLSearchParams(window.location.search).get(panelMode === "tutorial" ? "tutorial" : "challenge")
+    : null;
+
   const idePanel = (
     <div className="h-full flex flex-col relative">
       {status === "loading" && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/80 backdrop-blur-sm">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/80 backdrop-blur-sm" role="alert" aria-live="polite">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
             <span className="text-sm text-[var(--text-muted)]">Loading WASM compiler...</span>
@@ -105,7 +111,7 @@ export function Playground() {
         </div>
       )}
       {status === "error" && !errors && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/90">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/90" role="alert" aria-live="assertive">
           <div className="max-w-sm p-6 rounded-lg border border-red-800 bg-red-950/30 text-center">
             <div className="text-lg text-red-400 mb-2">WASM Load Failed</div>
             <p className="text-sm text-[var(--text-muted)]">
@@ -144,10 +150,6 @@ export function Playground() {
   if (panelMode === "closed") {
     return <div className="h-screen">{idePanel}</div>;
   }
-
-  const deepLinkId = typeof window !== "undefined"
-    ? new URLSearchParams(window.location.search).get(panelMode === "tutorial" ? "tutorial" : "challenge")
-    : null;
 
   const contextPanel = panelMode === "tutorial" ? (
     <TutorialPanel
