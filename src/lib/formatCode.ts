@@ -1,9 +1,14 @@
-function countBraces(line: string): { opens: number; closes: number } {
+interface BraceResult {
+  opens: number;
+  closes: number;
+  inBlockComment: boolean;
+}
+
+function countBraces(line: string, inBlockComment: boolean): BraceResult {
   let opens = 0;
   let closes = 0;
   let inString = false;
   let inChar = false;
-  let inBlockComment = false;
   let escape = false;
   for (let i = 0; i < line.length; i++) {
     const ch = line[i];
@@ -21,12 +26,13 @@ function countBraces(line: string): { opens: number; closes: number } {
     if (ch === "{") opens++;
     else if (ch === "}") closes++;
   }
-  return { opens, closes };
+  return { opens, closes, inBlockComment };
 }
 
 export function formatChoreoCode(code: string): string {
   const lines = code.split(/\r?\n/);
   let level = 0;
+  let inBlockComment = false;
   const result: string[] = [];
 
   for (const line of lines) {
@@ -36,10 +42,11 @@ export function formatChoreoCode(code: string): string {
       continue;
     }
 
-    const { opens, closes } = countBraces(trimmed);
-    const indentLevel = Math.max(0, level - closes);
+    const br = countBraces(trimmed, inBlockComment);
+    inBlockComment = br.inBlockComment;
+    const indentLevel = Math.max(0, level - br.closes);
     result.push("  ".repeat(indentLevel) + trimmed);
-    level = Math.max(0, level - closes + opens);
+    level = Math.max(0, level - br.closes + br.opens);
   }
 
   return result.join("\n");

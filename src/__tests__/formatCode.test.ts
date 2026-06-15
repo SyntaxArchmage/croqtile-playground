@@ -128,6 +128,23 @@ println("ok");
 }`);
   });
 
+  it("ignores braces inside multi-line block comments", () => {
+    const input = `__co__ void f() {
+/*
+{ inside multi-line
+} comment
+*/
+println("ok");
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  /*
+  { inside multi-line
+  } comment
+  */
+  println("ok");
+}`);
+  });
+
   it("ignores braces inside char literals", () => {
     const input = `__co__ void f() {
 char c = '{';
