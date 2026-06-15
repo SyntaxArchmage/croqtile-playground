@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import { checkTests } from "@/lib/checkTests";
-import { isChallengePassed, markChallengePassed } from "@/lib/progress";
+import { isChallengePassed, markChallengePassed, getChallengeProgress, recordChallengeAttempt } from "@/lib/progress";
 
 function updateUrlParam(key: string, value: string | null) {
   const url = new URL(window.location.href);
@@ -20,10 +20,11 @@ interface Props {
   onLoadCode: (code: string) => void;
   onClose: () => void;
   lastOutput: string;
+  getCode?: () => string;
   initialId?: string;
 }
 
-export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: Props) {
+export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initialId }: Props) {
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(() => {
     if (initialId) {
       return CHALLENGES.find((c) => c.id === initialId) ?? null;
@@ -35,11 +36,17 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
   const testResults = selectedChallenge ? checkTests(selectedChallenge, lastOutput) : [];
   const allPassed = testResults.length > 0 && testResults.every((r) => r.passed);
 
+  const prevOutputRef = useRef(lastOutput);
   useEffect(() => {
-    if (selectedChallenge && allPassed && lastOutput) {
-      markChallengePassed(selectedChallenge.id);
+    if (!selectedChallenge || !lastOutput) return;
+    if (lastOutput !== prevOutputRef.current) {
+      prevOutputRef.current = lastOutput;
+      recordChallengeAttempt(selectedChallenge.id);
+      if (allPassed) {
+        markChallengePassed(selectedChallenge.id, getCode?.());
+      }
     }
-  }, [selectedChallenge, allPassed, lastOutput]);
+  }, [selectedChallenge, allPassed, lastOutput, getCode]);
 
   useEffect(() => {
     if (initialId && selectedChallenge) {
@@ -61,31 +68,35 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
           </button>
         </div>
         <div className="flex-1 overflow-auto p-4 space-y-3">
-          {CHALLENGES.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => {
-                setSelectedChallenge(c);
-                setShowHint(false);
-                onLoadCode(c.starterCode);
-                updateUrlParam("challenge", c.id);
-              }}
-              className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-[var(--text-primary)]">
-                  {c.title}
-                </span>
-                <DifficultyBadge difficulty={c.difficulty} />
-                {isChallengePassed(c.id) && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900 text-green-300 border border-green-800">passed</span>
-                )}
-              </div>
-              <div className="text-xs text-[var(--text-muted)] mt-1">
-                {c.tests.length} test{c.tests.length > 1 ? "s" : ""}
-              </div>
-            </button>
-          ))}
+          {CHALLENGES.map((c) => {
+            const cp = getChallengeProgress(c.id);
+            return (
+              <button
+                key={c.id}
+                onClick={() => {
+                  setSelectedChallenge(c);
+                  setShowHint(false);
+                  onLoadCode(c.starterCode);
+                  updateUrlParam("challenge", c.id);
+                }}
+                className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
+                    {c.title}
+                  </span>
+                  <DifficultyBadge difficulty={c.difficulty} />
+                  {isChallengePassed(c.id) && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900 text-green-300 border border-green-800">passed</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mt-1">
+                  <span>{c.tests.length} test{c.tests.length > 1 ? "s" : ""}</span>
+                  {cp.attempts > 0 && <span>{cp.attempts} attempt{cp.attempts !== 1 ? "s" : ""}</span>}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
     );
@@ -194,6 +205,17 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, initialId }: P
         >
           Reset Code
         </button>
+        {(() => {
+          const cp = getChallengeProgress(selectedChallenge.id);
+          return cp.bestCode ? (
+            <button
+              onClick={() => onLoadCode(cp.bestCode!)}
+              className="px-3 py-1 text-xs rounded border border-green-800 text-green-400 hover:bg-green-950/30"
+            >
+              Load Best
+            </button>
+          ) : null;
+        })()}
       </div>
     </div>
   );

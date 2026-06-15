@@ -240,6 +240,7 @@ export function Playground() {
       onLoadCode={setSource}
       onClose={closePanel}
       lastOutput={output}
+      getCode={getCode}
       initialId={deepLinkId ?? undefined}
     />
   );

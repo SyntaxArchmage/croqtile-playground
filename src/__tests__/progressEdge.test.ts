@@ -1,4 +1,4 @@
-import { loadProgress, isChallengePassed, markChallengePassed } from "@/lib/progress";
+import { loadProgress, isChallengePassed, markChallengePassed, getChallengeProgress, recordChallengeAttempt } from "@/lib/progress";
 
 const STORAGE_KEY = "croqtile-playground-progress";
 
@@ -41,5 +41,50 @@ describe("progress edge cases", () => {
     expect(isChallengePassed("c01")).toBe(false);
     markChallengePassed("c01");
     expect(isChallengePassed("c01")).toBe(true);
+  });
+
+  it("handles missing challengeProgress gracefully", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      tutorialSteps: {},
+      challengesPassed: [],
+    }));
+    const p = loadProgress();
+    expect(p.challengeProgress).toEqual({});
+  });
+
+  it("handles corrupted challengeProgress gracefully", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      tutorialSteps: {},
+      challengesPassed: [],
+      challengeProgress: "bad",
+    }));
+    const p = loadProgress();
+    expect(p.challengeProgress).toEqual({});
+  });
+});
+
+describe("challenge progress tracking", () => {
+  it("records attempts incrementally", () => {
+    recordChallengeAttempt("c01");
+    expect(getChallengeProgress("c01").attempts).toBe(1);
+    expect(getChallengeProgress("c01").status).toBe("attempted");
+    recordChallengeAttempt("c01");
+    expect(getChallengeProgress("c01").attempts).toBe(2);
+  });
+
+  it("marks challenge passed with best code", () => {
+    recordChallengeAttempt("c02");
+    markChallengePassed("c02", "my solution");
+    const cp = getChallengeProgress("c02");
+    expect(cp.status).toBe("passed");
+    expect(cp.bestCode).toBe("my solution");
+    expect(cp.attempts).toBe(1);
+  });
+
+  it("returns default for unknown challenge", () => {
+    const cp = getChallengeProgress("unknown");
+    expect(cp.status).toBe("not_started");
+    expect(cp.attempts).toBe(0);
+    expect(cp.bestCode).toBeUndefined();
   });
 });

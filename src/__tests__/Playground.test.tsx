@@ -29,6 +29,9 @@ jest.mock("@/lib/progress", () => ({
   markTutorialStep: () => {},
   isChallengePassed: () => false,
   markChallengePassed: jest.fn(),
+  getChallengeProgress: () => ({ status: "not_started", attempts: 0 }),
+  recordChallengeAttempt: jest.fn(),
+  resetProgress: jest.fn(),
 }));
 
 jest.mock("@/components/Editor", () => ({

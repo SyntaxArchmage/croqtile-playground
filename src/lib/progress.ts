@@ -1,13 +1,20 @@
 const STORAGE_KEY = "croqtile-playground-progress";
 const LAST_SOURCE_KEY = "croqtile-playground-last-source";
 
+export interface ChallengeProgress {
+  status: "not_started" | "attempted" | "passed";
+  bestCode?: string;
+  attempts: number;
+}
+
 export interface Progress {
   tutorialSteps: Record<string, number>;
   challengesPassed: string[];
+  challengeProgress: Record<string, ChallengeProgress>;
 }
 
 function getDefault(): Progress {
-  return { tutorialSteps: {}, challengesPassed: [] };
+  return { tutorialSteps: {}, challengesPassed: [], challengeProgress: {} };
 }
 
 export function loadProgress(): Progress {
@@ -22,6 +29,8 @@ export function loadProgress(): Progress {
         ? parsed.tutorialSteps : def.tutorialSteps,
       challengesPassed: Array.isArray(parsed.challengesPassed)
         ? parsed.challengesPassed : def.challengesPassed,
+      challengeProgress: typeof parsed.challengeProgress === "object" && parsed.challengeProgress !== null
+        ? parsed.challengeProgress : def.challengeProgress,
     };
   } catch {
     return getDefault();
@@ -46,12 +55,29 @@ export function markTutorialStep(tutorialId: string, stepIndex: number): void {
   }
 }
 
-export function markChallengePassed(challengeId: string): void {
+export function markChallengePassed(challengeId: string, code?: string): void {
   const p = loadProgress();
   if (!p.challengesPassed.includes(challengeId)) {
     p.challengesPassed.push(challengeId);
-    saveProgress(p);
   }
+  const cp = p.challengeProgress[challengeId] ?? { status: "not_started", attempts: 0 };
+  cp.status = "passed";
+  if (code) cp.bestCode = code;
+  p.challengeProgress[challengeId] = cp;
+  saveProgress(p);
+}
+
+export function recordChallengeAttempt(challengeId: string): void {
+  const p = loadProgress();
+  const cp = p.challengeProgress[challengeId] ?? { status: "not_started", attempts: 0 };
+  cp.attempts += 1;
+  if (cp.status === "not_started") cp.status = "attempted";
+  p.challengeProgress[challengeId] = cp;
+  saveProgress(p);
+}
+
+export function getChallengeProgress(challengeId: string): ChallengeProgress {
+  return loadProgress().challengeProgress[challengeId] ?? { status: "not_started", attempts: 0 };
 }
 
 export function getTutorialProgress(tutorialId: string): number {
