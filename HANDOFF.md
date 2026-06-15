@@ -6,7 +6,7 @@
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (478 tests, 27 suites)
+- `npm test` ✅ (479 tests, 27 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -24,9 +24,9 @@
 - Error boundary with graceful crash recovery
 
 ### Content
-- 9 tutorials (ch01–ch09) with "Try it" inline code blocks
-- 15 challenges (c01–c15) with auto-verification and progress badges
-- 10 example programs
+- 10 tutorials (ch01–ch10) with "Try it" inline code blocks
+- 18 challenges (c01–c18) with auto-verification and progress badges
+- 12 example programs
 
 ### User Experience
 - URL sharing with base64url encoding (backward-compatible with legacy percent-encoding)
@@ -34,6 +34,8 @@
 - localStorage persistence: progress, last source, editor settings
 - Editor settings: font size (10–24px), word wrap toggle
 - Challenge progress tracking: attempts, best code, pass/fail status, confetti animation
+- Challenge status filter (All/To Do/Passed) in challenge list
+- Progress summary bars in tutorial list, challenge list, and settings menu
 - Unsaved changes warning dialog
 - Running indicator in document title
 - Tutorial step indicator dots
@@ -46,8 +48,9 @@
 - Next.js 16.2.9 + React 19 + Tailwind CSS 4
 - ESLint flat config for Next.js 16
 - GitHub Actions CI: type check, lint, test, build
+- `.npmrc` with `legacy-peer-deps=true` for CI compatibility
 - WASM build script with version tracking (build-manifest.json)
-- 478 unit/component tests across 27 suites
+- 479 unit/component tests across 27 suites
 - Coverage: ~97% statements, ~92% branches, ~97% functions, ~99% lines
 - prefers-reduced-motion media query for accessibility
 - Coverage thresholds: 95% statements, 85% branches, 95% functions, 95% lines
