@@ -162,6 +162,14 @@ export function Playground() {
     });
   }, []);
 
+  const settingsRef = useRef(settings);
+  useEffect(() => { settingsRef.current = settings; }, [settings]);
+
+  const handleTargetChange = useCallback((t: string) => {
+    setTarget(t);
+    saveSettings({ ...settingsRef.current, lastTarget: t });
+  }, []);
+
   const handleSettingsChange = useCallback((s: EditorSettings) => {
     setSettings(s);
     saveSettings(s);
@@ -277,7 +285,7 @@ export function Playground() {
       )}
       <Toolbar
         target={target}
-        onTargetChange={(t) => { setTarget(t); saveSettings({ ...settings, lastTarget: t }); }}
+        onTargetChange={handleTargetChange}
         onRun={handleRun}
         onCompile={handleCompile}
         onDumpAST={handleDumpAST}
