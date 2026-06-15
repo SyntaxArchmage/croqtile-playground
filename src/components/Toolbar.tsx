@@ -216,8 +216,8 @@ export const Toolbar = memo(function Toolbar({
         </svg>
       </button>
 
-      <span className="text-sm font-semibold text-[var(--accent)]">Croqtile</span>
-      <span className="text-xs text-[var(--text-muted)]">Playground</span>
+      <span className="hidden sm:inline text-sm font-semibold text-[var(--accent)]">Croqtile</span>
+      <span className="hidden md:inline text-xs text-[var(--text-muted)]">Playground</span>
 
       <div className="w-px h-5 bg-[var(--border)] mx-2" />
 
@@ -248,7 +248,8 @@ export const Toolbar = memo(function Toolbar({
         title="View generated C++/CUDA source code (Ctrl+Shift+Enter)"
         aria-label="Compile code"
       >
-        Compile
+        <span className="hidden sm:inline">Compile</span>
+        <span className="sm:hidden">⚙</span>
       </button>
 
       <button
@@ -270,7 +271,17 @@ export const Toolbar = memo(function Toolbar({
         title="Copy shareable link (Ctrl+S)"
         aria-label="Share code"
       >
-        {copied ? "Copied!" : "Share"}
+        {copied ? (
+          <>
+            <span className="hidden sm:inline">Copied!</span>
+            <span className="sm:hidden">✓</span>
+          </>
+        ) : (
+          <>
+            <span className="hidden sm:inline">Share</span>
+            <span className="sm:hidden">🔗</span>
+          </>
+        )}
       </button>
 
       <input
@@ -452,7 +463,7 @@ export const Toolbar = memo(function Toolbar({
           e.target.value = "";
         }}
         value=""
-        className="px-2 py-1 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)]"
+        className="hidden xs:inline-block px-2 py-1 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)]"
         aria-label="Load example code"
       >
         <option value="" disabled>
