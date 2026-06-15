@@ -539,6 +539,28 @@ describe("Playground", () => {
     expect(screen.getByText("Share link")).toBeInTheDocument();
   });
 
+  it("traps focus within shortcuts dialog on Tab", () => {
+    renderPlayground();
+    fireEvent.keyDown(window, { key: "?" });
+    const dialog = screen.getByRole("dialog");
+    const focusable = dialog.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    expect(focusable.length).toBeGreaterThan(0);
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    (last as HTMLElement).focus();
+    expect(document.activeElement).toBe(last);
+    fireEvent.keyDown(dialog, { key: "Tab" });
+    expect(document.activeElement).toBe(first);
+
+    (first as HTMLElement).focus();
+    expect(document.activeElement).toBe(first);
+    fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(last);
+  });
+
   describe("command palette", () => {
     it("opens command palette on Ctrl+P", () => {
       renderPlayground();
@@ -554,6 +576,28 @@ describe("Playground", () => {
       });
       fireEvent.keyDown(screen.getByLabelText("Search commands"), { key: "Enter" });
       expect(mockRun).toHaveBeenCalled();
+    });
+
+    it("opens tutorial panel via palette command", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+      fireEvent.change(screen.getByLabelText("Search commands"), {
+        target: { value: "Open Tutorial" },
+      });
+      fireEvent.keyDown(screen.getByLabelText("Search commands"), { key: "Enter" });
+      expect(screen.getByText("Tutorials")).toBeInTheDocument();
+      expect(screen.getByText("Hello Croqtile")).toBeInTheDocument();
+    });
+
+    it("opens keyboard shortcuts via palette command", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+      fireEvent.change(screen.getByLabelText("Search commands"), {
+        target: { value: "Keyboard Shortcuts" },
+      });
+      fireEvent.keyDown(screen.getByLabelText("Search commands"), { key: "Enter" });
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
     });
 
     it("closes command palette on Escape", () => {
