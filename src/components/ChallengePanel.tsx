@@ -109,7 +109,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full px-3 py-1.5 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
           />
-          <div className="flex gap-1">
+          <div className="flex gap-1" role="group" aria-label="Filter by difficulty">
             {(
               [
                 { value: "all", label: "All" },
@@ -121,6 +121,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
               <button
                 key={value}
                 onClick={() => setDifficultyFilter(value)}
+                aria-pressed={difficultyFilter === value}
                 className={`text-xs px-2 py-0.5 rounded ${
                   difficultyFilter === value
                     ? "bg-[var(--accent)] text-[var(--bg-primary)]"
