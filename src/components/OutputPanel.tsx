@@ -81,7 +81,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
 
   const handleCopy = useCallback(() => {
     if (!content) return;
-    navigator.clipboard.writeText(content).catch(() => {});
+    navigator.clipboard?.writeText(content).catch(() => {});
     setCopied(true);
     if (copyTimeoutRef.current) {
       clearTimeout(copyTimeoutRef.current);
