@@ -1,12 +1,12 @@
 interface BraceResult {
-  opens: number;
-  closes: number;
+  leadingCloses: number;
+  netChange: number;
   inBlockComment: boolean;
 }
 
 function countBraces(line: string, inBlockComment: boolean): BraceResult {
-  let opens = 0;
-  let closes = 0;
+  let depth = 0;
+  let minDepth = 0;
   let inString = false;
   let inChar = false;
   let escape = false;
@@ -23,10 +23,10 @@ function countBraces(line: string, inBlockComment: boolean): BraceResult {
     if (inString || inChar) continue;
     if (ch === "/" && line[i + 1] === "/") break;
     if (ch === "/" && line[i + 1] === "*") { inBlockComment = true; i++; continue; }
-    if (ch === "{") opens++;
-    else if (ch === "}") closes++;
+    if (ch === "{") depth++;
+    else if (ch === "}") { depth--; if (depth < minDepth) minDepth = depth; }
   }
-  return { opens, closes, inBlockComment };
+  return { leadingCloses: -minDepth, netChange: depth, inBlockComment };
 }
 
 export function formatChoreoCode(code: string): string {
@@ -44,9 +44,9 @@ export function formatChoreoCode(code: string): string {
 
     const br = countBraces(trimmed, inBlockComment);
     inBlockComment = br.inBlockComment;
-    const indentLevel = Math.max(0, level - br.closes);
+    const indentLevel = Math.max(0, level - br.leadingCloses);
     result.push("  ".repeat(indentLevel) + trimmed);
-    level = Math.max(0, level - br.closes + br.opens);
+    level = Math.max(0, level + br.netChange);
   }
 
   return result.join("\n");

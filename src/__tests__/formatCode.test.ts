@@ -156,6 +156,27 @@ println("ok");
 }`);
   });
 
+  it("formats deeply nested parallel and foreach blocks", () => {
+    const input = `__co__ void deep() {
+parallel {i} by [4] {
+if (i > 0) {
+foreach k in [0:8] {
+println(k);
+}
+}
+}
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void deep() {
+  parallel {i} by [4] {
+    if (i > 0) {
+      foreach k in [0:8] {
+        println(k);
+      }
+    }
+  }
+}`);
+  });
+
   it("handles single char strings containing backslash", () => {
     const input = `__co__ void f() {
 char c = '\\\\';
