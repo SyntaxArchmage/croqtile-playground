@@ -4,6 +4,27 @@ import { EXAMPLES } from "../lib/examples";
 import { parseContent } from "../lib/parseContent";
 
 describe("Content integrity", () => {
+  it("all tutorials have at least one step", () => {
+    for (const t of TUTORIALS) {
+      expect(t.steps.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("all tutorials have unique IDs", () => {
+    const ids = TUTORIALS.map((t) => t.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("all challenges have unique IDs", () => {
+    const ids = CHALLENGES.map((c) => c.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("all examples have unique IDs", () => {
+    const ids = EXAMPLES.map((e) => e.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it("all tutorial steps have non-empty code", () => {
     for (const t of TUTORIALS) {
       for (const step of t.steps) {
