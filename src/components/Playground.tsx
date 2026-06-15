@@ -54,15 +54,15 @@ export function Playground() {
   const [target, setTarget] = useState("cc");
   const [panelMode, setPanelMode] = useState(initialPanelMode);
   const editorRef = useRef<{ getValue: () => string }>(null);
-  const prevInitSource = useRef(initialSource);
-  const prevInitPanel = useRef(initialPanelMode);
+  const [prevInitSource, setPrevInitSource] = useState(initialSource);
+  const [prevInitPanel, setPrevInitPanel] = useState(initialPanelMode);
 
-  if (initialSource !== prevInitSource.current) {
-    prevInitSource.current = initialSource;
+  if (initialSource !== prevInitSource) {
+    setPrevInitSource(initialSource);
     setSource(initialSource);
   }
-  if (initialPanelMode !== prevInitPanel.current) {
-    prevInitPanel.current = initialPanelMode;
+  if (initialPanelMode !== prevInitPanel) {
+    setPrevInitPanel(initialPanelMode);
     setPanelMode(initialPanelMode);
   }
 

@@ -4,7 +4,7 @@ export interface ContentPart {
 }
 
 export function parseContent(content: string): ContentPart[] {
-  const parts = content.split(/```(\w*)\n([\s\S]*?)```/);
+  const parts = content.split(/```(\w*)\s*[\r\n]+([\s\S]*?)```/);
   const result: ContentPart[] = [];
   for (let i = 0; i < parts.length; i++) {
     if (i % 3 === 0) {

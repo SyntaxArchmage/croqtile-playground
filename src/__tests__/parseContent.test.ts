@@ -35,4 +35,18 @@ describe("parseContent", () => {
     expect(result[0].type).toBe("text");
     expect(result[1].type).toBe("code");
   });
+
+  it("parses code blocks with CRLF line endings", () => {
+    const input = "Text\r\n```croqtile\r\nfoo();\r\n```\r\nMore";
+    const result = parseContent(input);
+    expect(result).toHaveLength(3);
+    expect(result[1]).toEqual({ type: "code", content: "foo();\r\n" });
+  });
+
+  it("parses code blocks with extra spaces after language tag", () => {
+    const input = "Text\n```croqtile  \nfoo();\n```\nMore";
+    const result = parseContent(input);
+    expect(result).toHaveLength(3);
+    expect(result[1]).toEqual({ type: "code", content: "foo();\n" });
+  });
 });

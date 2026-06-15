@@ -42,4 +42,56 @@ describe("TutorialPanel", () => {
     expect(screen.getByText("Load Code")).toBeInTheDocument();
     expect(screen.getByText("Next →")).toBeInTheDocument();
   });
+
+  it("navigates forward through steps", () => {
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    const nextBtn = screen.getByText("Next →");
+    fireEvent.click(nextBtn);
+    expect(onLoadCode).toHaveBeenCalledTimes(2);
+  });
+
+  it("disables Prev on first step", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    const prevBtn = screen.getByText("← Prev");
+    expect(prevBtn).toBeDisabled();
+  });
+
+  it("returns to tutorial list on Back", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    fireEvent.click(screen.getByText("← Back"));
+    expect(screen.getByText("Tutorials")).toBeInTheDocument();
+  });
+
+  it("shows step counter", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    expect(screen.getByText(/\/ 3/)).toBeInTheDocument();
+  });
+
+  it("loads code on Load Code click", () => {
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    onLoadCode.mockClear();
+    fireEvent.click(screen.getByText("Load Code"));
+    expect(onLoadCode).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders close button in step view", () => {
+    const onClose = jest.fn();
+    render(<TutorialPanel onLoadCode={() => {}} onClose={onClose} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    const closeBtns = screen.getAllByLabelText("Close tutorials panel");
+    fireEvent.click(closeBtns[0]);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders with initialId", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="ch01" />);
+    expect(screen.getByText("← Back")).toBeInTheDocument();
+  });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type { WorkerStatus } from "@/lib/useChoreoWorker";
 import type { PanelMode } from "@/lib/types";
 import { EXAMPLES } from "@/lib/examples";
@@ -34,13 +34,24 @@ export function Toolbar({
   const busy = status === "running";
   const [copied, setCopied] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const shareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleShareClick = useCallback(() => {
     onShare();
     setCopied(true);
-    const id = setTimeout(() => setCopied(false), 2000);
-    return () => clearTimeout(id);
+    if (shareTimeoutRef.current) {
+      clearTimeout(shareTimeoutRef.current);
+    }
+    shareTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
   }, [onShare]);
+
+  useEffect(() => {
+    return () => {
+      if (shareTimeoutRef.current) {
+        clearTimeout(shareTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!showMenu) return;
