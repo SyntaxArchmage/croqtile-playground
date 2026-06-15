@@ -42,6 +42,7 @@ export const Toolbar = memo(function Toolbar({
   const busy = status === "running";
   const [copied, setCopied] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showFileMenu, setShowFileMenu] = useState(false);
   const shareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -96,15 +97,19 @@ export const Toolbar = memo(function Toolbar({
   }, []);
 
   useEffect(() => {
-    if (!showMenu) return;
+    if (!showMenu && !showFileMenu) return;
     const close = (e: MouseEvent) => {
-      if (!(e.target as HTMLElement)?.closest("[data-settings-menu]")) {
+      const target = e.target as HTMLElement;
+      if (showMenu && !target?.closest("[data-settings-menu]")) {
         setShowMenu(false);
+      }
+      if (showFileMenu && !target?.closest("[data-file-menu]")) {
+        setShowFileMenu(false);
       }
     };
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
-  }, [showMenu]);
+  }, [showMenu, showFileMenu]);
 
   return (
     <nav className="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]" aria-label="Playground toolbar">
@@ -207,39 +212,39 @@ export const Toolbar = memo(function Toolbar({
         tabIndex={-1}
       />
 
-      <button
-        onClick={handleOpenClick}
-        className="p-1.5 rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)] transition-colors"
-        title="Open .co file"
-        aria-label="Open file"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-        </svg>
-      </button>
-
-      <button
-        onClick={handleDownload}
-        className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)] inline-flex items-center gap-1"
-        title="Download code as .co file"
-        aria-label="Download code"
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-        Download
-      </button>
-
-      <button
-        onClick={handleFormat}
-        className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
-        title="Auto-indent code"
-        aria-label="Format code"
-      >
-        Format
-      </button>
+      <div className="relative" data-file-menu>
+        <button
+          onClick={() => setShowFileMenu((v) => !v)}
+          className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
+          aria-label="File menu"
+          aria-expanded={showFileMenu}
+        >
+          File ▾
+        </button>
+        {showFileMenu && (
+          <div className="absolute left-0 top-full mt-1 w-40 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1">
+            <button
+              onClick={() => { handleOpenClick(); setShowFileMenu(false); }}
+              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+            >
+              Open file...
+            </button>
+            <button
+              onClick={() => { handleDownload(); setShowFileMenu(false); }}
+              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+            >
+              Download .co
+            </button>
+            <div className="border-t border-[var(--border)] my-1" />
+            <button
+              onClick={() => { handleFormat(); setShowFileMenu(false); }}
+              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+            >
+              Format code
+            </button>
+          </div>
+        )}
+      </div>
 
       <div className="flex-1" />
 

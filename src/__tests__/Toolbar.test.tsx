@@ -43,22 +43,20 @@ describe("Toolbar", () => {
     expect(screen.getByText("Share")).toBeInTheDocument();
   });
 
-  it("renders Download button", () => {
+  it("renders File dropdown", () => {
     render(<Toolbar {...defaultProps} />);
-    expect(screen.getByLabelText("Download code")).toBeInTheDocument();
+    expect(screen.getByLabelText("File menu")).toBeInTheDocument();
   });
 
-  it("renders Open file button", () => {
+  it("shows file menu items when File dropdown opened", () => {
     render(<Toolbar {...defaultProps} />);
-    expect(screen.getByLabelText("Open file")).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("File menu"));
+    expect(screen.getByText("Open file...")).toBeInTheDocument();
+    expect(screen.getByText("Download .co")).toBeInTheDocument();
+    expect(screen.getByText("Format code")).toBeInTheDocument();
   });
 
-  it("renders Format button", () => {
-    render(<Toolbar {...defaultProps} />);
-    expect(screen.getByLabelText("Format code")).toBeInTheDocument();
-  });
-
-  it("loads file content via Open button", () => {
+  it("loads file content via Open in File menu", () => {
     render(<Toolbar {...defaultProps} />);
 
     const fileContent = "__co__ void loaded() {\n  println(\"ok\");\n}\n";
@@ -89,25 +87,27 @@ describe("Toolbar", () => {
     expect(defaultProps.onLoadCode).toHaveBeenCalledWith(fileContent);
   });
 
-  it("opens file picker when Open button clicked", () => {
+  it("opens file picker when Open file... clicked in File menu", () => {
     render(<Toolbar {...defaultProps} />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const clickSpy = jest.spyOn(input, "click");
-    fireEvent.click(screen.getByLabelText("Open file"));
+    fireEvent.click(screen.getByLabelText("File menu"));
+    fireEvent.click(screen.getByText("Open file..."));
     expect(clickSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("formats code when Format clicked", () => {
+  it("formats code when Format code clicked in File menu", () => {
     const getCode = jest.fn(() => "__co__ void hello() {\nprintln(\"hi\");\n}");
     render(<Toolbar {...defaultProps} getCode={getCode} />);
-    fireEvent.click(screen.getByLabelText("Format code"));
+    fireEvent.click(screen.getByLabelText("File menu"));
+    fireEvent.click(screen.getByText("Format code"));
     expect(getCode).toHaveBeenCalledTimes(1);
     expect(defaultProps.onLoadCode).toHaveBeenCalledWith(`__co__ void hello() {
   println("hi");
 }`);
   });
 
-  it("downloads code as .co file on Download click", () => {
+  it("downloads code as .co file via File menu", () => {
     render(<Toolbar {...defaultProps} />);
 
     const click = jest.fn();
@@ -124,7 +124,8 @@ describe("Toolbar", () => {
     URL.revokeObjectURL = mockRevokeObjectURL;
 
     try {
-      fireEvent.click(screen.getByLabelText("Download code"));
+      fireEvent.click(screen.getByLabelText("File menu"));
+      fireEvent.click(screen.getByText("Download .co"));
       expect(defaultProps.getCode).toHaveBeenCalledTimes(1);
       expect(mockCreateObjectURL).toHaveBeenCalled();
       expect(anchor.download).toBe("croqtile-code.co");
