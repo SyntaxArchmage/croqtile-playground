@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { CHALLENGES } from "@/lib/challenges";
 
 const mockMarkChallengePassed = jest.fn();
 const mockRecordChallengeAttempt = jest.fn();
@@ -300,9 +301,10 @@ describe("ChallengePanel", () => {
   });
 
   it("does not show Next button on last challenge", () => {
-    const lastOutput = "T[0,0] = 1\nT[0,1] = 4\nT[0,2] = 7\nT[1,0] = 2\nT[1,1] = 5\nT[1,2] = 8\nT[2,0] = 3\nT[2,1] = 6\nT[2,2] = 9";
+    const last = CHALLENGES[CHALLENGES.length - 1];
+    const lastOutput = last.tests.map((t) => t.expectedOutput).join("\n");
     render(
-      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={lastOutput} initialId="c17" />
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={lastOutput} initialId={last.id} />
     );
     expect(screen.getByText("All tests passed!")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Next/ })).not.toBeInTheDocument();
