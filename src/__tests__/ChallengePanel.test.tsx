@@ -4,6 +4,8 @@ import "@testing-library/jest-dom";
 jest.mock("@/lib/progress", () => ({
   isChallengePassed: () => false,
   markChallengePassed: jest.fn(),
+  getChallengeProgress: () => ({ status: "not_started", attempts: 0 }),
+  recordChallengeAttempt: jest.fn(),
 }));
 
 import { ChallengePanel } from "@/components/ChallengePanel";
@@ -126,5 +128,27 @@ describe("ChallengePanel", () => {
     const closeBtns = screen.getAllByLabelText("Close challenges panel");
     fireEvent.click(closeBtns[0]);
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows Next Challenge button when all tests pass", () => {
+    const passingOutput = "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3";
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={passingOutput} initialId="c01" />
+    );
+    expect(screen.getByText("All tests passed!")).toBeInTheDocument();
+    const nextBtn = screen.getByRole("button", { name: /Next/ });
+    expect(nextBtn).toBeInTheDocument();
+  });
+
+  it("navigates to next challenge on Next click", () => {
+    const passingOutput = "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3";
+    const onLoadCode = jest.fn();
+    render(
+      <ChallengePanel onLoadCode={onLoadCode} onClose={() => {}} lastOutput={passingOutput} initialId="c01" />
+    );
+    onLoadCode.mockClear();
+    const nextBtn = screen.getByRole("button", { name: /Next/ });
+    fireEvent.click(nextBtn);
+    expect(onLoadCode).toHaveBeenCalled();
   });
 });
