@@ -24,8 +24,11 @@ interface Props {
   initialId?: string;
 }
 
+type DifficultyFilter = "all" | "easy" | "medium" | "hard";
+
 export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initialId }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("all");
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(() => {
     if (initialId) {
       return CHALLENGES.find((c) => c.id === initialId) ?? null;
@@ -57,13 +60,18 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
 
   if (!selectedChallenge) {
     const query = searchQuery.trim().toLowerCase();
-    const filteredChallenges = query
-      ? CHALLENGES.filter(
-          (c) =>
-            c.title.toLowerCase().includes(query) ||
-            c.description.toLowerCase().includes(query),
-        )
-      : CHALLENGES;
+    const filteredChallenges = CHALLENGES.filter((c) => {
+      if (difficultyFilter !== "all" && c.difficulty !== difficultyFilter) {
+        return false;
+      }
+      if (!query) {
+        return true;
+      }
+      return (
+        c.title.toLowerCase().includes(query) ||
+        c.description.toLowerCase().includes(query)
+      );
+    });
 
     return (
       <div className="h-full flex flex-col">
@@ -86,6 +94,28 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full px-3 py-1.5 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
           />
+          <div className="flex gap-1">
+            {(
+              [
+                { value: "all", label: "All" },
+                { value: "easy", label: "Easy" },
+                { value: "medium", label: "Medium" },
+                { value: "hard", label: "Hard" },
+              ] as const
+            ).map(({ value, label }) => (
+              <button
+                key={value}
+                onClick={() => setDifficultyFilter(value)}
+                className={`text-xs px-2 py-0.5 rounded ${
+                  difficultyFilter === value
+                    ? "bg-[var(--accent)] text-[var(--bg-primary)]"
+                    : "border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           {filteredChallenges.length === 0 ? (
             <div className="text-xs text-[var(--text-muted)] text-center py-4">
               No challenges match

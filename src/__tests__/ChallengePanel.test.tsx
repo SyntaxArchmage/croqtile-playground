@@ -1,16 +1,28 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+const mockMarkChallengePassed = jest.fn();
+const mockRecordChallengeAttempt = jest.fn();
+let mockChallengeProgress: { status: string; attempts: number; bestCode?: string } = {
+  status: "not_started",
+  attempts: 0,
+};
+
 jest.mock("@/lib/progress", () => ({
   isChallengePassed: () => false,
-  markChallengePassed: jest.fn(),
-  getChallengeProgress: () => ({ status: "not_started", attempts: 0 }),
-  recordChallengeAttempt: jest.fn(),
+  markChallengePassed: (...args: unknown[]) => mockMarkChallengePassed(...args),
+  getChallengeProgress: () => mockChallengeProgress,
+  recordChallengeAttempt: (...args: unknown[]) => mockRecordChallengeAttempt(...args),
 }));
 
 import { ChallengePanel } from "@/components/ChallengePanel";
 
 describe("ChallengePanel", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockChallengeProgress = { status: "not_started", attempts: 0 };
+  });
+
   it("renders challenges header", () => {
     render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
@@ -169,5 +181,56 @@ describe("ChallengePanel", () => {
     const search = screen.getByLabelText("Search challenges");
     fireEvent.change(search, { target: { value: "zzzznotfound" } });
     expect(screen.getByText("No challenges match")).toBeInTheDocument();
+  });
+
+  it("filters challenges by difficulty", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Easy" }));
+    expect(screen.getByText("Hello Threads")).toBeInTheDocument();
+    expect(screen.queryByText("DMA Reverse")).not.toBeInTheDocument();
+    expect(screen.queryByText("Matrix Trace")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "All" }));
+    expect(screen.getByText("Hello Threads")).toBeInTheDocument();
+    expect(screen.getByText("DMA Reverse")).toBeInTheDocument();
+    expect(screen.getByText("Matrix Trace")).toBeInTheDocument();
+  });
+
+  it("records attempt and marks passed when output changes with all tests passing", () => {
+    const passingOutput = "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3";
+    const getCode = jest.fn(() => "my code");
+    const { rerender } = render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" getCode={getCode} initialId="c01" />
+    );
+    rerender(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={passingOutput} getCode={getCode} initialId="c01" />
+    );
+    expect(mockRecordChallengeAttempt).toHaveBeenCalledWith("c01");
+    expect(mockMarkChallengePassed).toHaveBeenCalledWith("c01", "my code");
+  });
+
+  it("records attempt but does not mark passed when tests fail", () => {
+    const { rerender } = render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+    );
+    rerender(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="wrong output" initialId="c01" />
+    );
+    expect(mockRecordChallengeAttempt).toHaveBeenCalledWith("c01");
+    expect(mockMarkChallengePassed).not.toHaveBeenCalled();
+  });
+
+  it("shows Load Best button when challenge has best code saved", () => {
+    const passingOutput = "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3";
+    mockChallengeProgress = { status: "passed", attempts: 3, bestCode: "saved solution" };
+    const onLoadCode = jest.fn();
+    render(
+      <ChallengePanel onLoadCode={onLoadCode} onClose={() => {}} lastOutput={passingOutput} initialId="c01" />
+    );
+    const loadBest = screen.getByText("Load Best");
+    fireEvent.click(loadBest);
+    expect(onLoadCode).toHaveBeenCalledWith("saved solution");
   });
 });
