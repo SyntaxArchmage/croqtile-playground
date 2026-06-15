@@ -20,7 +20,7 @@ Browser-based IDE for writing, compiling, and running Croqtile code. No installa
 
 ## Architecture
 
-- **Frontend**: Next.js 16 + React 19 + Tailwind CSS 4 + Monaco Editor
+- **Frontend**: Next.js 16.2 + React 19 + Tailwind CSS 4 + Monaco Editor
 - **Execution**: Choreo compiler compiled to WASM via Emscripten (from `croqtile` repo)
 - **Targets**: Mock interpreter (instant), cc (C++ codegen), cute (CUDA codegen)
 - **Deployment**: Static export — no server required
