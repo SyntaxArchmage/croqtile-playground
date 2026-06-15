@@ -2,11 +2,13 @@
 
 import { memo } from "react";
 import type { WorkerStatus, BuildManifest } from "@/lib/useChoreoWorker";
+import type { CursorPosition } from "./Editor";
 
 interface Props {
   status: WorkerStatus;
   compilerVersion?: string | null;
   buildManifest?: BuildManifest | null;
+  cursorPosition?: CursorPosition;
 }
 
 const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
@@ -16,7 +18,7 @@ const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
   error: { label: "Error", color: "text-[var(--error)]" },
 };
 
-export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest }: Props) {
+export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, cursorPosition }: Props) {
   const { label, color } = statusConfig[status];
   const version = compilerVersion ?? buildManifest?.version ?? null;
   const commit = buildManifest?.commit_short ?? null;
@@ -32,6 +34,12 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
         Croqtile {version ?? "—"}
         {commit && <span className="ml-1 opacity-60">({commit})</span>}
       </span>
+      {cursorPosition && (
+        <>
+          <span className="text-[var(--border)]">|</span>
+          <span>Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
+        </>
+      )}
       <div className="flex-1" />
       <span className="hidden sm:inline opacity-50">Ctrl+Enter: Run | Ctrl+Shift+Enter: Compile | Ctrl+S: Share | ?: Help</span>
     </div>

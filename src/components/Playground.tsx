@@ -12,6 +12,7 @@ import { useChoreoWorker } from "@/lib/useChoreoWorker";
 import { EXAMPLES } from "@/lib/examples";
 import type { PanelMode } from "@/lib/types";
 import { saveLastSource, loadLastSource } from "@/lib/progress";
+import type { CursorPosition } from "./Editor";
 import { decodeCode, encodeCode } from "@/lib/urlCodec";
 
 const noop = () => () => {};
@@ -63,6 +64,7 @@ export function Playground() {
   const [target, setTarget] = useState("cc");
   const [panelMode, setPanelMode] = useState(initialPanelMode);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [cursorPos, setCursorPos] = useState<CursorPosition>({ line: 1, column: 1 });
   const editorRef = useRef<{ getValue: () => string }>(null);
   const [prevInitSource, setPrevInitSource] = useState(initialSource);
   const [prevInitPanel, setPrevInitPanel] = useState(initialPanelMode);
@@ -87,7 +89,7 @@ export function Playground() {
   }, [source]);
 
   const sourceRef = useRef(source);
-  sourceRef.current = source;
+  useEffect(() => { sourceRef.current = source; }, [source]);
   const getCode = useCallback(() => editorRef.current?.getValue() ?? sourceRef.current, []);
 
   const handleRun = useCallback(() => run(getCode()), [getCode, run]);
@@ -203,7 +205,7 @@ export function Playground() {
       />
       <div className="flex-1 min-h-0 flex flex-col">
         <div className="flex-1 min-h-0">
-          <Editor ref={editorRef} value={source} onChange={setSource} />
+          <Editor ref={editorRef} value={source} onChange={setSource} onCursorChange={setCursorPos} />
         </div>
         <OutputPanel output={output} errors={errors} onClear={clearOutput} />
       </div>
@@ -211,6 +213,7 @@ export function Playground() {
         status={status}
         compilerVersion={compilerVersion}
         buildManifest={buildManifest}
+        cursorPosition={cursorPos}
       />
     </div>
   );

@@ -12,9 +12,15 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ),
 });
 
+export interface CursorPosition {
+  line: number;
+  column: number;
+}
+
 interface Props {
   value: string;
   onChange: (value: string) => void;
+  onCursorChange?: (pos: CursorPosition) => void;
 }
 
 function registerChoreoLanguage(monaco: any) {
@@ -115,7 +121,7 @@ function registerChoreoLanguage(monaco: any) {
 }
 
 export const Editor = forwardRef<{ getValue: () => string }, Props>(
-  function Editor({ value, onChange }, ref) {
+  function Editor({ value, onChange, onCursorChange }, ref) {
     const editorRef = useRef<unknown>(null);
 
     useImperativeHandle(ref, () => ({
@@ -136,6 +142,13 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
           editorRef.current = editor;
           registerChoreoLanguage(monaco);
           monaco.editor.setTheme("choreo-dark");
+          if (onCursorChange) {
+            const pos = editor.getPosition();
+            if (pos) onCursorChange({ line: pos.lineNumber, column: pos.column });
+            editor.onDidChangeCursorPosition((e: { position: { lineNumber: number; column: number } }) => {
+              onCursorChange({ line: e.position.lineNumber, column: e.position.column });
+            });
+          }
         }}
         loading={
           <div className="flex items-center justify-center h-full bg-[var(--bg-primary)]">

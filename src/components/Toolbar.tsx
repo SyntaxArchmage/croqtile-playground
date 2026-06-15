@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, memo } from "react";
 import type { WorkerStatus } from "@/lib/useChoreoWorker";
 import type { PanelMode } from "@/lib/types";
 import { EXAMPLES } from "@/lib/examples";
@@ -19,7 +19,7 @@ interface Props {
   status: WorkerStatus;
 }
 
-export function Toolbar({
+export const Toolbar = memo(function Toolbar({
   target,
   onTargetChange,
   onRun,
@@ -209,4 +209,4 @@ export function Toolbar({
       </select>
     </nav>
   );
-}
+});
