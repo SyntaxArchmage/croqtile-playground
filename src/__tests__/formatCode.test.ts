@@ -52,4 +52,28 @@ b
   println("hi");
 }`);
   });
+
+  it("ignores braces inside strings", () => {
+    const input = `__co__ void hello() {
+println("{not a block}");
+println("done");
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void hello() {
+  println("{not a block}");
+  println("done");
+}`);
+  });
+
+  it("handles } else { pattern correctly", () => {
+    const input = `if (x) {
+a();
+} else {
+b();
+}`;
+    expect(formatChoreoCode(input)).toBe(`if (x) {
+  a();
+} else {
+  b();
+}`);
+  });
 });
