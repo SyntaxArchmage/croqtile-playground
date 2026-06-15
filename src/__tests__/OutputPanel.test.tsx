@@ -68,4 +68,28 @@ describe("OutputPanel", () => {
     render(<OutputPanel output="" errors="" onClear={onClear} />);
     expect(screen.queryByText("Clear")).not.toBeInTheDocument();
   });
+
+  it("has AST tab button", () => {
+    render(<OutputPanel output="" errors="" />);
+    expect(screen.getByText("AST")).toBeInTheDocument();
+  });
+
+  it("switches to AST tab and displays AST content", () => {
+    render(<OutputPanel output="" errors="" ast="(program (func hello))" />);
+    fireEvent.click(screen.getByText("AST"));
+    expect(screen.getByText("(program (func hello))")).toBeInTheDocument();
+  });
+
+  it("auto-switches to AST tab when ast appears", () => {
+    const { rerender } = render(<OutputPanel output="" errors="" ast="" />);
+    rerender(<OutputPanel output="" errors="" ast="(ast dump)" />);
+    expect(screen.getByRole("tab", { name: /AST/ })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByText("(ast dump)")).toBeInTheDocument();
+  });
+
+  it("shows blue indicator dot on AST tab when ast present", () => {
+    const { container } = render(<OutputPanel output="" errors="" ast="tree" />);
+    const dot = container.querySelector(".bg-blue-500");
+    expect(dot).toBeInTheDocument();
+  });
 });

@@ -11,14 +11,18 @@ export interface BuildManifest {
   built_at: string | null;
 }
 
+export type CommandType = "mockRun" | "compile" | "dumpAST";
+
 export function useChoreoWorker() {
   const [status, setStatus] = useState<WorkerStatus>("loading");
   const [output, setOutput] = useState("");
   const [errors, setErrors] = useState("");
+  const [ast, setAst] = useState("");
   const [compilerVersion, setCompilerVersion] = useState<string | null>(null);
   const [buildManifest, setBuildManifest] = useState<BuildManifest | null>(null);
   const workerRef = useRef<Worker | null>(null);
   const statusRef = useRef<WorkerStatus>("loading");
+  const lastCommandRef = useRef<CommandType | null>(null);
 
   useEffect(() => {
     fetch("/wasm/build-manifest.json")
@@ -45,7 +49,11 @@ export function useChoreoWorker() {
           break;
         case "compile-result":
           updateStatus("ready");
-          setOutput(data.output ?? "");
+          if (lastCommandRef.current === "dumpAST") {
+            setAst(data.output ?? "");
+          } else {
+            setOutput(data.output ?? "");
+          }
           setErrors(data.errors ?? "");
           break;
         case "error":
@@ -66,8 +74,9 @@ export function useChoreoWorker() {
     };
   }, []);
 
-  const postIfReady = useCallback((msg: Record<string, unknown>) => {
+  const postIfReady = useCallback((msg: Record<string, unknown>, cmd: CommandType) => {
     if (!workerRef.current || statusRef.current === "loading" || statusRef.current === "error") return;
+    lastCommandRef.current = cmd;
     statusRef.current = "running";
     setStatus("running");
     setErrors("");
@@ -75,21 +84,22 @@ export function useChoreoWorker() {
   }, []);
 
   const run = useCallback((source: string) => {
-    postIfReady({ type: "mockRun", source });
+    postIfReady({ type: "mockRun", source }, "mockRun");
   }, [postIfReady]);
 
   const compile = useCallback((source: string, target: string) => {
-    postIfReady({ type: "compile", source, target, flags: "" });
+    postIfReady({ type: "compile", source, target, flags: "" }, "compile");
   }, [postIfReady]);
 
   const dumpAST = useCallback((source: string) => {
-    postIfReady({ type: "dumpAST", source });
+    postIfReady({ type: "dumpAST", source }, "dumpAST");
   }, [postIfReady]);
 
   const clearOutput = useCallback(() => {
     setOutput("");
     setErrors("");
+    setAst("");
   }, []);
 
-  return { status, output, errors, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput };
+  return { status, output, errors, ast, compilerVersion, buildManifest, run, compile, dumpAST, clearOutput };
 }
