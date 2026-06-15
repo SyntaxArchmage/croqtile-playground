@@ -240,9 +240,19 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
       </div>
 
       <div ref={testContainerRef} className="flex-1 overflow-auto p-4 space-y-4">
-        <h2 className="text-base font-semibold text-[var(--text-primary)]">
-          {selectedChallenge.title}
-        </h2>
+        <div className="flex items-baseline justify-between gap-2">
+          <h2 className="text-base font-semibold text-[var(--text-primary)]">
+            {selectedChallenge.title}
+          </h2>
+          {(() => {
+            const cp = getChallengeProgress(selectedChallenge.id);
+            return cp.attempts > 0 ? (
+              <span className="text-xs text-[var(--text-muted)] tabular-nums" data-testid="attempt-count">
+                {cp.attempts} {cp.attempts === 1 ? "attempt" : "attempts"}
+              </span>
+            ) : null;
+          })()}
+        </div>
         <div className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap leading-relaxed">
           {selectedChallenge.description}
         </div>

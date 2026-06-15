@@ -419,4 +419,29 @@ describe("ChallengePanel", () => {
     const summary = screen.getByTestId("challenge-progress-summary");
     expect(summary).not.toHaveTextContent("0/");
   });
+
+  it("shows attempt count when challenge has attempts", () => {
+    mockChallengeProgress = { status: "attempted", attempts: 3 };
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+    );
+    const counter = screen.getByTestId("attempt-count");
+    expect(counter).toHaveTextContent("3 attempts");
+  });
+
+  it("does not show attempt count for untried challenge", () => {
+    mockChallengeProgress = { status: "not_started", attempts: 0 };
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+    );
+    expect(screen.queryByTestId("attempt-count")).not.toBeInTheDocument();
+  });
+
+  it("shows singular attempt for 1 attempt", () => {
+    mockChallengeProgress = { status: "attempted", attempts: 1 };
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+    );
+    expect(screen.getByTestId("attempt-count")).toHaveTextContent("1 attempt");
+  });
 });
