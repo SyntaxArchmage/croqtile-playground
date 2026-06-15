@@ -210,28 +210,16 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
         </div>
 
         {allPassed && lastOutput && (
-          <div className="p-3 rounded border border-green-600 bg-green-950/30 text-center space-y-2">
-            <div className="text-green-300 text-sm font-medium">
-              All tests passed!
-            </div>
-            {(() => {
-              const idx = CHALLENGES.indexOf(selectedChallenge);
-              const next = idx >= 0 && idx < CHALLENGES.length - 1 ? CHALLENGES[idx + 1] : null;
-              return next ? (
-                <button
-                  onClick={() => {
-                    setSelectedChallenge(next);
-                    setShowHint(false);
-                    onLoadCode(next.starterCode);
-                    updateUrlParam("challenge", next.id);
-                  }}
-                  className="px-3 py-1 text-xs rounded bg-[var(--accent)] text-[var(--bg-primary)] font-medium hover:opacity-90"
-                >
-                  Next: {next.title} →
-                </button>
-              ) : null;
-            })()}
-          </div>
+          <ChallengeSuccessBanner
+            key={lastOutput}
+            challengeId={selectedChallenge.id}
+            onNext={(next) => {
+              setSelectedChallenge(next);
+              setShowHint(false);
+              onLoadCode(next.starterCode);
+              updateUrlParam("challenge", next.id);
+            }}
+          />
         )}
 
         {selectedChallenge.hint && (
@@ -271,6 +259,80 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
           ) : null;
         })()}
       </div>
+    </div>
+  );
+}
+
+const CONFETTI_PIECES = [
+  { left: "8%", top: "18%", color: "#a6e3a1", dx: -14, dy: -20, delay: 0, shape: "dot" as const },
+  { left: "22%", top: "8%", color: "#89b4fa", dx: -8, dy: -24, delay: 40, shape: "star" as const },
+  { left: "78%", top: "12%", color: "#f9e2af", dx: 16, dy: -22, delay: 20, shape: "dot" as const },
+  { left: "92%", top: "25%", color: "#cba6f7", dx: 18, dy: -14, delay: 60, shape: "star" as const },
+  { left: "15%", top: "72%", color: "#fab387", dx: -16, dy: 12, delay: 30, shape: "dot" as const },
+  { left: "88%", top: "68%", color: "#a6e3a1", dx: 14, dy: 16, delay: 50, shape: "star" as const },
+];
+
+function ChallengeSuccessBanner({
+  challengeId,
+  onNext,
+}: {
+  challengeId: string;
+  onNext: (next: Challenge) => void;
+}) {
+  const attempts = getChallengeProgress(challengeId).attempts;
+  const idx = CHALLENGES.findIndex((c) => c.id === challengeId);
+  const next = idx >= 0 && idx < CHALLENGES.length - 1 ? CHALLENGES[idx + 1] : null;
+
+  return (
+    <div
+      className="relative p-3 rounded border border-green-600 bg-green-950/30 text-center space-y-2 overflow-hidden"
+      style={{ animation: "challengeSuccessIn 300ms ease-out forwards" }}
+    >
+      <style>{`
+        @keyframes challengeSuccessIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes challengeConfetti {
+          0% { opacity: 1; transform: translate(0, 0) scale(1); }
+          100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.2); }
+        }
+      `}</style>
+      {CONFETTI_PIECES.map((piece, i) => (
+        <span
+          key={i}
+          aria-hidden
+          className={`absolute pointer-events-none ${
+            piece.shape === "dot" ? "w-1.5 h-1.5 rounded-full" : "text-[10px] leading-none"
+          }`}
+          style={{
+            left: piece.left,
+            top: piece.top,
+            backgroundColor: piece.shape === "dot" ? piece.color : undefined,
+            color: piece.shape === "star" ? piece.color : undefined,
+            // @ts-expect-error CSS custom properties for confetti animation
+            "--dx": `${piece.dx}px`,
+            "--dy": `${piece.dy}px`,
+            animation: `challengeConfetti 700ms ease-out ${piece.delay}ms forwards`,
+          }}
+        >
+          {piece.shape === "star" ? "★" : null}
+        </span>
+      ))}
+      <div className="text-green-300 text-sm font-medium relative z-10">
+        All tests passed!
+      </div>
+      <div className="text-green-400/80 text-xs relative z-10">
+        Solved in {attempts} attempt{attempts !== 1 ? "s" : ""}
+      </div>
+      {next ? (
+        <button
+          onClick={() => onNext(next)}
+          className="relative z-10 px-3 py-1 text-xs rounded bg-[var(--accent)] text-[var(--bg-primary)] font-medium hover:opacity-90"
+        >
+          Next: {next.title} →
+        </button>
+      ) : null}
     </div>
   );
 }

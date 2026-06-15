@@ -149,6 +149,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
 
   const step: TutorialStep = selectedTutorial.steps[stepIndex];
   const totalSteps = selectedTutorial.steps.length;
+  const progress = getTutorialProgress(selectedTutorial.id);
 
   return (
     <div className="h-full flex flex-col">
@@ -201,6 +202,21 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
         >
           ← Prev
         </button>
+        <div className="flex gap-1 items-center">
+          {selectedTutorial.steps.map((_, i) => {
+            const visited = i <= progress;
+            const isCurrent = i === stepIndex;
+            return (
+              <span
+                key={i}
+                data-testid="tutorial-step-dot"
+                className={`w-2 h-2 rounded-full ${
+                  visited ? "bg-[var(--accent)]" : "bg-[var(--border)]"
+                }${isCurrent ? " ring-1 ring-[var(--accent)]" : ""}`}
+              />
+            );
+          })}
+        </div>
         <button
           onClick={() => onLoadCode(step.code)}
           className="px-3 py-1 text-xs rounded bg-[var(--accent)] text-[var(--bg-primary)] font-medium hover:opacity-90"

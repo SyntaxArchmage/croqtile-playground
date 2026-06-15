@@ -141,4 +141,10 @@ describe("TutorialPanel", () => {
     fireEvent.change(search, { target: { value: "zzzznotfound" } });
     expect(screen.getByText("No tutorials match")).toBeInTheDocument();
   });
+
+  it("shows step indicator dots", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    expect(screen.getAllByTestId("tutorial-step-dot")).toHaveLength(3);
+  });
 });

@@ -222,6 +222,15 @@ describe("ChallengePanel", () => {
     expect(mockMarkChallengePassed).not.toHaveBeenCalled();
   });
 
+  it("shows attempt count on success", () => {
+    const passingOutput = "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3";
+    mockChallengeProgress = { status: "passed", attempts: 3 };
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={passingOutput} initialId="c01" />
+    );
+    expect(screen.getByText("Solved in 3 attempts")).toBeInTheDocument();
+  });
+
   it("shows Load Best button when challenge has best code saved", () => {
     const passingOutput = "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3";
     mockChallengeProgress = { status: "passed", attempts: 3, bestCode: "saved solution" };
