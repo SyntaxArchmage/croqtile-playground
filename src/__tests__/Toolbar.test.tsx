@@ -508,6 +508,27 @@ describe("Toolbar", () => {
     resetProgressSpy.mockRestore();
   });
 
+  it("ArrowDown focuses first item when no item has focus", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    const fileMenu = screen.getByRole("menu", { name: "File" });
+    const openItem = screen.getByText("Open file...");
+    // Blur the currently focused item so focusedIndex becomes -1
+    (document.activeElement as HTMLElement)?.blur();
+    fireEvent.keyDown(fileMenu, { key: "ArrowDown" });
+    expect(openItem).toHaveFocus();
+  });
+
+  it("ArrowUp focuses last item when no item has focus", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    const fileMenu = screen.getByRole("menu", { name: "File" });
+    const formatItem = screen.getByText("Format code");
+    (document.activeElement as HTMLElement)?.blur();
+    fireEvent.keyDown(fileMenu, { key: "ArrowUp" });
+    expect(formatItem).toHaveFocus();
+  });
+
   it("does not reset progress when confirm is cancelled", () => {
     const resetProgressSpy = jest.spyOn(progress, "resetProgress");
     const confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(false);
