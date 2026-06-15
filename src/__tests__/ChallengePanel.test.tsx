@@ -231,6 +231,15 @@ describe("ChallengePanel", () => {
     expect(screen.getByText("Solved in 3 attempts")).toBeInTheDocument();
   });
 
+  it("does not show Next button on last challenge", () => {
+    const lastOutput = "scaled[0] = 3\nscaled[3] = 12\nscaled[7] = 24";
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={lastOutput} initialId="c15" />
+    );
+    expect(screen.getByText("All tests passed!")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Next/ })).not.toBeInTheDocument();
+  });
+
   it("shows Load Best button when challenge has best code saved", () => {
     const passingOutput = "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3";
     mockChallengeProgress = { status: "passed", attempts: 3, bestCode: "saved solution" };
