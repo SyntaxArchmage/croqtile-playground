@@ -404,6 +404,56 @@ describe("Toolbar", () => {
     expect(screen.queryByText("Reset progress")).not.toBeInTheDocument();
   });
 
+  it("loads code from an uploaded file", () => {
+    render(<Toolbar {...defaultProps} />);
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(fileInput).toBeInTheDocument();
+
+    const file = new File(["uploaded code content"], "test.co", { type: "text/plain" });
+    const readAsText = jest.fn();
+    const mockFileReader = {
+      onload: null as (() => void) | null,
+      result: "uploaded code content",
+      readAsText,
+    };
+    readAsText.mockImplementation(function (this: typeof mockFileReader) {
+      this.onload?.();
+    }.bind(mockFileReader));
+    jest.spyOn(window, "FileReader").mockImplementation(() => mockFileReader as unknown as FileReader);
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+    expect(defaultProps.onLoadCode).toHaveBeenCalledWith("uploaded code content");
+    (window.FileReader as unknown as jest.SpyInstance).mockRestore();
+  });
+
+  it("does not load when no file selected", () => {
+    render(<Toolbar {...defaultProps} />);
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    fireEvent.change(fileInput, { target: { files: [] } });
+    expect(defaultProps.onLoadCode).not.toHaveBeenCalled();
+  });
+
+  it("does not load when FileReader result is not a string", () => {
+    render(<Toolbar {...defaultProps} />);
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+
+    const file = new File(["data"], "test.co", { type: "text/plain" });
+    const readAsText = jest.fn();
+    const mockFileReader = {
+      onload: null as (() => void) | null,
+      result: new ArrayBuffer(8),
+      readAsText,
+    };
+    readAsText.mockImplementation(function (this: typeof mockFileReader) {
+      this.onload?.();
+    }.bind(mockFileReader));
+    jest.spyOn(window, "FileReader").mockImplementation(() => mockFileReader as unknown as FileReader);
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+    expect(defaultProps.onLoadCode).not.toHaveBeenCalled();
+    (window.FileReader as unknown as jest.SpyInstance).mockRestore();
+  });
+
   it("resets progress when reset confirmed", () => {
     const resetProgressSpy = jest.spyOn(progress, "resetProgress");
     const confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(true);
