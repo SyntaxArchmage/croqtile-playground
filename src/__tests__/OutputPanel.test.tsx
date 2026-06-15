@@ -202,6 +202,19 @@ describe("OutputPanel", () => {
     expect(screen.queryByText("Copy")).not.toBeInTheDocument();
   });
 
+  it("toggles word wrap in output", () => {
+    const { container } = render(<OutputPanel output="long line of compiler output" errors="" />);
+    const pre = container.querySelector("pre");
+    expect(pre).toHaveClass("whitespace-pre-wrap");
+
+    fireEvent.click(screen.getByLabelText("Toggle word wrap"));
+    expect(pre).toHaveClass("whitespace-pre");
+    expect(pre).not.toHaveClass("whitespace-pre-wrap");
+
+    fireEvent.click(screen.getByLabelText("Toggle word wrap"));
+    expect(pre).toHaveClass("whitespace-pre-wrap");
+  });
+
   it("clears existing copy timeout on rapid re-copy", () => {
     jest.useFakeTimers();
     render(<OutputPanel output="data" errors="" />);

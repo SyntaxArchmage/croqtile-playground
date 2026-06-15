@@ -45,6 +45,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
   const [prevOutput, setPrevOutput] = useState(output);
   const [prevAst, setPrevAst] = useState(ast);
   const [copied, setCopied] = useState(false);
+  const [wordWrap, setWordWrap] = useState(true);
   const [heightPct, setHeightPct] = useState(DEFAULT_HEIGHT_PCT);
 
   if (errors !== prevErrors) {
@@ -203,13 +204,22 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
         {(content || ((output || errors || ast) && onClear)) && (
           <div className="ml-auto flex items-center gap-1">
             {content && (
-              <button
-                onClick={handleCopy}
-                className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                aria-label="Copy output"
-              >
-                {copied ? "Copied!" : "Copy"}
-              </button>
+              <>
+                <button
+                  onClick={handleCopy}
+                  className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  aria-label="Copy output"
+                >
+                  {copied ? "Copied!" : "Copy"}
+                </button>
+                <button
+                  onClick={() => setWordWrap((w) => !w)}
+                  className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  aria-label="Toggle word wrap"
+                >
+                  {wordWrap ? "Wrap" : "No Wrap"}
+                </button>
+              </>
             )}
             {(output || errors || ast) && onClear && (
               <button
@@ -235,7 +245,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
             {highlightErrorLines(errors)}
           </div>
         ) : (
-          <pre className="text-xs font-mono text-[var(--text-primary)] whitespace-pre-wrap">
+          <pre className={`text-xs font-mono text-[var(--text-primary)] ${wordWrap ? "whitespace-pre-wrap" : "whitespace-pre"}`}>
             {content || (
               <span className="text-[var(--text-muted)]">
                 Click &ldquo;Run&rdquo; or &ldquo;Compile&rdquo; to see output.
