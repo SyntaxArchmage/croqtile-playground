@@ -92,4 +92,37 @@ describe("checkTests", () => {
     const results = checkTests(c, "b\na\n");
     expect(results[0].passed).toBe(false);
   });
+
+  it("matches expected lines that appear non-consecutively in output", () => {
+    const c = makeChallenge([
+      { expectedOutput: "start\nend", description: "non-consecutive" },
+    ]);
+    const results = checkTests(c, "start\nmiddle\nend\n");
+    expect(results[0].passed).toBe(true);
+  });
+
+  it("fails when expected output is a subset but in wrong order", () => {
+    const c = makeChallenge([
+      { expectedOutput: "second\nfirst", description: "wrong order" },
+    ]);
+    const results = checkTests(c, "first\nsecond\n");
+    expect(results[0].passed).toBe(false);
+  });
+
+  it("handles numeric output matching", () => {
+    const c = makeChallenge([
+      { expectedOutput: "sum = 36.0", description: "numeric" },
+    ]);
+    const results = checkTests(c, "sum = 36.0\n");
+    expect(results[0].passed).toBe(true);
+  });
+
+  it("returns expected and actual in results", () => {
+    const c = makeChallenge([
+      { expectedOutput: "expected", description: "with details" },
+    ]);
+    const results = checkTests(c, "actual");
+    expect(results[0].expected).toBe("expected");
+    expect(results[0].actual).toBe("actual");
+  });
 });
