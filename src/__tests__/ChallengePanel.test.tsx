@@ -246,6 +246,17 @@ describe("ChallengePanel", () => {
     expect(mockMarkChallengePassed).toHaveBeenCalledWith("c01", "my code");
   });
 
+  it("marks passed without getCode prop (no bestCode)", () => {
+    const passingOutput = "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3";
+    const { rerender } = render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+    );
+    rerender(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={passingOutput} initialId="c01" />
+    );
+    expect(mockMarkChallengePassed).toHaveBeenCalledWith("c01", undefined);
+  });
+
   it("records attempt but does not mark passed when tests fail", () => {
     const { rerender } = render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
@@ -273,6 +284,18 @@ describe("ChallengePanel", () => {
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={passingOutput} initialId="c01" />
     );
     expect(screen.getByText("Solved in 1 attempt")).toBeInTheDocument();
+  });
+
+  it("truncates long expected/actual output in test failure diff", () => {
+    const longOutput = "x".repeat(100);
+    const { rerender } = render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+    );
+    rerender(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={longOutput} initialId="c01" />
+    );
+    const gotText = screen.getByText(/^x{80}\.\.\.$/);
+    expect(gotText).toBeInTheDocument();
   });
 
   it("does not show Next button on last challenge", () => {
