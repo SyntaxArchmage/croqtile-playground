@@ -245,7 +245,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (15):
+**Current challenges** (17):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -264,6 +264,8 @@ interface Challenge {
 | c13 | Element-wise Multiply | Easy | `parallel`, element-wise multiply |
 | c14 | Row Sum | Medium | 2D arrays, row-wise reduction |
 | c15 | Scale Vector (DMA) | Hard | `shared`, `dma`, scale operation |
+| c16 | Parallel Classify | Medium | Conditional logic in parallel blocks |
+| c17 | Matrix Transpose | Medium | 2D indexing, row/column swap |
 
 ### 5.6 Example Programs
 
