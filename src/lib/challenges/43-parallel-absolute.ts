@@ -1,10 +1,10 @@
 import type { Challenge } from "./index";
 
-export const challenge42: Challenge = {
-  id: "c42",
-  title: "Parallel Absolute Value",
+export const challenge43: Challenge = {
+  id: "c43",
+  title: "Parallel Absolute",
   difficulty: "easy",
-  description: `Compute the absolute value of each element in an array.
+  description: `Take the absolute value of each element in an array using \`parallel\` and \`if/else\`.
 
 Given data = [-3, 5, -1, 0, -7, 2], produce [3, 5, 1, 0, 7, 2].
 
@@ -19,9 +19,9 @@ abs[5] = 2
 \`\`\`
 
 Use \`parallel {i} by [6]\` with a conditional: if negative, negate it.`,
-  starterCode: `__co__ void parallel_abs() {
+  starterCode: `__co__ void parallel_absolute() {
   global int data[6];
-  global int result[6];
+  global int abs[6];
 
   parallel {i} by [1] {
     data[0] = -3; data[1] = 5; data[2] = -1;
@@ -30,12 +30,12 @@ Use \`parallel {i} by [6]\` with a conditional: if negative, negate it.`,
 
   // TODO: compute absolute values in parallel
   // parallel {i} by [6] {
-  //   if (data[i] < 0) result[i] = -data[i];
-  //   else result[i] = data[i];
+  //   if (data[i] < 0) abs[i] = -data[i];
+  //   else abs[i] = data[i];
   // }
 
   parallel {i} by [6] {
-    println("abs[", i, "] =", result[i]);
+    println("abs[", i, "] =", abs[i]);
   }
 }
 `,
