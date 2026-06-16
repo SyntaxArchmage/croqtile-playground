@@ -32,3 +32,8 @@ next-env.d.ts
 public/wasm/co-web.js
 public/wasm/co-web.wasm
 coverage/
+
+# playwright
+playwright-results/
+playwright-report/
+test-results/
