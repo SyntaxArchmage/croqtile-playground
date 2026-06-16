@@ -78,7 +78,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
   }, [selectedChallenge?.id]); // eslint-disable-line react-hooks/exhaustive-deps -- reset ref on challenge switch only
 
   useEffect(() => {
-    if (!selectedChallenge || !lastOutput) return;
+    if (!selectedChallenge || !lastOutput || !hasTests) return;
     if (lastOutput !== prevOutputRef.current) {
       prevOutputRef.current = lastOutput;
       recordChallengeAttempt(selectedChallenge.id);
@@ -87,7 +87,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
       }
       setProgressRevision((n) => n + 1);
     }
-  }, [selectedChallenge, allPassed, lastOutput, getCode]);
+  }, [selectedChallenge, allPassed, lastOutput, getCode, hasTests]);
 
   useEffect(() => {
     if (initialId && selectedChallenge) {
@@ -166,6 +166,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
               ).map(({ value, label }) => (
                 <button
                   key={value}
+                  type="button"
                   onClick={() => setDifficultyFilter(value)}
                   aria-pressed={difficultyFilter === value}
                   className={`text-xs px-2 py-0.5 rounded ${
@@ -188,6 +189,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
               ).map(({ value, label }) => (
                 <button
                   key={value}
+                  type="button"
                   onClick={() => setStatusFilter(value)}
                   aria-pressed={statusFilter === value}
                   className={`text-xs px-2 py-0.5 rounded ${
@@ -218,7 +220,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                   onLoadCode(c.starterCode);
                   updateUrlParam("challenge", c.id);
                 }}
-                aria-label={`${c.title}, ${c.difficulty} difficulty, ${c.tests.length} test${c.tests.length > 1 ? "s" : ""}${isChallengePassed(c.id) ? ", passed" : cp.status === "attempted" ? ", in progress" : ""}`}
+                aria-label={`${c.title}, ${c.difficulty} difficulty, ${c.tests.length} test${c.tests.length !== 1 ? "s" : ""}${isChallengePassed(c.id) ? ", passed" : cp.status === "attempted" ? ", in progress" : ""}`}
                 className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
               >
                 <div className="flex items-center gap-2">
@@ -233,7 +235,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                   ) : null}
                 </div>
                 <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mt-1">
-                  <span>{c.tests.length} test{c.tests.length > 1 ? "s" : ""}</span>
+                  <span>{c.tests.length} test{c.tests.length !== 1 ? "s" : ""}</span>
                   {cp.attempts > 0 && <span>{cp.attempts} attempt{cp.attempts !== 1 ? "s" : ""}</span>}
                 </div>
               </button>

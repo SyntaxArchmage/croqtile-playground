@@ -203,7 +203,36 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
     );
   }
 
-  const step: TutorialStep = selectedTutorial.steps[stepIndex];
+  const step = selectedTutorial.steps[stepIndex];
+  if (!step) {
+    return (
+      <div className="h-full flex flex-col" role="region" aria-label={`Tutorial: ${selectedTutorial.title}`}>
+        <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
+          <button
+            type="button"
+            onClick={() => { setSelectedTutorial(null); updateUrlParam("tutorial", null); }}
+            className="text-xs text-[var(--accent)] hover:underline"
+            aria-label="Back to tutorials list"
+          >
+            ← Back
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg"
+            aria-label="Close tutorials panel"
+          >
+            ×
+          </button>
+        </div>
+        <div className="flex-1 overflow-auto p-4">
+          <p className="text-sm text-[var(--text-muted)]" data-testid="missing-step-message">
+            Step {stepIndex + 1} is missing or invalid.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col" role="region" aria-label={`Tutorial: ${selectedTutorial.title}`}>

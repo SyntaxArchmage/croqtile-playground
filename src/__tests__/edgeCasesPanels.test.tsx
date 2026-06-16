@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import type { Challenge } from "@/lib/challenges";
-import type { Tutorial } from "@/lib/tutorials";
+import type { Tutorial, TutorialStep } from "@/lib/tutorials";
 
 jest.mock("@/lib/progress", () => ({
   isChallengePassed: () => false,
@@ -11,6 +11,8 @@ jest.mock("@/lib/progress", () => ({
   getTutorialProgress: () => -1,
   markTutorialStep: jest.fn(),
 }));
+
+import * as progress from "@/lib/progress";
 
 const emptyTestsChallenge: Challenge = {
   id: "empty-tests",
@@ -38,19 +40,38 @@ const sparseTutorial: Tutorial = {
   ],
 };
 
-jest.mock("@/lib/challenges", () => {
-  const actual = jest.requireActual("@/lib/challenges");
-  return {
-    ...actual,
-    CHALLENGES: [...actual.CHALLENGES, emptyTestsChallenge],
-  };
-});
+const emptyDescChallenge: Challenge = {
+  id: "empty-desc",
+  title: "Empty Desc Challenge",
+  difficulty: "easy",
+  description: "Challenge with blank test description",
+  starterCode: "",
+  tests: [{ expectedOutput: "hello", description: "   " }],
+};
+
+const sparseStepsTutorial: Tutorial = {
+  id: "sparse-steps",
+  title: "Sparse Steps Tutorial",
+  description: "Has undefined step entry",
+  steps: [
+    { title: "First step", content: "ok", code: "x" },
+    undefined as unknown as TutorialStep,
+  ],
+};
 
 jest.mock("@/lib/tutorials", () => {
   const actual = jest.requireActual("@/lib/tutorials");
   return {
     ...actual,
-    TUTORIALS: [...actual.TUTORIALS, emptyStepsTutorial, sparseTutorial],
+    TUTORIALS: [...actual.TUTORIALS, emptyStepsTutorial, sparseTutorial, sparseStepsTutorial],
+  };
+});
+
+jest.mock("@/lib/challenges", () => {
+  const actual = jest.requireActual("@/lib/challenges");
+  return {
+    ...actual,
+    CHALLENGES: [...actual.CHALLENGES, emptyTestsChallenge, emptyDescChallenge],
   };
 });
 
@@ -81,6 +102,33 @@ describe("ChallengePanel edge cases", () => {
     expect(results[0].description).toBe("Test 1");
     expect(results[0].passed).toBe(true);
   });
+
+  it("renders fallback test label in UI for whitespace-only descriptions", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="hello\n" initialId="empty-desc" />,
+    );
+    expect(screen.getByText(/Test 1/)).toBeInTheDocument();
+  });
+
+  it("does not record attempts for challenges with zero tests", () => {
+    const record = progress.recordChallengeAttempt as jest.Mock;
+    record.mockClear();
+    const { rerender } = render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="empty-tests" />,
+    );
+    rerender(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="some output" initialId="empty-tests" />,
+    );
+    expect(record).not.toHaveBeenCalled();
+  });
+
+  it("shows correct pluralization for zero tests in list", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />,
+    );
+    const btn = screen.getByText("No Tests Challenge");
+    expect(btn.closest("button")).toHaveTextContent("0 tests");
+  });
 });
 
 describe("TutorialPanel edge cases", () => {
@@ -94,6 +142,13 @@ describe("TutorialPanel edge cases", () => {
   it("shows placeholder when step content is missing or whitespace-only", () => {
     render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="sparse" />);
     expect(screen.getByTestId("empty-step-content")).toHaveTextContent("No content for this step.");
+  });
+
+  it("shows fallback when step index points to missing step data", () => {
+    window.history.pushState({}, "", "/?tutorial=sparse-steps&step=2");
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="sparse-steps" />);
+    expect(screen.getByTestId("missing-step-message")).toHaveTextContent("Step 2 is missing or invalid.");
+    window.history.pushState({}, "", "/");
   });
 });
 
