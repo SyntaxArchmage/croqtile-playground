@@ -249,7 +249,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (26):
+**Current challenges** (28):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -279,6 +279,8 @@ interface Challenge {
 | c24 | Pack & Unpack | Easy | Array interleaving, index arithmetic |
 | c25 | Array Rotate Left | Medium | `parallel`, modular indexing, circular shift |
 | c26 | Diagonal Sum | Medium | `parallel`, `foreach`, 2D diagonal access |
+| c27 | Vector Normalize | Hard | Two-pass: sequential sum, parallel divide |
+| c28 | Checkerboard Pattern | Easy | Nested `parallel`, conditional pattern fill |
 
 ### 5.6 Example Programs
 

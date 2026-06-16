@@ -25,7 +25,7 @@
 
 ### Content
 - 14 tutorials (ch01–ch14) with "Try it" inline code blocks
-- 26 challenges (c01–c26) with auto-verification, progress badges, and "in progress" status
+- 28 challenges (c01–c28) with auto-verification, progress badges, and "in progress" status
 - 17 example programs
 
 ### User Experience

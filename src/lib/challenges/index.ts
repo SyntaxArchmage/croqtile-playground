@@ -40,6 +40,8 @@ import { challenge23 } from "./23-pipeline-sum";
 import { challenge24 } from "./24-pack-unpack";
 import { challenge25 } from "./25-rotate-left";
 import { challenge26 } from "./26-diagonal-sum";
+import { challenge27 } from "./27-vector-normalize";
+import { challenge28 } from "./28-checkerboard";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -48,5 +50,5 @@ export const CHALLENGES: Challenge[] = [
   challenge13, challenge14, challenge15, challenge16,
   challenge17, challenge18, challenge19, challenge20,
   challenge21, challenge22, challenge23, challenge24,
-  challenge25, challenge26,
+  challenge25, challenge26, challenge27, challenge28,
 ];
