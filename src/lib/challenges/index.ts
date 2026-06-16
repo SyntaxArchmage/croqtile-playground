@@ -64,6 +64,10 @@ import { challenge47 } from "./47-prefix-product";
 import { challenge48 } from "./48-scatter-gather";
 import { challenge49 } from "./49-parallel-copy";
 import { challenge50 } from "./50-zigzag-traversal";
+import { challenge51 } from "./51-vector-add";
+import { challenge52 } from "./52-spiral-count";
+import { challenge53 } from "./53-batch-normalize";
+import { challenge54 } from "./54-parallel-sort-check";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -78,5 +82,6 @@ export const CHALLENGES: Challenge[] = [
   challenge37, challenge38, challenge39, challenge40,
   challenge41, challenge42, challenge43, challenge44,
   challenge45, challenge46, challenge47, challenge48,
-  challenge49, challenge50,
+  challenge49, challenge50, challenge51, challenge52,
+  challenge53, challenge54,
 ];
