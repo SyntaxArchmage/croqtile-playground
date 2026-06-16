@@ -1,3 +1,4 @@
+import React from "react";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { OutputPanel } from "@/components/OutputPanel";
@@ -864,5 +865,83 @@ describe("OutputPanel", () => {
     });
     rerender(<OutputPanel output="new output" errors="" />);
     expect(scrollTop).toBe(999);
+  });
+
+  it("does not auto-switch to ast tab when ast arrives alongside errors", () => {
+    const { rerender } = render(<OutputPanel output="" errors="" />);
+    rerender(<OutputPanel output="" errors="compile error" />);
+    expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
+    rerender(<OutputPanel output="" errors="compile error" ast="(program)" />);
+    expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("skips auto-scroll when scroll ref is null", () => {
+    const refInstances: Array<{ current: unknown }> = [];
+    const realUseRef = React.useRef;
+    jest.spyOn(React, "useRef").mockImplementation((initial) => {
+      const ref = realUseRef(initial);
+      refInstances.push(ref);
+      return ref;
+    });
+
+    try {
+      const { rerender } = render(<OutputPanel output="" errors="" />);
+      refInstances[0].current = null;
+      expect(() => {
+        rerender(<OutputPanel output="line one\nline two" errors="" />);
+      }).not.toThrow();
+    } finally {
+      jest.restoreAllMocks();
+    }
+  });
+
+  it("ignores resize updates after panel unmounts during drag", () => {
+    const { unmount } = render(
+      <div style={{ height: 600 }}>
+        <OutputPanel output="data" errors="" />
+      </div>,
+    );
+    const sep = screen.getByRole("separator");
+    fireEvent.mouseDown(sep);
+    unmount();
+    expect(() => {
+      act(() => {
+        document.dispatchEvent(new MouseEvent("mousemove", { clientY: 100 }));
+      });
+    }).not.toThrow();
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mouseup"));
+    });
+  });
+
+  it("ignores resize when panel ref is null during drag", () => {
+    const refInstances: Array<{ current: unknown }> = [];
+    const realUseRef = React.useRef;
+    jest.spyOn(React, "useRef").mockImplementation((initial) => {
+      const ref = realUseRef(initial);
+      refInstances.push(ref);
+      return ref;
+    });
+
+    try {
+      render(
+        <div style={{ height: 600 }}>
+          <OutputPanel output="data" errors="" />
+        </div>,
+      );
+      const sep = screen.getByRole("separator");
+      const initialVal = Number(sep.getAttribute("aria-valuenow"));
+      fireEvent.mouseDown(sep);
+      refInstances[1].current = null;
+      act(() => {
+        document.dispatchEvent(new MouseEvent("mousemove", { clientY: 100 }));
+      });
+      expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialVal);
+      act(() => {
+        document.dispatchEvent(new MouseEvent("mouseup"));
+      });
+    } finally {
+      jest.restoreAllMocks();
+    }
   });
 });

@@ -505,4 +505,20 @@ ends */ }
     const formatted = formatChoreoCode(input);
     expect(formatted.split("\n").every(l => l === "" || l.trim().length > 0)).toBe(true);
   });
+
+  it("formats nested closing braces split across same line", () => {
+    const input = `a { b } }`;
+    expect(formatChoreoCode(input)).toBe(`a { b }
+}`);
+  });
+
+  it("handles nested close braces split on one line", () => {
+    const input = `outer {
+inner {
+} }`;
+    const formatted = formatChoreoCode(input);
+    expect(formatted).toContain("outer {");
+    expect(formatted).toContain("inner {");
+    expect(formatted.split("\n").every((line) => line === "" || line.trim().length > 0)).toBe(true);
+  });
 });

@@ -470,4 +470,166 @@ describe("TutorialPanel", () => {
       window.history.pushState({}, "", "/");
     });
   });
+
+  it("loads empty string when no step defines code", async () => {
+    await jest.isolateModulesAsync(async () => {
+      jest.doMock("@/lib/tutorials", () => ({
+        TUTORIALS: [
+          {
+            id: "no-code-anywhere",
+            title: "No Code Anywhere",
+            description: "Steps without code fields",
+            steps: [
+              { title: "First", content: "First step" },
+              { title: "Second", content: "Second step" },
+            ],
+          },
+        ],
+      }));
+      jest.doMock("@/lib/progress", () => ({
+        getTutorialProgress: () => -1,
+        markTutorialStep: () => {},
+      }));
+
+      const React = require("react");
+      const { act } = require("react");
+      const { createRoot } = require("react-dom/client");
+      const { TutorialPanel: IsolatedPanel } = require("@/components/TutorialPanel");
+      const onLoadCode = jest.fn();
+      window.history.pushState({}, "", "/?tutorial=no-code-anywhere");
+      const container = document.createElement("div");
+      const root = createRoot(container);
+      await act(async () => {
+        root.render(
+          React.createElement(IsolatedPanel, {
+            onLoadCode,
+            onClose: () => {},
+            initialId: "no-code-anywhere",
+          }),
+        );
+      });
+      expect(onLoadCode).toHaveBeenCalledWith("");
+      window.history.pushState({}, "", "/");
+    });
+  });
+
+  it("shows empty content placeholder for whitespace-only step content", async () => {
+    await jest.isolateModulesAsync(async () => {
+      jest.doMock("@/lib/tutorials", () => ({
+        TUTORIALS: [
+          {
+            id: "whitespace-content",
+            title: "Whitespace Content Step",
+            description: "A tutorial step with only whitespace content",
+            steps: [
+              { title: "Step One", content: "   \t  ", code: "some-code" },
+            ],
+          },
+        ],
+      }));
+      jest.doMock("@/lib/progress", () => ({
+        getTutorialProgress: () => -1,
+        markTutorialStep: () => {},
+      }));
+
+      const React = require("react");
+      const { act } = require("react");
+      const { createRoot } = require("react-dom/client");
+      const { TutorialPanel: IsolatedPanel } = require("@/components/TutorialPanel");
+      window.history.pushState({}, "", "/?tutorial=whitespace-content");
+      const container = document.createElement("div");
+      const root = createRoot(container);
+      await act(async () => {
+        root.render(
+          React.createElement(IsolatedPanel, {
+            onLoadCode: () => {},
+            onClose: () => {},
+            initialId: "whitespace-content",
+          }),
+        );
+      });
+      expect(container.querySelector('[data-testid="empty-step-content"]')).toBeTruthy();
+      window.history.pushState({}, "", "/");
+    });
+  });
+
+  it("shows empty content placeholder when step content is undefined", async () => {
+    await jest.isolateModulesAsync(async () => {
+      jest.doMock("@/lib/tutorials", () => ({
+        TUTORIALS: [
+          {
+            id: "undefined-content",
+            title: "Undefined Content Step",
+            description: "A tutorial step without a content field",
+            steps: [
+              { title: "Step One", code: "some-code" },
+            ],
+          },
+        ],
+      }));
+      jest.doMock("@/lib/progress", () => ({
+        getTutorialProgress: () => -1,
+        markTutorialStep: () => {},
+      }));
+
+      const React = require("react");
+      const { act } = require("react");
+      const { createRoot } = require("react-dom/client");
+      const { TutorialPanel: IsolatedPanel } = require("@/components/TutorialPanel");
+      window.history.pushState({}, "", "/?tutorial=undefined-content");
+      const container = document.createElement("div");
+      const root = createRoot(container);
+      await act(async () => {
+        root.render(
+          React.createElement(IsolatedPanel, {
+            onLoadCode: () => {},
+            onClose: () => {},
+            initialId: "undefined-content",
+          }),
+        );
+      });
+      expect(container.querySelector('[data-testid="empty-step-content"]')).toBeTruthy();
+      window.history.pushState({}, "", "/");
+    });
+  });
+
+  it("loads empty string when the active step entry is invalid", async () => {
+    await jest.isolateModulesAsync(async () => {
+      jest.doMock("@/lib/tutorials", () => ({
+        TUTORIALS: [
+          {
+            id: "invalid-step-entry",
+            title: "Invalid Step Entry",
+            description: "First step slot is invalid",
+            steps: [undefined],
+          },
+        ],
+      }));
+      jest.doMock("@/lib/progress", () => ({
+        getTutorialProgress: () => -1,
+        markTutorialStep: () => {},
+      }));
+
+      const React = require("react");
+      const { act } = require("react");
+      const { createRoot } = require("react-dom/client");
+      const { TutorialPanel: IsolatedPanel } = require("@/components/TutorialPanel");
+      const onLoadCode = jest.fn();
+      window.history.pushState({}, "", "/?tutorial=invalid-step-entry");
+      const container = document.createElement("div");
+      const root = createRoot(container);
+      await act(async () => {
+        root.render(
+          React.createElement(IsolatedPanel, {
+            onLoadCode,
+            onClose: () => {},
+            initialId: "invalid-step-entry",
+          }),
+        );
+      });
+      expect(onLoadCode).toHaveBeenCalledWith("");
+      expect(container.querySelector('[data-testid="missing-step-message"]')).toBeTruthy();
+      window.history.pushState({}, "", "/");
+    });
+  });
 });
