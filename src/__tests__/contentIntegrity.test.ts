@@ -201,4 +201,34 @@ describe("Content integrity", () => {
       expect(new Set(titles).size).toBe(titles.length);
     }
   });
+
+  it("challenges have balanced difficulty distribution", () => {
+    const easy = CHALLENGES.filter((c) => c.difficulty === "easy").length;
+    const medium = CHALLENGES.filter((c) => c.difficulty === "medium").length;
+    const hard = CHALLENGES.filter((c) => c.difficulty === "hard").length;
+    expect(easy).toBeGreaterThan(0);
+    expect(medium).toBeGreaterThan(0);
+    expect(hard).toBeGreaterThan(0);
+    expect(easy + medium + hard).toBe(CHALLENGES.length);
+  });
+
+  it("all challenge expectedOutput strings are non-empty", () => {
+    for (const c of CHALLENGES) {
+      for (const t of c.tests) {
+        expect(t.expectedOutput.trim().length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("all example IDs are unique", () => {
+    const ids = EXAMPLES.map((e) => e.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("challenge IDs are sorted numerically", () => {
+    const ids = CHALLENGES.map((c) => parseInt(c.id.replace("c", ""), 10));
+    for (let i = 1; i < ids.length; i++) {
+      expect(ids[i]).toBeGreaterThan(ids[i - 1]);
+    }
+  });
 });
