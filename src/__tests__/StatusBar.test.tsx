@@ -60,19 +60,19 @@ describe("StatusBar", () => {
     expect(screen.getByText("Target: cute")).toBeInTheDocument();
   });
 
-  it("displays execution time in milliseconds", () => {
-    render(<StatusBar status="ready" lastElapsedMs={456} />);
-    expect(screen.getByText("456ms")).toBeInTheDocument();
+  it("displays execution time inline with ready status", () => {
+    render(<StatusBar status="ready" elapsedMs={456} />);
+    expect(screen.getByText("Ready • 456ms")).toBeInTheDocument();
   });
 
   it("displays execution time in seconds when >= 1000ms", () => {
-    render(<StatusBar status="ready" lastElapsedMs={2500} />);
-    expect(screen.getByText("2.5s")).toBeInTheDocument();
+    render(<StatusBar status="ready" elapsedMs={2500} />);
+    expect(screen.getByText("Ready • 2.5s")).toBeInTheDocument();
   });
 
   it("displays 0ms for zero elapsed time", () => {
-    render(<StatusBar status="ready" lastElapsedMs={0} />);
-    expect(screen.getByText("0ms")).toBeInTheDocument();
+    render(<StatusBar status="ready" elapsedMs={0} />);
+    expect(screen.getByText("Ready • 0ms")).toBeInTheDocument();
   });
 
   it("prefers compilerVersion over buildManifest version", () => {
@@ -87,7 +87,8 @@ describe("StatusBar", () => {
   });
 
   it("does not display elapsed time when null", () => {
-    const { container } = render(<StatusBar status="ready" lastElapsedMs={null} />);
-    expect(container.textContent).not.toMatch(/ms|^\d+s$/);
+    const { container } = render(<StatusBar status="ready" elapsedMs={null} />);
+    expect(screen.getByText("Ready")).toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/Ready •/);
   });
 });

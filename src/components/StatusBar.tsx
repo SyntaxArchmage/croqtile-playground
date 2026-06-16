@@ -11,7 +11,7 @@ interface Props {
   target?: string;
   cursorPosition?: CursorPosition;
   lineCount?: number;
-  lastElapsedMs?: number | null;
+  elapsedMs?: number | null;
 }
 
 function formatElapsedMs(ms: number): string {
@@ -26,16 +26,17 @@ const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
   error: { label: "Error", color: "text-[var(--error)]" },
 };
 
-export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount, lastElapsedMs }: Props) {
+export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount, elapsedMs }: Props) {
   const { label, color } = statusConfig[status];
+  const statusLabel = status === "ready" && elapsedMs != null ? `${label} • ${formatElapsedMs(elapsedMs)}` : label;
   const version = compilerVersion ?? buildManifest?.version ?? null;
   const commit = buildManifest?.commit_short ?? null;
 
   return (
     <div className="flex items-center gap-2 px-4 py-1 border-t border-[var(--border)] bg-[var(--bg-secondary)] text-xs text-[var(--text-muted)]">
-      <span className={`flex items-center gap-1 ${color}`} aria-label={`Compiler status: ${label}`}>
+      <span className={`flex items-center gap-1 ${color}`} aria-label={`Compiler status: ${statusLabel}`}>
         <span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />
-        {label}
+        {statusLabel}
       </span>
       <span className="text-[var(--border)]">|</span>
       <span>
@@ -58,12 +59,6 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
         <>
           <span className="text-[var(--border)]">|</span>
           <span>{lineCount} lines</span>
-        </>
-      )}
-      {lastElapsedMs != null && (
-        <>
-          <span className="text-[var(--border)]">|</span>
-          <span>{formatElapsedMs(lastElapsedMs)}</span>
         </>
       )}
       <div className="flex-1" />

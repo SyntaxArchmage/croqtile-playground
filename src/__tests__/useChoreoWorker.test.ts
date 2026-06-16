@@ -182,7 +182,7 @@ describe("useChoreoWorker", () => {
       });
       expect(result.current.status).toBe("ready");
       expect(result.current.errors).toBe("Execution timed out after 30 seconds.");
-      expect(result.current.lastElapsedMs).toBeGreaterThanOrEqual(0);
+      expect(result.current.elapsedMs).toBeGreaterThanOrEqual(0);
     });
 
     it("clears old timeout when running a second command", () => {

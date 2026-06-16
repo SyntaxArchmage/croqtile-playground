@@ -20,7 +20,7 @@ export function useChoreoWorker() {
   const [ast, setAst] = useState("");
   const [compilerVersion, setCompilerVersion] = useState<string | null>(null);
   const [buildManifest, setBuildManifest] = useState<BuildManifest | null>(null);
-  const [lastElapsedMs, setLastElapsedMs] = useState<number | null>(null);
+  const [elapsedMs, setElapsedMs] = useState<number | null>(null);
   const workerRef = useRef<Worker | null>(null);
   const statusRef = useRef<WorkerStatus>("loading");
   const lastCommandRef = useRef<CommandType | null>(null);
@@ -55,7 +55,7 @@ export function useChoreoWorker() {
           break;
         case "compile-result":
           updateStatus("ready");
-          setLastElapsedMs(Math.round(performance.now() - startTimeRef.current));
+          setElapsedMs(Math.round(performance.now() - startTimeRef.current));
           if (lastCommandRef.current === "dumpAST") {
             setAst(data.output ?? "");
           } else {
@@ -95,7 +95,7 @@ export function useChoreoWorker() {
       if (statusRef.current === "running") {
         statusRef.current = "ready";
         setStatus("ready");
-        setLastElapsedMs(Math.round(performance.now() - startTimeRef.current));
+        setElapsedMs(Math.round(performance.now() - startTimeRef.current));
         setErrors("Execution timed out after 30 seconds.");
       }
     }, EXECUTION_TIMEOUT_MS);
@@ -121,5 +121,5 @@ export function useChoreoWorker() {
     setAst("");
   }, []);
 
-  return { status, output, errors, ast, compilerVersion, buildManifest, lastElapsedMs, run, compile, dumpAST, clearOutput };
+  return { status, output, errors, ast, compilerVersion, buildManifest, elapsedMs, run, compile, dumpAST, clearOutput };
 }
