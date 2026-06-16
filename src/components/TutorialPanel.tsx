@@ -277,21 +277,24 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
           Load Code
         </button>
         <div className="flex-1" />
-        <button
-          type="button"
-          onClick={() => {
-            const next = Math.min(totalSteps - 1, stepIndex + 1);
-            setStepIndex(next);
-            onLoadCode(selectedTutorial.steps[next].code);
-            markTutorialStep(selectedTutorial.id, next);
-            updateUrlParam("tutorial", selectedTutorial.id, next);
-          }}
-          disabled={stepIndex === totalSteps - 1}
-          className="px-3 py-1 text-xs rounded border border-[var(--border)] disabled:opacity-30 hover:bg-[var(--bg-surface)]"
-          aria-label="Next step"
-        >
-          Next →
-        </button>
+        {stepIndex === totalSteps - 1 ? (
+          <span className="text-[10px] text-green-400 font-medium">Tutorial complete!</span>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              const next = Math.min(totalSteps - 1, stepIndex + 1);
+              setStepIndex(next);
+              onLoadCode(selectedTutorial.steps[next].code);
+              markTutorialStep(selectedTutorial.id, next);
+              updateUrlParam("tutorial", selectedTutorial.id, next);
+            }}
+            className="px-3 py-1 text-xs rounded border border-[var(--border)] hover:bg-[var(--bg-surface)]"
+            aria-label="Next step"
+          >
+            Next →
+          </button>
+        )}
       </div>
     </div>
   );

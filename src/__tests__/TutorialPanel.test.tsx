@@ -112,12 +112,13 @@ describe("TutorialPanel", () => {
     expect(screen.getByText("← Prev")).toBeDisabled();
   });
 
-  it("disables Next on last step", () => {
+  it("shows completion message on last step", () => {
     render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
     fireEvent.click(screen.getByText("Hello Croqtile"));
     fireEvent.click(screen.getByText("Next →"));
     fireEvent.click(screen.getByText("Next →"));
-    expect(screen.getByText("Next →")).toBeDisabled();
+    expect(screen.queryByText("Next →")).not.toBeInTheDocument();
+    expect(screen.getByText("Tutorial complete!")).toBeInTheDocument();
   });
 
   it("respects step parameter from URL", () => {

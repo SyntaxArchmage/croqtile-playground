@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (12 tutorials):
+**Current content** (13 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -218,6 +218,7 @@ interface Tutorial {
 | ch10 | Debugging & Best Practices | 3 | println debugging, DMA validation, performance tips |
 | ch11 | Data Types & Casting | 3 | Numeric types, explicit casting, precision |
 | ch12 | Array Slicing & DMA Patterns | 3 | Slice notation, computed offsets, double buffering |
+| ch13 | Synchronization | 3 | Signal/wait events, pipeline barriers, double-buffer sync |
 
 All tutorials include interactive "Try it" inline code blocks.
 
@@ -280,7 +281,7 @@ interface Challenge {
 
 ### 5.6 Example Programs
 
-Built-in code snippets loadable from toolbar dropdown (14 examples):
+Built-in code snippets loadable from toolbar dropdown (17 examples):
 
 | Name | Demonstrates |
 |------|-------------|
@@ -298,6 +299,9 @@ Built-in code snippets loadable from toolbar dropdown (14 examples):
 | Dot Product | Vector multiply-accumulate |
 | Find Maximum | Conditional reduction for max value |
 | Two-Stage Pipeline | DMA + shared memory processing |
+| Conditional Processing | Predicate-based parallel filtering |
+| DMA Tiling | Multi-tile DMA with boundary handling |
+| Nested Reduction | Hierarchical sum with parallel + foreach |
 
 ---
 
