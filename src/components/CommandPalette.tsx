@@ -59,13 +59,18 @@ export function CommandPalette({ commands, onClose }: Props) {
   }, []);
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (dialogRef.current && !dialogRef.current.contains(e.target as Node)) {
+    const handler = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (dialogRef.current && !dialogRef.current.contains(target)) {
         onClose();
       }
     };
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
+    };
   }, [onClose]);
 
   return (
@@ -92,7 +97,7 @@ export function CommandPalette({ commands, onClose }: Props) {
           onKeyDown={handleKeyDown}
           placeholder="Type a command..."
           aria-label="Search commands"
-          className="w-full px-3 py-2 bg-[var(--bg-primary)] border-b border-[var(--border)] text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
+          className="w-full min-h-11 px-3 py-2 bg-[var(--bg-primary)] border-b border-[var(--border)] text-base text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
         />
         <ul className="max-h-64 overflow-y-auto py-1" role="listbox">
           {filtered.length === 0 ? (
@@ -104,7 +109,7 @@ export function CommandPalette({ commands, onClose }: Props) {
                   type="button"
                   onClick={() => execute(cmd)}
                   onMouseEnter={() => setHighlight(index)}
-                  className={`w-full flex items-center justify-between px-3 py-1.5 text-left text-xs ${
+                  className={`w-full flex items-center justify-between px-3 py-3 min-h-11 text-left text-sm ${
                     index === clamped
                       ? "bg-[var(--bg-primary)] text-[var(--text-primary)]"
                       : "text-[var(--text-secondary)] hover:bg-[var(--bg-primary)]"

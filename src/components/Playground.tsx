@@ -351,7 +351,7 @@ export function Playground() {
       >
         <div className="flex items-center justify-between mb-4">
           <h2 id="shortcuts-dialog-title" className="text-sm font-semibold text-[var(--text-primary)]">Keyboard Shortcuts</h2>
-          <button onClick={() => setShowShortcuts(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" aria-label="Close keyboard shortcuts">×</button>
+          <button onClick={() => setShowShortcuts(false)} className="flex items-center justify-center min-h-11 min-w-11 text-[var(--text-muted)] hover:text-[var(--text-primary)]" aria-label="Close keyboard shortcuts">×</button>
         </div>
         <div className="space-y-2 text-xs">
           {[
@@ -425,6 +425,7 @@ export function Playground() {
         status={status}
         settings={settings}
         onSettingsChange={handleSettingsChange}
+        onOpenCommandPalette={() => setShowCommandPalette(true)}
       />
       <div className="flex-1 min-h-0 flex flex-col">
         <div id="main-content" className="flex-1 min-h-0 relative" tabIndex={-1}>
@@ -440,7 +441,7 @@ export function Playground() {
             <button
               type="button"
               onClick={handleRun}
-              className="absolute bottom-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-green-600 hover:bg-green-700 text-white opacity-70 hover:opacity-100 shadow-lg transition-opacity"
+              className="absolute bottom-3 right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-green-600 hover:bg-green-700 text-white opacity-70 hover:opacity-100 shadow-lg transition-opacity"
               aria-label="Run code"
               title="Run (Ctrl+Enter)"
             >

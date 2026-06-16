@@ -30,6 +30,7 @@ interface Props {
   status: WorkerStatus;
   settings: EditorSettings;
   onSettingsChange: (settings: EditorSettings) => void;
+  onOpenCommandPalette?: () => void;
 }
 
 export const Toolbar = memo(function Toolbar({
@@ -47,6 +48,7 @@ export const Toolbar = memo(function Toolbar({
   status,
   settings,
   onSettingsChange,
+  onOpenCommandPalette,
 }: Props) {
   const busy = status === "running";
   const tutorialsCompleted = TUTORIALS.filter(
@@ -196,10 +198,10 @@ export const Toolbar = memo(function Toolbar({
   }, [showMenu, showFileMenu]);
 
   return (
-    <nav className="flex flex-wrap items-center gap-2 px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]" aria-label="Playground toolbar">
+    <nav className="flex flex-wrap items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]" aria-label="Playground toolbar">
       <button
         onClick={() => onTogglePanel("tutorial")}
-        className={`p-1.5 rounded transition-colors ${
+        className={`flex items-center justify-center min-h-11 min-w-11 rounded transition-colors ${
           panelMode === "tutorial"
             ? "bg-[var(--accent)] text-[var(--bg-primary)]"
             : "hover:bg-[var(--bg-surface)] text-[var(--text-muted)]"
@@ -215,7 +217,7 @@ export const Toolbar = memo(function Toolbar({
       </button>
       <button
         onClick={() => onTogglePanel("challenge")}
-        className={`p-1.5 rounded transition-colors ${
+        className={`flex items-center justify-center min-h-11 min-w-11 rounded transition-colors ${
           panelMode === "challenge"
             ? "bg-[var(--accent)] text-[var(--bg-primary)]"
             : "hover:bg-[var(--bg-surface)] text-[var(--text-muted)]"
@@ -232,12 +234,12 @@ export const Toolbar = memo(function Toolbar({
       <span className="hidden sm:inline text-sm font-semibold text-[var(--accent)]">Croqtile</span>
       <span className="hidden md:inline text-xs text-[var(--text-muted)]">Playground</span>
 
-      <div className="w-px h-5 bg-[var(--border)] mx-2" />
+      <div className="hidden sm:block w-px h-5 bg-[var(--border)] mx-2" />
 
       <select
         value={target}
         onChange={(e) => onTargetChange(e.target.value)}
-        className="px-2 py-1 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)]"
+        className="min-h-11 px-2 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)]"
         aria-label="Compilation target"
       >
         <option value="cc">cc (C++ CPU)</option>
@@ -247,7 +249,7 @@ export const Toolbar = memo(function Toolbar({
       <button
         onClick={onRun}
         disabled={busy}
-        className="px-3 py-1 text-xs font-medium rounded bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
+        className="min-h-11 px-3 text-xs font-medium rounded bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
         title="Execute with mock interpreter (Ctrl+Enter)"
         aria-label="Run code"
       >
@@ -257,7 +259,7 @@ export const Toolbar = memo(function Toolbar({
       <button
         onClick={onCompile}
         disabled={busy}
-        className="px-3 py-1 text-xs font-medium rounded bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+        className="min-h-11 px-3 text-xs font-medium rounded bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
         title="View generated C++/CUDA source code (Ctrl+Shift+Enter)"
         aria-label="Compile code"
       >
@@ -268,7 +270,7 @@ export const Toolbar = memo(function Toolbar({
       <button
         onClick={onDumpAST}
         disabled={busy}
-        className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)] disabled:opacity-50"
+        className="min-h-11 px-3 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)] disabled:opacity-50"
         title="Print AST dump (Ctrl+Alt+D)"
         aria-label="Dump AST"
       >
@@ -277,7 +279,7 @@ export const Toolbar = memo(function Toolbar({
 
       <button
         onClick={handleShareClick}
-        className={`px-3 py-1 text-xs font-medium rounded border transition-colors ${
+        className={`min-h-11 px-3 text-xs font-medium rounded border transition-colors ${
           copied
             ? "border-green-600 bg-green-900/30 text-green-300"
             : "border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
@@ -311,7 +313,7 @@ export const Toolbar = memo(function Toolbar({
       <div className="relative" data-file-menu>
         <button
           onClick={() => setShowFileMenu((v) => !v)}
-          className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
+          className="min-h-11 px-3 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
           aria-label="File menu"
           aria-haspopup="menu"
           aria-expanded={showFileMenu}
@@ -329,14 +331,14 @@ export const Toolbar = memo(function Toolbar({
             <button
               role="menuitem"
               onClick={() => { handleOpenClick(); setShowFileMenu(false); }}
-              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+              className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
             >
               Open file...
             </button>
             <button
               role="menuitem"
               onClick={() => { handleDownload(); setShowFileMenu(false); }}
-              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+              className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
             >
               Download .co
             </button>
@@ -344,20 +346,47 @@ export const Toolbar = memo(function Toolbar({
             <button
               role="menuitem"
               onClick={() => { handleFormat(); setShowFileMenu(false); }}
-              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+              className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
             >
               Format code
             </button>
+            <div role="separator" className="xs:hidden border-t border-[var(--border)] my-1" />
+            <div role="group" aria-label="Examples" className="xs:hidden">
+              {EXAMPLES.map((ex) => (
+                <button
+                  key={ex.id}
+                  type="button"
+                  onClick={() => { onLoadCode(ex.code); setShowFileMenu(false); }}
+                  className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+                >
+                  {ex.name}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
+
+      {onOpenCommandPalette && (
+        <button
+          onClick={onOpenCommandPalette}
+          className="sm:hidden flex items-center justify-center min-h-11 min-w-11 rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
+          aria-label="Open command palette"
+          title="Commands"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+        </button>
+      )}
 
       <div className="flex-1" />
 
       <div className="relative" data-settings-menu>
         <button
           onClick={() => setShowMenu((v) => !v)}
-          className="p-1.5 rounded hover:bg-[var(--bg-surface)] text-[var(--text-muted)] transition-colors"
+          className="flex items-center justify-center min-h-11 min-w-11 rounded hover:bg-[var(--bg-surface)] text-[var(--text-muted)] transition-colors"
           title="Settings"
           aria-label="Settings menu"
           aria-haspopup="menu"
@@ -477,7 +506,7 @@ export const Toolbar = memo(function Toolbar({
           e.target.value = "";
         }}
         value=""
-        className="hidden xs:inline-block px-2 py-1 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)]"
+        className="hidden xs:inline-block min-h-11 px-2 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)]"
         aria-label="Load example code"
       >
         <option value="" disabled>
