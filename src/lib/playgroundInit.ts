@@ -1,11 +1,26 @@
-import { EXAMPLES } from "@/lib/examples";
+import { EXAMPLES, type Example } from "@/lib/examples";
 import { loadSavedSource } from "@/lib/sourceStorage";
 import type { PanelMode } from "@/lib/types";
 import { decodeCode } from "@/lib/urlCodec";
 
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/\s+/g, "-");
+}
+
+export function findExampleBySlug(slug: string): Example | undefined {
+  return EXAMPLES.find((ex) => ex.id === slug || slugify(ex.name) === slug);
+}
+
 export function readInitialSource(): string {
   if (typeof window !== "undefined" && window.location.hash.length > 1) {
     return decodeCode(window.location.hash.slice(1));
+  }
+  if (typeof window !== "undefined") {
+    const exampleSlug = new URLSearchParams(window.location.search).get("example");
+    if (exampleSlug) {
+      const example = findExampleBySlug(exampleSlug);
+      if (example) return example.code;
+    }
   }
   if (typeof window !== "undefined") {
     const saved = loadSavedSource();
