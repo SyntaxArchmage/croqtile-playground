@@ -69,6 +69,39 @@ describe("progress edge cases", () => {
     recordChallengeAttempt("c1");
     expect(getChallengeProgress("c1").attempts).toBe(1);
   });
+
+  it("normalizes primitive challengeProgress entries on load", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      challengeProgress: { c1: null, c2: "invalid", c3: 42 },
+    }));
+    const p = loadProgress();
+    expect(p.challengeProgress.c1).toEqual({ status: "not_started", attempts: 0 });
+    expect(p.challengeProgress.c2).toEqual({ status: "not_started", attempts: 0 });
+    expect(p.challengeProgress.c3).toEqual({ status: "not_started", attempts: 0 });
+  });
+
+  it("normalizes invalid status, attempts, and bestCode in challengeProgress entries", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      challengeProgress: {
+        c1: { status: "invalid", attempts: -2.7 },
+        c2: { status: "passed", attempts: NaN },
+        c3: { status: "attempted", attempts: 1.9, bestCode: 123 },
+      },
+    }));
+    const p = loadProgress();
+    expect(p.challengeProgress.c1).toEqual({ status: "not_started", attempts: 0 });
+    expect(p.challengeProgress.c2).toEqual({ status: "passed", attempts: 0 });
+    expect(p.challengeProgress.c3).toEqual({ status: "attempted", attempts: 1 });
+    expect(p.challengeProgress.c3.bestCode).toBeUndefined();
+  });
+
+  it("filters invalid tutorialSteps values and floors valid ones", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      tutorialSteps: { ch01: 2.7, ch02: "bad", ch03: NaN, ch04: null },
+    }));
+    const p = loadProgress();
+    expect(p.tutorialSteps).toEqual({ ch01: 2 });
+  });
 });
 
 describe("challenge progress tracking", () => {

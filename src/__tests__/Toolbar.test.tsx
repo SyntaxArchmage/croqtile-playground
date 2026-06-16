@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, act } from "@testing-library/react";
+import React from "react";
 import "@testing-library/jest-dom";
 import { Toolbar } from "@/components/Toolbar";
 import * as progress from "@/lib/progress";
@@ -542,5 +543,164 @@ describe("Toolbar", () => {
 
     confirmSpy.mockRestore();
     resetProgressSpy.mockRestore();
+  });
+
+  it("ignores file input change when files is undefined", () => {
+    render(<Toolbar {...defaultProps} />);
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    fireEvent.change(fileInput, { target: { files: undefined } });
+    expect(defaultProps.onLoadCode).not.toHaveBeenCalled();
+  });
+
+  it("keeps settings menu open when clicking inside the menu", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByText("Reset progress")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Font size"));
+    expect(screen.getByText("Reset progress")).toBeInTheDocument();
+  });
+
+  it("keeps file menu open when clicking inside the menu container", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    expect(screen.getByText("Open file...")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("menu", { name: "File" }));
+    expect(screen.getByText("Open file...")).toBeInTheDocument();
+  });
+
+  it("no-ops keyboard navigation when menu has no focusable items", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    const fileMenu = screen.getByRole("menu", { name: "File" });
+    fileMenu.innerHTML = "";
+    expect(() => {
+      fireEvent.keyDown(fileMenu, { key: "ArrowDown" });
+      fireEvent.keyDown(fileMenu, { key: "ArrowUp" });
+      fireEvent.keyDown(fileMenu, { key: "Home" });
+      fireEvent.keyDown(fileMenu, { key: "End" });
+    }).not.toThrow();
+  });
+
+  it("does not call onSettingsChange when decrease clicked at minimum font size", () => {
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 10, wordWrap: true, lastTarget: "cc" }} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    const decBtn = screen.getByLabelText("Decrease font size") as HTMLElement & Record<string, unknown>;
+    const propsKey = Object.keys(decBtn).find((k) => k.startsWith("__reactProps"));
+    expect(propsKey).toBeDefined();
+    (decBtn[propsKey!] as { onClick: (e: React.MouseEvent) => void }).onClick({
+      preventDefault: () => {},
+    } as React.MouseEvent);
+    expect(defaultProps.onSettingsChange).not.toHaveBeenCalled();
+  });
+
+  it("does not call onSettingsChange when increase clicked at maximum font size", () => {
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 24, wordWrap: true, lastTarget: "cc" }} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    const incBtn = screen.getByLabelText("Increase font size") as HTMLElement & Record<string, unknown>;
+    const propsKey = Object.keys(incBtn).find((k) => k.startsWith("__reactProps"));
+    expect(propsKey).toBeDefined();
+    (incBtn[propsKey!] as { onClick: (e: React.MouseEvent) => void }).onClick({
+      preventDefault: () => {},
+    } as React.MouseEvent);
+    expect(defaultProps.onSettingsChange).not.toHaveBeenCalled();
+  });
+
+  it("ignores file input change when files is null", () => {
+    render(<Toolbar {...defaultProps} />);
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { value: null, configurable: true });
+    fireEvent.change(fileInput);
+    expect(defaultProps.onLoadCode).not.toHaveBeenCalled();
+  });
+
+  it("handles document click when event target is null", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByText("Reset progress")).toBeInTheDocument();
+    act(() => {
+      const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "target", { value: null });
+      document.dispatchEvent(event);
+    });
+    expect(screen.queryByText("Reset progress")).not.toBeInTheDocument();
+  });
+
+  it("handles document click with null target while file menu is open", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    expect(screen.getByText("Open file...")).toBeInTheDocument();
+    act(() => {
+      const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "target", { value: null });
+      document.dispatchEvent(event);
+    });
+    expect(screen.queryByText("Open file...")).not.toBeInTheDocument();
+  });
+
+  it("handles focus when file menu has no focusable items on open", () => {
+    const original = HTMLElement.prototype.querySelectorAll;
+    const querySpy = jest
+      .spyOn(HTMLElement.prototype, "querySelectorAll")
+      .mockImplementation(function (this: HTMLElement, selector: string) {
+        if (selector.includes("menuitem")) {
+          return [] as unknown as NodeListOf<HTMLElement>;
+        }
+        return original.call(this, selector);
+      });
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    expect(screen.getByRole("menu", { name: "File" })).toBeInTheDocument();
+    querySpy.mockRestore();
+  });
+
+  it("handles focus when settings menu has no focusable items on open", () => {
+    const original = HTMLElement.prototype.querySelectorAll;
+    const querySpy = jest
+      .spyOn(HTMLElement.prototype, "querySelectorAll")
+      .mockImplementation(function (this: HTMLElement, selector: string) {
+        if (selector.includes("menuitem")) {
+          return [] as unknown as NodeListOf<HTMLElement>;
+        }
+        return original.call(this, selector);
+      });
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByRole("menu", { name: "Settings" })).toBeInTheDocument();
+    querySpy.mockRestore();
+  });
+
+  it("closes settings menu when clicking the file menu toggle", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByText("Reset progress")).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("File menu"));
+    expect(screen.queryByText("Reset progress")).not.toBeInTheDocument();
+    expect(screen.getByText("Open file...")).toBeInTheDocument();
+  });
+
+  it("closes file menu when clicking the settings menu toggle", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    expect(screen.getByText("Open file...")).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.queryByText("Open file...")).not.toBeInTheDocument();
+    expect(screen.getByText("Reset progress")).toBeInTheDocument();
+  });
+
+  it("shows mobile Share label when copied on narrow viewport", () => {
+    jest.useFakeTimers();
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Share code"));
+    expect(screen.getByText("✓")).toBeInTheDocument();
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+    expect(screen.getByText("🔗")).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("shows mobile Compile icon when not running", () => {
+    render(<Toolbar {...defaultProps} />);
+    expect(screen.getByText("⚙")).toBeInTheDocument();
   });
 });

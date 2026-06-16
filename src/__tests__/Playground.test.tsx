@@ -792,4 +792,39 @@ describe("Playground", () => {
       expect(document.title).toBe("Croqtile Playground");
     });
   });
+
+  describe("external store sync during render", () => {
+    it("syncs editor source when URL hash changes between renders", () => {
+      const { rerender } = renderPlayground();
+      expect(screen.getByTestId("code-editor")).toHaveValue(EXAMPLES[0].code);
+
+      const newCode = '__co__ void updated() { println("synced"); }';
+      setUrl(`/#${encodeURIComponent(newCode)}`);
+      rerender(<Playground />);
+
+      expect(screen.getByTestId("code-editor")).toHaveValue(newCode);
+    });
+
+    it("syncs panel mode when URL search params change between renders", () => {
+      const { rerender } = renderPlayground();
+      expect(screen.queryByText("Tutorials")).not.toBeInTheDocument();
+
+      setUrl("/?tutorial=ch01");
+      rerender(<Playground />);
+
+      expect(screen.getByLabelText("Toggle tutorial panel")).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByText("The __co__ keyword")).toBeInTheDocument();
+    });
+
+    it("syncs panel mode to challenge when URL changes between renders", () => {
+      const { rerender } = renderPlayground();
+      expect(screen.queryByText("Challenges")).not.toBeInTheDocument();
+
+      setUrl("/?challenge=c01");
+      rerender(<Playground />);
+
+      expect(screen.getByLabelText("Toggle challenge panel")).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByText("Hello Threads")).toBeInTheDocument();
+    });
+  });
 });
