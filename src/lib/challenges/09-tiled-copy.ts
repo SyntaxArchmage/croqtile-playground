@@ -40,10 +40,9 @@ dst[7] = 80
 }
 `,
   tests: [
-    {
-      expectedOutput: "dst[0] = 10\ndst[1] = 20\ndst[2] = 30\ndst[3] = 40\ndst[4] = 50\ndst[5] = 60\ndst[6] = 70\ndst[7] = 80",
-      description: "Should copy all 8 elements via 2 tiles",
-    },
+    { expectedOutput: "dst[0] = 10", description: "First element copied from tile 0" },
+    { expectedOutput: "dst[4] = 50", description: "First element copied from tile 1" },
+    { expectedOutput: "dst[0] = 10\ndst[1] = 20\ndst[2] = 30\ndst[3] = 40\ndst[4] = 50\ndst[5] = 60\ndst[6] = 70\ndst[7] = 80", description: "All 8 elements copied correctly" },
   ],
   hint: "Loop over 2 tiles (t = 0 and 1). For each tile, DMA 4 elements starting at t*4, then copy tile into the matching dst slice.",
 };

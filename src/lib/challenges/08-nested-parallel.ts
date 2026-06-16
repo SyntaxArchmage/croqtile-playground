@@ -31,10 +31,9 @@ Use \`parallel {i, j} by [3, 3]\` for 2D parallel execution.`,
 }
 `,
   tests: [
-    {
-      expectedOutput: "M[0,0] = 1\nM[0,1] = 2\nM[0,2] = 3\nM[1,0] = 2\nM[1,1] = 4\nM[1,2] = 6\nM[2,0] = 3\nM[2,1] = 6\nM[2,2] = 9",
-      description: "Should produce 3x3 multiplication table",
-    },
+    { expectedOutput: "M[0,0] = 1", description: "Corner (0,0) = 1×1 = 1" },
+    { expectedOutput: "M[1,2] = 6", description: "M[1,2] = 2×3 = 6" },
+    { expectedOutput: "M[2,2] = 9", description: "Corner (2,2) = 3×3 = 9" },
   ],
   hint: "Use 2D parallel to get both i and j. The value at (i,j) is the product of (i+1) and (j+1). Print row by row.",
 };

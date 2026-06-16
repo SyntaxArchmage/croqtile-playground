@@ -39,10 +39,9 @@ dst[3] = 10
 }
 `,
   tests: [
-    {
-      expectedOutput: "dst[0] = 40\ndst[1] = 30\ndst[2] = 20\ndst[3] = 10",
-      description: "Should reverse the array using DMA + parallel",
-    },
+    { expectedOutput: "dst[0] = 40", description: "dst[0] should be the last source element (40)" },
+    { expectedOutput: "dst[3] = 10", description: "dst[3] should be the first source element (10)" },
+    { expectedOutput: "dst[0] = 40\ndst[1] = 30\ndst[2] = 20\ndst[3] = 10", description: "Full reversed output" },
   ],
   hint: "After DMA loads src into tile, write dst in reverse order — element i of dst comes from the opposite end of tile.",
 };
