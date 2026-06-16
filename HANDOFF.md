@@ -28,7 +28,7 @@
 ### Content
 - 50 tutorials (ch01–ch50) with "Try it" inline code blocks
 - 250 challenges (c01–c250) with auto-verification, progress badges, and "in progress" status
-- 60 example programs
+- 59 example programs
 
 ### User Experience
 - URL sharing with base64url encoding (backward-compatible with legacy percent-encoding)
