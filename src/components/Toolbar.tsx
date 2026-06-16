@@ -54,12 +54,6 @@ export const Toolbar = memo(function Toolbar({
   openFileRef,
 }: Props) {
   const busy = status === "running";
-  const tutorialsCompleted = TUTORIALS.filter(
-    (t) => getTutorialProgress(t.id) >= t.steps.length - 1,
-  ).length;
-  const challengesPassed = CHALLENGES.filter((c) => isChallengePassed(c.id)).length;
-  const tutorialProgressPct = (tutorialsCompleted / TUTORIALS.length) * 100;
-  const challengeProgressPct = (challengesPassed / CHALLENGES.length) * 100;
   const [copied, setCopied] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showFileMenu, setShowFileMenu] = useState(false);
@@ -569,36 +563,32 @@ export const Toolbar = memo(function Toolbar({
               />
             </label>
             <div role="separator" className="border-t border-[var(--border)] my-1" />
-            <div role="group" aria-label="Progress" className="px-3 py-2 space-y-2">
-              <div>
-                <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-1">
-                  <span>Tutorials</span>
-                  <span className="tabular-nums">
-                    {tutorialsCompleted}/{TUTORIALS.length} completed
-                  </span>
+            {(() => {
+              const tc = TUTORIALS.filter((t) => getTutorialProgress(t.id) >= t.steps.length - 1).length;
+              const cp = CHALLENGES.filter((c) => isChallengePassed(c.id)).length;
+              return (
+                <div role="group" aria-label="Progress" className="px-3 py-2 space-y-2">
+                  <div>
+                    <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-1">
+                      <span>Tutorials</span>
+                      <span className="tabular-nums">{tc}/{TUTORIALS.length} completed</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden">
+                      <div className="h-full bg-[var(--success)] transition-all" style={{ width: `${(tc / TUTORIALS.length) * 100}%` }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-1">
+                      <span>Challenges</span>
+                      <span className="tabular-nums">{cp}/{CHALLENGES.length} passed</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden">
+                      <div className="h-full bg-[var(--success)] transition-all" style={{ width: `${(cp / CHALLENGES.length) * 100}%` }} />
+                    </div>
+                  </div>
                 </div>
-                <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[var(--success)] transition-all"
-                    style={{ width: `${tutorialProgressPct}%` }}
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-1">
-                  <span>Challenges</span>
-                  <span className="tabular-nums">
-                    {challengesPassed}/{CHALLENGES.length} passed
-                  </span>
-                </div>
-                <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[var(--success)] transition-all"
-                    style={{ width: `${challengeProgressPct}%` }}
-                  />
-                </div>
-              </div>
-            </div>
+              );
+            })()}
             <div role="separator" className="border-t border-[var(--border)] my-1" />
             <button
               role="menuitem"
