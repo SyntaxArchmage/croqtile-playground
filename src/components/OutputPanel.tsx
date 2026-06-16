@@ -86,7 +86,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
     if (copyTimeoutRef.current) {
       clearTimeout(copyTimeoutRef.current);
     }
-    copyTimeoutRef.current = setTimeout(() => setCopied(false), 1500);
+    copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
   }, [content]);
 
   const updateHeight = useCallback((clientY: number) => {
@@ -123,7 +123,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
     dragging.current = true;
 
     const onTouchMove = (ev: TouchEvent) => {
-      if (!dragging.current) return;
+      if (!dragging.current || ev.touches.length === 0) return;
       updateHeight(ev.touches[0].clientY);
     };
 
@@ -212,10 +212,29 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                  aria-label={copied ? "Copied to clipboard" : "Copy output"}
+                  className="flex items-center gap-1 px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  aria-label={copied ? "Copied to clipboard" : "Copy output to clipboard"}
+                  title={copied ? "Copied!" : "Copy to clipboard"}
                 >
-                  {copied ? "Copied!" : "Copy"}
+                  {copied ? (
+                    "Copied!"
+                  ) : (
+                    <>
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        aria-hidden="true"
+                      >
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                      </svg>
+                      <span>Copy</span>
+                    </>
+                  )}
                 </button>
                 <button
                   type="button"

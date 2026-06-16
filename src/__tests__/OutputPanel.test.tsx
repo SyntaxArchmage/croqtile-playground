@@ -118,7 +118,7 @@ describe("OutputPanel", () => {
     expect(writeText).toHaveBeenCalledWith("Hello from Croqtile!");
     expect(screen.getByText("Copied!")).toBeInTheDocument();
     act(() => {
-      jest.advanceTimersByTime(1500);
+      jest.advanceTimersByTime(2000);
     });
     expect(screen.getByText("Copy")).toBeInTheDocument();
     jest.useRealTimers();
@@ -351,7 +351,7 @@ describe("OutputPanel", () => {
     expect(screen.getByText("Copied!")).toBeInTheDocument();
     fireEvent.click(screen.getByText("Copied!"));
     expect(writeText).toHaveBeenCalledTimes(2);
-    act(() => { jest.advanceTimersByTime(1500); });
+    act(() => { jest.advanceTimersByTime(2000); });
     expect(screen.getByText("Copy")).toBeInTheDocument();
     jest.useRealTimers();
   });
@@ -362,7 +362,7 @@ describe("OutputPanel", () => {
     render(<OutputPanel output="data" errors="" />);
     fireEvent.click(screen.getByText("Copy"));
     expect(screen.getByText("Copied!")).toBeInTheDocument();
-    act(() => { jest.advanceTimersByTime(1500); });
+    act(() => { jest.advanceTimersByTime(2000); });
     expect(screen.getByText("Copy")).toBeInTheDocument();
     jest.useRealTimers();
   });
@@ -543,7 +543,7 @@ describe("OutputPanel", () => {
     expect(screen.getByText("Copied!")).toBeInTheDocument();
     unmount();
     act(() => {
-      jest.advanceTimersByTime(1500);
+      jest.advanceTimersByTime(2000);
     });
     jest.useRealTimers();
   });

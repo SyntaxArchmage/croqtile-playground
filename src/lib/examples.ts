@@ -387,4 +387,115 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "ping-pong",
+    name: "Ping-Pong Pipeline",
+    code: `__co__ void ping_pong_pipeline() {
+  global float raw[8];
+  global float cooked[8];
+  shared float ping[4];
+  shared float pong[4];
+  shared event to_pong;
+  shared event to_ping;
+
+  parallel {i} by [8] {
+    raw[i] = (float)(i + 1);
+  }
+
+  arrive to_pong;
+  arrive to_ping;
+
+  // Tile 0: stage 1 loads ping, stage 2 writes pong
+  wait to_ping;
+  dma(raw[0:4], ping[0:4]);
+  parallel {i} by [4] {
+    ping[i] = ping[i] + 1.0f;
+  }
+  arrive to_pong;
+
+  wait to_pong;
+  dma(ping[0:4], pong[0:4]);
+  parallel {i} by [4] {
+    cooked[i] = pong[i] * 2.0f;
+  }
+  arrive to_ping;
+
+  // Tile 1: reuse ping/pong buffers
+  wait to_ping;
+  dma(raw[4:8], ping[0:4]);
+  parallel {i} by [4] {
+    ping[i] = ping[i] + 1.0f;
+  }
+  arrive to_pong;
+
+  wait to_pong;
+  dma(ping[0:4], pong[0:4]);
+  parallel {i} by [4] {
+    cooked[4 + i] = pong[i] * 2.0f;
+  }
+  arrive to_ping;
+
+  parallel {i} by [8] {
+    println("cooked[", i, "] =", cooked[i]);
+  }
+}
+`,
+  },
+  {
+    id: "bounded-queue",
+    name: "Bounded Queue",
+    code: `__co__ void bounded_queue() {
+  global float source[8];
+  shared float queue[4];
+  shared event full;
+  shared event empty;
+  global float output[4];
+
+  parallel {i} by [8] {
+    source[i] = (float)((i + 1) * 10);
+  }
+
+  arrive empty;
+
+  // Producer: fill bounded 4-slot shared buffer
+  wait empty;
+  dma(source[0:4], queue[0:4]);
+  arrive full;
+
+  // Consumer: drain when full, then release buffer
+  wait full;
+  dma(queue[0:4], output[0:4]);
+  arrive empty;
+
+  parallel {i} by [4] {
+    println("output[", i, "] =", output[i]);
+  }
+}
+`,
+  },
+  {
+    id: "histogram",
+    name: "Histogram",
+    code: `__co__ void histogram() {
+  global int data[8];
+  global int bins[4];
+
+  parallel {i} by [8] {
+    data[i] = i % 4;
+  }
+
+  parallel {i} by [4] {
+    bins[i] = 0;
+  }
+
+  foreach i in [0:8] {
+    bins[data[i]] = bins[data[i]] + 1;
+  }
+
+  parallel {i} by [4] {
+    println("bin[", i, "] =", bins[i]);
+  }
+}
+`,
+  },
 ];
