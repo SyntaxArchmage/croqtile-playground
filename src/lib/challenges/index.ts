@@ -54,6 +54,8 @@ import { challenge37 } from "./37-array-reverse";
 import { challenge38 } from "./38-even-odd-split";
 import { challenge39 } from "./39-matrix-diagonal";
 import { challenge40 } from "./40-weighted-average";
+import { challenge41 } from "./41-mirror-array";
+import { challenge42 } from "./42-parallel-abs";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -66,4 +68,5 @@ export const CHALLENGES: Challenge[] = [
   challenge29, challenge30, challenge31, challenge32,
   challenge33, challenge34, challenge35, challenge36,
   challenge37, challenge38, challenge39, challenge40,
+  challenge41, challenge42,
 ];
