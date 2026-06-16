@@ -9,6 +9,7 @@ describe("settings SSR / no-window guards", () => {
     expect(loadSettings()).toEqual({
       fontSize: 14,
       wordWrap: true,
+      tabSize: 2,
       lastTarget: "cc",
       theme: "dark",
     });
@@ -16,7 +17,7 @@ describe("settings SSR / no-window guards", () => {
 
   it("saveSettings is a no-op when window is undefined", () => {
     expect(() =>
-      saveSettings({ fontSize: 16, wordWrap: false, lastTarget: "cute", theme: "light" }),
+      saveSettings({ fontSize: 16, wordWrap: false, tabSize: 2, lastTarget: "cute", theme: "light" }),
     ).not.toThrow();
   });
 });

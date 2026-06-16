@@ -31,6 +31,7 @@ interface Props {
   onSelectionChange?: (selection: SelectionInfo | null) => void;
   fontSize?: number;
   wordWrap?: boolean;
+  tabSize?: number;
   theme?: Theme;
 }
 
@@ -426,7 +427,7 @@ function registerChoreoLanguage(monaco: Monaco) {
 }
 
 export const Editor = forwardRef<{ getValue: () => string }, Props>(
-  function Editor({ value, onChange, onCursorChange, onSelectionChange, fontSize = 14, wordWrap = true, theme = "dark" }, ref) {
+  function Editor({ value, onChange, onCursorChange, onSelectionChange, fontSize = 14, wordWrap = true, tabSize = 2, theme = "dark" }, ref) {
     const editorRef = useRef<unknown>(null);
     const monacoRef = useRef<Monaco | null>(null);
     const monacoTheme = theme === "light" ? "choreo-light" : "choreo-dark";
@@ -501,7 +502,7 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
           renderLineHighlight: "line",
           bracketPairColorization: { enabled: true },
           folding: true,
-          tabSize: 2,
+          tabSize,
           insertSpaces: true,
           autoIndent: "full",
           autoClosingBrackets: "languageDefined",

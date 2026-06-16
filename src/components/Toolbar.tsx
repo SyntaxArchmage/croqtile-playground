@@ -439,6 +439,40 @@ export const Toolbar = memo(function Toolbar({
                 </button>
               </div>
             </div>
+            <div role="none" className="px-3 py-2 flex items-center justify-between">
+              <span className="text-xs text-[var(--text-secondary)]">Tab size</span>
+              <div className="flex items-center gap-1">
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    if (settings.tabSize > 2) {
+                      onSettingsChange({ ...settings, tabSize: settings.tabSize - 1 });
+                    }
+                  }}
+                  disabled={settings.tabSize <= 2}
+                  className="w-5 h-5 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
+                  aria-label="Decrease tab size"
+                >
+                  −
+                </button>
+                <span className="text-xs text-[var(--text-primary)] w-6 text-center tabular-nums" aria-hidden="true">
+                  {settings.tabSize}
+                </span>
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    if (settings.tabSize < 8) {
+                      onSettingsChange({ ...settings, tabSize: settings.tabSize + 1 });
+                    }
+                  }}
+                  disabled={settings.tabSize >= 8}
+                  className="w-5 h-5 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
+                  aria-label="Increase tab size"
+                >
+                  +
+                </button>
+              </div>
+            </div>
             <label role="menuitemcheckbox" aria-checked={settings.wordWrap} className="flex items-center justify-between px-3 py-2 hover:bg-[var(--bg-primary)] cursor-pointer transition-colors">
               <span className="text-xs text-[var(--text-secondary)]">Word wrap</span>
               <input

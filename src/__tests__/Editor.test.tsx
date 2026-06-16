@@ -41,6 +41,11 @@ describe("Editor", () => {
     expect(capturedOptions?.wordWrap).toBe("on");
   });
 
+  it("passes tabSize to options", () => {
+    render(<Editor value="" onChange={jest.fn()} tabSize={4} />);
+    expect(capturedOptions?.tabSize).toBe(4);
+  });
+
   it("passes editor indentation and auto-close options", () => {
     render(<Editor value="" onChange={jest.fn()} />);
     expect(capturedOptions?.autoIndent).toBe("full");

@@ -7,7 +7,7 @@ const mockCompile = jest.fn();
 const mockDumpAST = jest.fn();
 const mockClearOutput = jest.fn();
 const mockLoadLastSource = jest.fn(() => null);
-const mockLoadSettings = jest.fn(() => ({ fontSize: 14, wordWrap: true, lastTarget: "cc", theme: "dark" as const }));
+const mockLoadSettings = jest.fn(() => ({ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "dark" as const }));
 const mockSaveSettings = jest.fn();
 let mockStatus: "ready" | "running" | "loading" | "error" = "ready";
 let mockOutput = "";
@@ -51,14 +51,16 @@ jest.mock("@/lib/fileIO", () => ({
   downloadCoSource: (...args: unknown[]) => mockDownloadCoSource(...args),
 }));
 
+let mockEditorProvidesRef = true;
 jest.mock("@/components/Editor", () => ({
   Editor: React.forwardRef<
     { getValue: () => string },
     { value: string; onChange: (value: string) => void; fontSize?: number; wordWrap?: boolean }
   >(function MockEditor({ value, onChange, fontSize, wordWrap }, ref) {
-    React.useImperativeHandle(ref, () => ({
-      getValue: () => value,
-    }));
+    React.useImperativeHandle(ref, () => {
+      if (!mockEditorProvidesRef) return null as unknown as { getValue: () => string };
+      return { getValue: () => value };
+    });
     return (
       <textarea
         data-testid="code-editor"
@@ -98,18 +100,37 @@ function renderPlayground() {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockEditorProvidesRef = true;
   mockStatus = "ready";
   mockOutput = "";
   mockErrors = "";
   mockAst = "";
   mockLoadLastSource.mockReturnValue(null);
-  mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, lastTarget: "cc", theme: "dark" });
+  mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "dark" });
   mockMatchMedia(false);
   setUrl("/");
   window.history.replaceState = jest.fn();
   document.title = "Croqtile Playground";
   window.confirm = jest.fn(() => true);
 });
+
+function openCommandPalette() {
+  fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+}
+
+function runPaletteCommand(label: string) {
+  openCommandPalette();
+  fireEvent.change(screen.getByLabelText("Search commands"), {
+    target: { value: label },
+  });
+  fireEvent.keyDown(screen.getByLabelText("Search commands"), { key: "Enter" });
+}
+
+async function flushInitialLoadConfirm() {
+  await act(async () => {
+    jest.runAllTimers();
+  });
+}
 
 describe("Playground", () => {
   describe("initial rendering", () => {
@@ -336,6 +357,25 @@ describe("Playground", () => {
       expect(screen.queryByText("Challenges")).not.toBeInTheDocument();
     });
 
+    it("switches from tutorial to challenge panel", () => {
+      renderPlayground();
+      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+      expect(screen.getByText("Tutorials")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByLabelText("Toggle challenge panel"));
+      expect(screen.getByText("Challenges")).toBeInTheDocument();
+      expect(screen.queryByText("Tutorials")).not.toBeInTheDocument();
+    });
+
+    it("closes tutorial panel when Open Tutorial palette command is toggled", () => {
+      renderPlayground();
+      runPaletteCommand("Open Tutorial");
+      expect(screen.getByText("Tutorials")).toBeInTheDocument();
+
+      runPaletteCommand("Open Tutorial");
+      expect(screen.queryByText("Tutorials")).not.toBeInTheDocument();
+    });
+
     it("clears panel query params when closing a panel", () => {
       setUrl("/?tutorial=ch01");
       renderPlayground();
@@ -469,6 +509,27 @@ describe("Playground", () => {
     });
   });
 
+  describe("tutorial autorun timer cleanup", () => {
+    it("clears a pending timer before scheduling the next tutorial run", async () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      await flushInitialLoadConfirm();
+
+      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+      fireEvent.click(screen.getByText("Hello Croqtile"));
+      fireEvent.click(screen.getByText("Next →"));
+
+      mockRun.mockClear();
+      act(() => { jest.advanceTimersByTime(100); });
+      expect(mockRun).toHaveBeenCalledTimes(1);
+      expect(mockRun).toHaveBeenCalledWith(
+        expect.stringContaining("printing()"),
+      );
+
+      jest.useRealTimers();
+    });
+  });
+
   describe("share functionality", () => {
     it("dispatches share on Ctrl+S", () => {
       Object.assign(navigator, {
@@ -557,12 +618,6 @@ describe("Playground", () => {
   });
 
   describe("unsaved changes warning", () => {
-    async function flushInitialLoadConfirm() {
-      await act(async () => {
-        jest.runAllTimers();
-      });
-    }
-
     it("does not confirm when loading tutorial code on initial deep link", async () => {
       jest.useFakeTimers();
       const hashCode = '__co__ void fromHash() { println("hash"); }';
@@ -623,6 +678,45 @@ describe("Playground", () => {
 
       expect(window.confirm).not.toHaveBeenCalled();
       expect(screen.getByTestId("code-editor")).toHaveValue(EXAMPLES[1].code);
+    });
+
+    it("does not confirm when loading code that matches current editor content", async () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      await flushInitialLoadConfirm();
+      jest.useRealTimers();
+
+      fireEvent.change(screen.getByTestId("code-editor"), {
+        target: { value: EXAMPLES[1].code },
+      });
+
+      fireEvent.change(screen.getByLabelText("Load example code"), {
+        target: { value: "parallel" },
+      });
+
+      expect(window.confirm).not.toHaveBeenCalled();
+      expect(screen.getByTestId("code-editor")).toHaveValue(EXAMPLES[1].code);
+    });
+
+    it("does not run tutorial step when user rejects load confirmation", async () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      await flushInitialLoadConfirm();
+      jest.useRealTimers();
+
+      fireEvent.change(screen.getByTestId("code-editor"), {
+        target: { value: "__co__ void edited() {}" },
+      });
+
+      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+      (window.confirm as jest.Mock).mockReturnValue(false);
+      mockRun.mockClear();
+
+      fireEvent.click(screen.getByText("Hello Croqtile"));
+
+      expect(window.confirm).toHaveBeenCalledWith("You have unsaved changes. Load new code?");
+      expect(mockRun).not.toHaveBeenCalled();
+      expect(screen.getByTestId("code-editor")).toHaveValue("__co__ void edited() {}");
     });
   });
 
@@ -761,12 +855,38 @@ describe("Playground", () => {
 
     it("clears output via palette command", () => {
       renderPlayground();
-      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
-      fireEvent.change(screen.getByLabelText("Search commands"), {
-        target: { value: "Clear Output" },
-      });
-      fireEvent.keyDown(screen.getByLabelText("Search commands"), { key: "Enter" });
+      runPaletteCommand("Clear Output");
       expect(mockClearOutput).toHaveBeenCalledTimes(1);
+    });
+
+    it("compiles code via palette command", () => {
+      renderPlayground();
+      runPaletteCommand("Compile Code");
+      expect(mockCompile).toHaveBeenCalledTimes(1);
+    });
+
+    it("dumps AST via palette command", () => {
+      renderPlayground();
+      runPaletteCommand("Dump AST");
+      expect(mockDumpAST).toHaveBeenCalledTimes(1);
+    });
+
+    it("shares link via palette command", () => {
+      Object.assign(navigator, {
+        clipboard: { writeText: jest.fn(() => Promise.resolve()) },
+      });
+      renderPlayground();
+      runPaletteCommand("Share Link");
+      expect(navigator.clipboard.writeText).toHaveBeenCalled();
+      expect(window.history.replaceState).toHaveBeenCalled();
+    });
+
+    it("toggles theme via palette command", () => {
+      renderPlayground();
+      runPaletteCommand("Toggle Theme");
+      expect(mockSaveSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ theme: "light" }),
+      );
     });
   });
 
@@ -876,6 +996,105 @@ describe("Playground", () => {
       fireEvent.click(screen.getByLabelText("Close keyboard shortcuts"));
       expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
     });
+
+    it("restores focus to the previously focused element on close", () => {
+      const trigger = document.createElement("button");
+      trigger.textContent = "Before dialog";
+      document.body.appendChild(trigger);
+      trigger.focus();
+
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "?" });
+      expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
+
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(document.activeElement).toBe(trigger);
+
+      document.body.removeChild(trigger);
+    });
+
+    it("ignores Tab wrap when focus is not on the last focusable element", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "?" });
+      const dialog = screen.getByRole("dialog");
+      const middle = document.createElement("button");
+      middle.textContent = "Middle";
+      dialog.appendChild(middle);
+
+      middle.focus();
+      expect(document.activeElement).toBe(middle);
+      fireEvent.keyDown(dialog, { key: "Tab" });
+      expect(document.activeElement).not.toBe(screen.getByLabelText("Close keyboard shortcuts"));
+    });
+
+    it("ignores Shift+Tab wrap when focus is not on the first focusable element", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "?" });
+      const dialog = screen.getByRole("dialog");
+      const middle = document.createElement("button");
+      middle.textContent = "Middle";
+      dialog.insertBefore(middle, dialog.firstChild);
+
+      middle.focus();
+      fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
+      expect(document.activeElement).toBe(middle);
+    });
+
+    it("ignores non-Tab keys in shortcuts dialog focus trap", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "?" });
+      const dialog = screen.getByRole("dialog");
+      fireEvent.keyDown(dialog, { key: "ArrowDown" });
+      expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
+    });
+
+    it("ignores Tab when shortcuts dialog has no focusable elements", () => {
+      const originalQuerySelectorAll = Element.prototype.querySelectorAll;
+      Element.prototype.querySelectorAll = function (this: Element, selector: string) {
+        if (this.getAttribute?.("role") === "dialog" && selector.includes("tabindex")) {
+          return [] as unknown as NodeListOf<Element>;
+        }
+        return originalQuerySelectorAll.call(this, selector);
+      };
+
+      try {
+        renderPlayground();
+        fireEvent.keyDown(window, { key: "?" });
+        const dialog = screen.getByRole("dialog");
+        fireEvent.keyDown(dialog, { key: "Tab" });
+        expect(document.activeElement).not.toBeNull();
+      } finally {
+        Element.prototype.querySelectorAll = originalQuerySelectorAll;
+      }
+    });
+
+    it("cleans up shortcuts listeners when playground unmounts with dialog open", () => {
+      const removeListenerSpy = jest.spyOn(HTMLDivElement.prototype, "removeEventListener");
+      const { unmount } = renderPlayground();
+      fireEvent.keyDown(window, { key: "?" });
+      unmount();
+      expect(removeListenerSpy).toHaveBeenCalledWith("keydown", expect.any(Function));
+      removeListenerSpy.mockRestore();
+    });
+
+    it("closes shortcuts without restoring focus when activeElement was null", () => {
+      const activeElementDescriptor = Object.getOwnPropertyDescriptor(document, "activeElement");
+      Object.defineProperty(document, "activeElement", {
+        configurable: true,
+        get: () => null,
+      });
+
+      try {
+        renderPlayground();
+        fireEvent.keyDown(window, { key: "?" });
+        fireEvent.keyDown(window, { key: "Escape" });
+        expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
+      } finally {
+        if (activeElementDescriptor) {
+          Object.defineProperty(document, "activeElement", activeElementDescriptor);
+        }
+      }
+    });
   });
 
   describe("theme toggle", () => {
@@ -888,7 +1107,7 @@ describe("Playground", () => {
     });
 
     it("toggles theme from light to dark via Ctrl+Shift+T", () => {
-      mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, lastTarget: "cc", theme: "light" as const });
+      mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "light" as const });
       renderPlayground();
       fireEvent.keyDown(window, { key: "T", ctrlKey: true, shiftKey: true });
       expect(mockSaveSettings).toHaveBeenCalledWith(
@@ -943,6 +1162,38 @@ describe("Playground", () => {
 
       expect(screen.getByLabelText("Toggle challenge panel")).toHaveAttribute("aria-pressed", "true");
       expect(screen.getByText("Hello Threads")).toBeInTheDocument();
+    });
+  });
+
+  describe("editor ref fallback", () => {
+    it("reads source from sourceRef when editor ref is unavailable", () => {
+      mockEditorProvidesRef = false;
+      renderPlayground();
+      fireEvent.change(screen.getByTestId("code-editor"), {
+        target: { value: "__co__ void fromSourceRef() {}" },
+      });
+      fireEvent.keyDown(window, { key: "Enter", ctrlKey: true });
+      expect(mockRun).toHaveBeenCalledWith("__co__ void fromSourceRef() {}");
+    });
+
+    it("uses sourceRef in confirmAndLoad when editor ref is unavailable", async () => {
+      jest.useFakeTimers();
+      mockEditorProvidesRef = false;
+      renderPlayground();
+      await flushInitialLoadConfirm();
+      jest.useRealTimers();
+
+      fireEvent.change(screen.getByTestId("code-editor"), {
+        target: { value: "__co__ void edited() {}" },
+      });
+
+      (window.confirm as jest.Mock).mockReturnValue(false);
+      fireEvent.change(screen.getByLabelText("Load example code"), {
+        target: { value: "parallel" },
+      });
+
+      expect(window.confirm).toHaveBeenCalled();
+      expect(screen.getByTestId("code-editor")).toHaveValue("__co__ void edited() {}");
     });
   });
 });

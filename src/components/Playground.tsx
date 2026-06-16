@@ -11,13 +11,14 @@ import { ResizableSplit } from "./ResizableSplit";
 import { useChoreoWorker } from "@/lib/useChoreoWorker";
 import { EXAMPLES } from "@/lib/examples";
 import type { PanelMode } from "@/lib/types";
-import { saveLastSource, loadLastSource } from "@/lib/progress";
+import { saveLastSource } from "@/lib/progress";
 import { loadSettings, saveSettings, type EditorSettings } from "@/lib/settings";
 import type { CursorPosition, SelectionInfo } from "./Editor";
-import { decodeCode, encodeCode } from "@/lib/urlCodec";
+import { encodeCode } from "@/lib/urlCodec";
 import { formatChoreoCode } from "@/lib/formatCode";
 import { downloadCoSource } from "@/lib/fileIO";
 import { CommandPalette, type CommandItem } from "./CommandPalette";
+import { readInitialSource, readInitialPanelMode, getDeepLinkId } from "@/lib/playgroundInit";
 
 const noop = () => () => {};
 
@@ -46,25 +47,6 @@ function useIsMobile(breakpoint = 768): boolean {
     () => window.matchMedia(`(max-width: ${breakpoint - 1}px)`).matches,
     () => false,
   );
-}
-
-function readInitialSource(): string {
-  if (typeof window !== "undefined" && window.location.hash.length > 1) {
-    return decodeCode(window.location.hash.slice(1));
-  }
-  if (typeof window !== "undefined") {
-    const saved = loadLastSource();
-    if (saved) return saved;
-  }
-  return EXAMPLES[0].code;
-}
-
-function readInitialPanelMode(): PanelMode {
-  if (typeof window === "undefined") return "closed";
-  const params = new URLSearchParams(window.location.search);
-  if (params.has("tutorial")) return "tutorial";
-  if (params.has("challenge")) return "challenge";
-  return "closed";
 }
 
 export function Playground() {
@@ -347,10 +329,7 @@ export function Playground() {
     return count;
   }, [source]);
 
-  const deepLinkId = useMemo(() => {
-    if (typeof window === "undefined") return null;
-    return new URLSearchParams(window.location.search).get(panelMode === "tutorial" ? "tutorial" : "challenge");
-  }, [panelMode]);
+  const deepLinkId = useMemo(() => getDeepLinkId(panelMode), [panelMode]);
 
   const commandPaletteOverlay = showCommandPalette && (
     <CommandPalette commands={paletteCommands} onClose={closeCommandPalette} />
@@ -463,6 +442,7 @@ export function Playground() {
             onSelectionChange={setSelection}
             fontSize={settings.fontSize}
             wordWrap={settings.wordWrap}
+            tabSize={settings.tabSize}
           />
           {status === "ready" && (
             <button
