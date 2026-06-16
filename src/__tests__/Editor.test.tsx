@@ -1,12 +1,17 @@
 import React from "react";
 import { render, screen, act } from "@testing-library/react";
+import "@testing-library/jest-dom";
 
 let capturedOnMount: ((editor: any, monaco: any) => void) | undefined;
 let capturedOnChange: ((value: string | undefined) => void) | undefined;
 let capturedOptions: Record<string, unknown> | undefined;
+let capturedDynamicLoading: (() => React.ReactElement) | undefined;
+let capturedDynamicLoader: (() => Promise<unknown>) | undefined;
 
 jest.mock("next/dynamic", () => {
-  return (loader: () => Promise<any>, opts?: { loading?: () => React.ReactElement }) => {
+  return (loader: () => Promise<unknown>, opts?: { loading?: () => React.ReactElement }) => {
+    capturedDynamicLoader = loader;
+    capturedDynamicLoading = opts?.loading;
     return function DynamicMock(props: any) {
       capturedOnMount = props.onMount;
       capturedOnChange = props.onChange;
@@ -351,6 +356,47 @@ describe("Editor", () => {
 
     const model = { getWordAtPosition: () => null };
     expect(provider.provideHover(model, {})).toBeNull();
+  });
+
+  it("renders next/dynamic loading fallback", () => {
+    expect(capturedDynamicLoading).toBeDefined();
+    render(capturedDynamicLoading!());
+    expect(screen.getByText("Loading editor...")).toBeInTheDocument();
+  });
+
+  it("dynamic loader resolves Monaco editor module", async () => {
+    expect(capturedDynamicLoader).toBeDefined();
+    await expect(capturedDynamicLoader!()).resolves.toBeDefined();
+  });
+
+  it("updates Monaco theme when theme prop changes after mount", () => {
+    const { rerender } = render(<Editor value="" onChange={jest.fn()} theme="dark" />);
+    const mockMonaco = createMockMonaco();
+    const mockEditor = createMockEditor();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    mockMonaco.editor.setTheme.mockClear();
+
+    rerender(<Editor value="" onChange={jest.fn()} theme="light" />);
+    expect(mockMonaco.editor.setTheme).toHaveBeenCalledWith("choreo-light");
+  });
+
+  it("reports null selection when model is unavailable", () => {
+    const onSelectionChange = jest.fn();
+    render(<Editor value="" onChange={jest.fn()} onSelectionChange={onSelectionChange} />);
+    const mockEditor = createMockEditor();
+    mockEditor.getSelection = jest.fn(() => ({
+      isEmpty: () => false,
+      startLineNumber: 1,
+      startColumn: 1,
+      endLineNumber: 1,
+      endColumn: 5,
+    }));
+    mockEditor.getModel = jest.fn(() => null);
+    const mockMonaco = createMockMonaco();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    expect(onSelectionChange).toHaveBeenCalledWith(null);
   });
 });
 
