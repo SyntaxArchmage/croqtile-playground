@@ -16,9 +16,17 @@ import { loadSettings, saveSettings, type EditorSettings } from "@/lib/settings"
 import type { CursorPosition } from "./Editor";
 import { decodeCode, encodeCode } from "@/lib/urlCodec";
 import { formatChoreoCode } from "@/lib/formatCode";
+import { downloadCoSource } from "@/lib/fileIO";
 import { CommandPalette, type CommandItem } from "./CommandPalette";
 
 const noop = () => () => {};
+
+function isTypingContext(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return true;
+  if (target.isContentEditable || target.contentEditable === "true") return true;
+  return target.closest(".monaco-editor") !== null;
+}
 
 function clearPanelParams() {
   const url = new URL(window.location.href);
@@ -257,20 +265,13 @@ export function Playground() {
   }, []);
 
   const handleDownload = useCallback(() => {
-    const code = getCode();
-    const blob = new Blob([code], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "croqtile-code.co";
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadCoSource(getCode());
   }, [getCode]);
 
   const paletteCommands = useMemo<CommandItem[]>(() => [
     { label: "Run Code", action: handleRun, shortcut: "Ctrl+Enter" },
     { label: "Compile Code", action: handleCompile, shortcut: "Ctrl+Shift+Enter" },
-    { label: "Dump AST", action: handleDumpAST, shortcut: "Ctrl+Shift+D" },
+    { label: "Dump AST", action: handleDumpAST, shortcut: "Ctrl+Alt+D" },
     { label: "Share Link", action: handleShare, shortcut: "Ctrl+S" },
     { label: "Clear Output", action: clearOutput, shortcut: "Ctrl+L" },
     { label: "Download Code", action: handleDownload },
@@ -294,7 +295,7 @@ export function Playground() {
         e.preventDefault();
         handleShare();
       }
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "d" || e.key === "D")) {
+      if ((e.ctrlKey || e.metaKey) && e.altKey && !e.shiftKey && (e.key === "d" || e.key === "D")) {
         e.preventDefault();
         handleDumpAST();
       }
@@ -306,7 +307,7 @@ export function Playground() {
         e.preventDefault();
         setShowCommandPalette(true);
       }
-      if (e.key === "?" && !e.ctrlKey && !e.metaKey && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+      if (e.key === "?" && !e.ctrlKey && !e.metaKey && !isTypingContext(e.target)) {
         setShowShortcuts((v) => !v);
       }
       if (e.key === "Escape") {
@@ -356,7 +357,7 @@ export function Playground() {
           {[
             ["Ctrl+Enter", "Run code"],
             ["Ctrl+Shift+Enter", "Compile code"],
-            ["Ctrl+Shift+D", "Dump AST"],
+            ["Ctrl+Alt+D", "Dump AST"],
             ["Ctrl+S", "Share link"],
             ["Ctrl+L", "Clear output"],
             ["Ctrl+P", "Command palette"],

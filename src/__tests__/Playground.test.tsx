@@ -169,9 +169,9 @@ describe("Playground", () => {
       expect(mockCompile).toHaveBeenCalledTimes(1);
     });
 
-    it("dispatches dumpAST on Ctrl+Shift+D", () => {
+    it("dispatches dumpAST on Ctrl+Alt+D", () => {
       renderPlayground();
-      fireEvent.keyDown(window, { key: "D", ctrlKey: true, shiftKey: true });
+      fireEvent.keyDown(window, { key: "D", ctrlKey: true, altKey: true });
       expect(mockDumpAST).toHaveBeenCalledTimes(1);
     });
 
@@ -193,9 +193,9 @@ describe("Playground", () => {
       expect(mockCompile).toHaveBeenCalledTimes(1);
     });
 
-    it("dispatches dumpAST on Meta+Shift+D (macOS)", () => {
+    it("dispatches dumpAST on Meta+Alt+D (macOS)", () => {
       renderPlayground();
-      fireEvent.keyDown(window, { key: "D", metaKey: true, shiftKey: true });
+      fireEvent.keyDown(window, { key: "D", metaKey: true, altKey: true });
       expect(mockDumpAST).toHaveBeenCalledTimes(1);
     });
 
@@ -230,6 +230,35 @@ describe("Playground", () => {
       expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
 
       document.body.removeChild(input);
+    });
+
+    it("does not toggle shortcuts when ? is typed in a contenteditable element", () => {
+      renderPlayground();
+      const editable = document.createElement("div");
+      editable.contentEditable = "true";
+      document.body.appendChild(editable);
+      editable.focus();
+
+      fireEvent.keyDown(editable, { key: "?" });
+      expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
+
+      document.body.removeChild(editable);
+    });
+
+    it("does not toggle shortcuts when ? is typed inside monaco editor", () => {
+      renderPlayground();
+      const monacoHost = document.createElement("div");
+      monacoHost.className = "monaco-editor";
+      const inner = document.createElement("div");
+      inner.className = "view-lines";
+      monacoHost.appendChild(inner);
+      document.body.appendChild(monacoHost);
+      inner.focus();
+
+      fireEvent.keyDown(inner, { key: "?" });
+      expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
+
+      document.body.removeChild(monacoHost);
     });
   });
 
