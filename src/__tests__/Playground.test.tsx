@@ -1586,6 +1586,92 @@ describe("Playground", () => {
 
       jest.useRealTimers();
     });
+
+    it("shows unsaved indicator while editing then clears after auto-save", () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      const { saveSource } = jest.requireMock("@/lib/sourceStorage");
+      saveSource.mockClear();
+
+      expect(screen.queryByLabelText("Unsaved changes")).not.toBeInTheDocument();
+
+      fireEvent.change(screen.getByTestId("code-editor"), {
+        target: { value: "__co__ void pendingSave() {}" },
+      });
+      expect(screen.getByLabelText("Unsaved changes")).toBeInTheDocument();
+      expect(screen.getByText("Unsaved")).toBeInTheDocument();
+      expect(saveSource).not.toHaveBeenCalled();
+
+      act(() => {
+        jest.advanceTimersByTime(5000);
+      });
+
+      expect(saveSource).toHaveBeenCalledWith("__co__ void pendingSave() {}");
+      expect(screen.queryByLabelText("Unsaved changes")).not.toBeInTheDocument();
+
+      jest.useRealTimers();
+    });
+
+    it("toggles theme and updates data-theme on document and editor", () => {
+      renderPlayground();
+      expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+      expect(screen.getByTestId("code-editor")).toHaveAttribute("data-theme", "dark");
+
+      fireEvent.keyDown(window, { key: "T", ctrlKey: true, shiftKey: true });
+
+      expect(document.documentElement).toHaveAttribute("data-theme", "light");
+      expect(screen.getByTestId("code-editor")).toHaveAttribute("data-theme", "light");
+      expect(mockSaveSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ theme: "light" }),
+      );
+
+      fireEvent.keyDown(window, { key: "T", ctrlKey: true, shiftKey: true });
+
+      expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+      expect(screen.getByTestId("code-editor")).toHaveAttribute("data-theme", "dark");
+    });
+
+    it("filters command palette when typing a partial command", () => {
+      renderPlayground();
+      openCommandPalette();
+
+      expect(screen.getByText("Run Code")).toBeInTheDocument();
+      expect(screen.getByText("Compile Code")).toBeInTheDocument();
+      expect(screen.getByText("Format Code")).toBeInTheDocument();
+
+      fireEvent.change(screen.getByLabelText("Search commands"), {
+        target: { value: "comp" },
+      });
+
+      expect(screen.queryByText("Run Code")).not.toBeInTheDocument();
+      expect(screen.getByText("Compile Code")).toBeInTheDocument();
+      expect(screen.queryByText("Format Code")).not.toBeInTheDocument();
+    });
+
+    it("switches panel mode from tutorial to challenge", () => {
+      renderPlayground();
+
+      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+      expect(screen.getByText("Tutorials")).toBeInTheDocument();
+      expect(screen.getByLabelText("Toggle tutorial panel")).toHaveAttribute("aria-pressed", "true");
+      expect(screen.queryByText("Challenges")).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByLabelText("Toggle challenge panel"));
+      expect(screen.getByText("Challenges")).toBeInTheDocument();
+      expect(screen.queryByText("Tutorials")).not.toBeInTheDocument();
+      expect(screen.getByLabelText("Toggle challenge panel")).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByLabelText("Toggle tutorial panel")).toHaveAttribute("aria-pressed", "false");
+    });
+
+    it("opens tutorial panel from ?tutorial=ch01 URL param on load", () => {
+      setUrl("/?tutorial=ch01");
+      renderPlayground();
+
+      expect(screen.getByLabelText("Toggle tutorial panel")).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByText("← Back")).toBeInTheDocument();
+      expect(screen.getByText("The __co__ keyword")).toBeInTheDocument();
+      expect(screen.queryByText("Challenges")).not.toBeInTheDocument();
+    });
   });
 
   describe("editor ref fallback", () => {
