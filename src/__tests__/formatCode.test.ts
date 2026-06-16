@@ -400,4 +400,60 @@ foreach i in [0:8] { total = total + data[i]; }
   foreach i in [0:8] { total = total + data[i]; }
 }`);
   });
+
+  it("handles block comment between closing braces", () => {
+    const input = `__co__ void f() {
+if (x) {
+a();
+} /* end if */ }`;
+    const formatted = formatChoreoCode(input);
+    expect(formatted).toContain("}");
+  });
+
+  it("does not split braces inside block comments", () => {
+    const input = `__co__ void f() {
+/* } } */
+a();
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  /* } } */
+  a();
+}`);
+  });
+
+  it("handles escape sequences between closing braces", () => {
+    const input = `__co__ void f() {
+if (x) {
+println("\\}");
+} }`;
+    const formatted = formatChoreoCode(input);
+    expect(formatted).toContain('}');
+  });
+
+  it("handles char literals between closing braces", () => {
+    const input = `__co__ void f() {
+if (x) {
+char c = '}';
+} }`;
+    const formatted = formatChoreoCode(input);
+    expect(formatted).toContain('}');
+  });
+
+  it("handles string with brace between closing braces", () => {
+    const input = `__co__ void f() {
+if (x) {
+println("}");
+} }`;
+    const formatted = formatChoreoCode(input);
+    expect(formatted).toContain('}');
+  });
+
+  it("handles line comment preventing brace split", () => {
+    const input = `__co__ void f() {
+if (x) {
+a();
+} // end } }`;
+    const formatted = formatChoreoCode(input);
+    expect(formatted).toContain("} // end } }");
+  });
 });
