@@ -6,7 +6,7 @@
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (778 tests, 37 suites)
+- `npm test` ✅ (792 tests, 37 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -28,7 +28,7 @@
 ### Content
 - 26 tutorials (ch01–ch26) with "Try it" inline code blocks
 - 80 challenges (c01–c80) with auto-verification, progress badges, and "in progress" status
-- 25 example programs
+- 26 example programs
 
 ### User Experience
 - URL sharing with base64url encoding (backward-compatible with legacy percent-encoding)
@@ -59,7 +59,7 @@
 - GitHub Actions CI: type check, lint, test, build
 - `.npmrc` with `legacy-peer-deps=true` for CI compatibility
 - WASM build script with version tracking (build-manifest.json)
-- 772 unit/component tests across 37 suites
+- 792 unit/component tests across 37 suites
 - Coverage: 99.86% statements, 98.78% branches, 100% functions, 99.92% lines
 - prefers-reduced-motion media query for accessibility
 - Coverage thresholds: 95% statements, 85% branches, 95% functions, 95% lines
