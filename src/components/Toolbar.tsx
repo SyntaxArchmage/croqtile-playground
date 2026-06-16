@@ -287,7 +287,7 @@ export const Toolbar = memo(function Toolbar({
   }, [showMenu, showFileMenu]);
 
   return (
-    <nav className="flex flex-wrap items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]" aria-label="Playground toolbar">
+    <nav className="flex flex-wrap items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)] shrink-0" aria-label="Playground toolbar">
       <button
         type="button"
         onClick={() => onTogglePanel("tutorial")}
@@ -364,7 +364,7 @@ export const Toolbar = memo(function Toolbar({
         type="button"
         onClick={onDumpAST}
         disabled={busy}
-        className="min-h-11 px-3 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)] disabled:opacity-50"
+        className="hidden md:inline-flex min-h-11 px-3 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)] disabled:opacity-50 items-center"
         title="Print AST dump (Ctrl+Alt+D)"
         aria-label="Dump AST"
       >
@@ -430,7 +430,7 @@ export const Toolbar = memo(function Toolbar({
             ref={fileMenuRef}
             role="menu"
             aria-label="File"
-            className="absolute left-0 top-full mt-1 w-40 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1"
+            className="absolute left-0 top-full mt-1 w-40 max-w-[calc(100vw-1rem)] rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1"
             onKeyDown={(e) => handleMenuKeyDown(e, () => setShowFileMenu(false), fileMenuRef)}
           >
             <button
@@ -490,7 +490,7 @@ export const Toolbar = memo(function Toolbar({
         </button>
       )}
 
-      <div className="flex-1" />
+      <div className="hidden sm:block flex-1 min-w-0" />
 
       <div className="relative" data-settings-menu>
         <button
@@ -512,7 +512,7 @@ export const Toolbar = memo(function Toolbar({
             ref={settingsMenuRef}
             role="menu"
             aria-label="Settings"
-            className="absolute right-0 top-full mt-1 w-52 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1"
+            className="absolute right-0 top-full mt-1 w-52 max-w-[calc(100vw-1rem)] rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1"
             onKeyDown={(e) => handleMenuKeyDown(e, () => setShowMenu(false), settingsMenuRef)}
           >
             <div role="none" className="px-3 py-2 flex items-center justify-between">
@@ -527,7 +527,7 @@ export const Toolbar = memo(function Toolbar({
                     }
                   }}
                   disabled={settings.fontSize <= 10}
-                  className="w-5 h-5 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
+                  className="min-h-8 min-w-8 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
                   aria-label="Decrease font size"
                 >
                   −
@@ -544,7 +544,7 @@ export const Toolbar = memo(function Toolbar({
                     }
                   }}
                   disabled={settings.fontSize >= 24}
-                  className="w-5 h-5 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
+                  className="min-h-8 min-w-8 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
                   aria-label="Increase font size"
                 >
                   +
@@ -580,7 +580,7 @@ export const Toolbar = memo(function Toolbar({
                     }
                   }}
                   disabled={settings.tabSize <= 2}
-                  className="w-5 h-5 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
+                  className="min-h-8 min-w-8 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
                   aria-label="Decrease tab size"
                 >
                   −
@@ -597,7 +597,7 @@ export const Toolbar = memo(function Toolbar({
                     }
                   }}
                   disabled={settings.tabSize >= 8}
-                  className="w-5 h-5 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
+                  className="min-h-8 min-w-8 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors"
                   aria-label="Increase tab size"
                 >
                   +
@@ -669,7 +669,7 @@ export const Toolbar = memo(function Toolbar({
               type="button"
               role="menuitem"
               onClick={handleExportProgress}
-              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+              className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
             >
               Export progress
             </button>
@@ -677,7 +677,7 @@ export const Toolbar = memo(function Toolbar({
               type="button"
               role="menuitem"
               onClick={handleImportProgressClick}
-              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+              className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
             >
               Import progress
             </button>
@@ -685,7 +685,7 @@ export const Toolbar = memo(function Toolbar({
               type="button"
               role="menuitem"
               onClick={handleResetProgressClick}
-              className={`w-full text-left px-3 py-2 text-xs transition-colors ${
+              className={`w-full text-left px-3 py-3 min-h-11 text-xs transition-colors ${
                 resetConfirmPending
                   ? "text-red-400 hover:bg-red-900/20 font-medium"
                   : "text-[var(--text-secondary)] hover:bg-[var(--bg-primary)]"

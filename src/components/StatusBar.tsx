@@ -51,7 +51,7 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
   }
 
   return (
-    <div className="flex items-center gap-2 px-4 py-1 border-t border-[var(--border)] bg-[var(--bg-secondary)] text-xs text-[var(--text-muted)]">
+    <div className="flex items-center gap-2 px-2 sm:px-4 py-1 border-t border-[var(--border)] bg-[var(--bg-secondary)] text-xs text-[var(--text-muted)] overflow-x-auto whitespace-nowrap shrink-0">
       <span className={`flex items-center gap-1 ${color}`} aria-label={`Compiler status: ${statusLabel}`}>
         <span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />
         {statusLabel}
@@ -66,32 +66,32 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
         </>
       )}
       <span className="text-[var(--border)]">|</span>
-      <span>
+      <span className="hidden sm:inline">
         Croqtile {version ?? "—"}
         {commit && <span className="ml-1 opacity-60">({commit})</span>}
       </span>
       {target && (
         <>
-          <span className="text-[var(--border)]">|</span>
-          <span>Target: {target}</span>
+          <span className="hidden sm:inline text-[var(--border)]">|</span>
+          <span className="hidden sm:inline">Target: {target}</span>
         </>
       )}
       {cursorPosition && (
         <>
-          <span className="text-[var(--border)]">|</span>
-          <span>Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
+          <span className="hidden md:inline text-[var(--border)]">|</span>
+          <span className="hidden md:inline">Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
         </>
       )}
       {lineCount !== undefined && (
         <>
-          <span className="text-[var(--border)]">|</span>
-          <span>{lineCount} lines</span>
+          <span className="hidden md:inline text-[var(--border)]">|</span>
+          <span className="hidden md:inline">{lineCount} lines</span>
         </>
       )}
       {selection && selection.characters > 0 && (
         <>
-          <span className="text-[var(--border)]">|</span>
-          <span>
+          <span className="hidden md:inline text-[var(--border)]">|</span>
+          <span className="hidden md:inline">
             {selection.lines > 1
               ? `${selection.lines} lines, ${selection.characters} chars selected`
               : `${selection.characters} chars selected`}

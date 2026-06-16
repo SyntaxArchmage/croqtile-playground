@@ -156,7 +156,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
     document.addEventListener("touchcancel", onTouchEnd);
   }, [updateHeight]);
 
-  const tabClass = (tab: Tab) => `px-2 py-0.5 text-xs rounded ${
+  const tabClass = (tab: Tab) => `px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs rounded ${
     activeTab === tab
       ? "bg-[var(--bg-surface)] text-[var(--text-primary)]"
       : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
@@ -185,7 +185,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
           if (e.key === "ArrowUp") { e.preventDefault(); setHeightPct((h) => Math.min(MAX_HEIGHT_PCT, h + step)); }
           if (e.key === "ArrowDown") { e.preventDefault(); setHeightPct((h) => Math.max(MIN_HEIGHT_PCT, h - step)); }
         }}
-        className="h-1 cursor-row-resize bg-[var(--border)] hover:bg-[var(--accent)] focus:bg-[var(--accent)] focus:outline-none transition-colors flex-shrink-0 touch-none"
+        className="resize-handle-y h-1 cursor-row-resize bg-[var(--border)] hover:bg-[var(--accent)] focus:bg-[var(--accent)] focus:outline-none transition-colors flex-shrink-0"
       />
       <div
         className="flex items-center gap-1 px-3 py-1 border-b border-[var(--border)] bg-[var(--bg-secondary)]"
@@ -229,7 +229,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="flex items-center gap-1 px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  className="flex items-center gap-1 px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                   aria-label={copied ? "Copied to clipboard" : "Copy output to clipboard"}
                   title={copied ? "Copied!" : "Copy to clipboard"}
                 >
@@ -256,7 +256,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
                 <button
                   type="button"
                   onClick={() => setWordWrap((w) => !w)}
-                  className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  className="px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                   aria-label="Toggle word wrap"
                   aria-pressed={wordWrap}
                 >
@@ -265,7 +265,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
                 <button
                   type="button"
                   onClick={toggleLineNumbers}
-                  className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  className="px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                   aria-label="Toggle line numbers"
                   aria-pressed={lineNumbers}
                 >
@@ -277,7 +277,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
               <button
                 type="button"
                 onClick={onClear}
-                className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                className="px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 aria-label="Clear output"
               >
                 Clear

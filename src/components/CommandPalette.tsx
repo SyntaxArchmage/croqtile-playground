@@ -75,7 +75,7 @@ export function CommandPalette({ commands, onClose }: Props) {
 
   return (
     <div
-      className="absolute inset-0 z-50 flex justify-center pt-[10vh] bg-black/60"
+      className="fixed inset-0 z-[60] flex justify-center pt-[max(10vh,env(safe-area-inset-top,0px))] px-4 pb-4 bg-black/60"
       onClick={onClose}
     >
       <div
@@ -83,7 +83,7 @@ export function CommandPalette({ commands, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
-        className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg max-w-[400px] w-full mx-4 shadow-2xl overflow-hidden self-start"
+        className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg max-w-[400px] w-[min(100%,calc(100vw-2rem))] shadow-2xl overflow-hidden self-start max-h-[calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-2rem)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <input
@@ -99,7 +99,7 @@ export function CommandPalette({ commands, onClose }: Props) {
           aria-label="Search commands"
           className="w-full min-h-11 px-3 py-2 bg-[var(--bg-primary)] border-b border-[var(--border)] text-base text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
         />
-        <ul className="max-h-64 overflow-y-auto py-1" role="listbox">
+        <ul className="flex-1 min-h-0 overflow-y-auto py-1" role="listbox">
           {filtered.length === 0 ? (
             <li className="px-3 py-2 text-xs text-[var(--text-muted)]">No matching commands</li>
           ) : (
@@ -117,7 +117,7 @@ export function CommandPalette({ commands, onClose }: Props) {
                 >
                   <span>{cmd.label}</span>
                   {cmd.shortcut && (
-                    <kbd className="ml-2 px-1.5 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-muted)] font-mono text-[10px]">
+                    <kbd className="hidden sm:inline ml-2 px-1.5 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-muted)] font-mono text-[10px] shrink-0">
                       {cmd.shortcut}
                     </kbd>
                   )}

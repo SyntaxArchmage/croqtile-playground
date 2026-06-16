@@ -383,7 +383,7 @@ export function Playground() {
       {commandPaletteOverlay}
       {shortcutsOverlay}
       {status === "loading" && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/80 backdrop-blur-sm" role="alert" aria-live="polite">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/80 backdrop-blur-sm" role="alert" aria-live="polite">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
             <span className="text-sm text-[var(--text-muted)]">Loading WASM compiler...</span>
@@ -391,7 +391,7 @@ export function Playground() {
         </div>
       )}
       {status === "error" && !errors && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/90" role="alert" aria-live="assertive">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/90" role="alert" aria-live="assertive">
           <div className="max-w-sm p-6 rounded-lg border border-red-800 bg-red-950/30 text-center">
             <div className="text-lg text-red-400 mb-2">WASM Load Failed</div>
             <p className="text-sm text-[var(--text-muted)]">
@@ -464,7 +464,7 @@ export function Playground() {
   );
 
   if (panelMode === "closed") {
-    return <div className="h-screen">{idePanel}</div>;
+    return <div className="playground-screen">{idePanel}</div>;
   }
 
   const contextPanel = panelMode === "tutorial" ? (
@@ -485,17 +485,17 @@ export function Playground() {
 
   if (isMobile) {
     return (
-      <div className="h-screen flex flex-col">
-        <div className="h-[40%] min-h-0 overflow-hidden border-b border-[var(--border)]">
+      <div className="playground-screen flex flex-col">
+        <div className="w-full min-h-[30vh] max-h-[45vh] shrink-0 overflow-hidden border-b border-[var(--border)]">
           {contextPanel}
         </div>
-        <div className="flex-1 min-h-0">{idePanel}</div>
+        <div className="flex-1 min-h-0 w-full">{idePanel}</div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen">
+    <div className="playground-screen">
       <ResizableSplit left={contextPanel} right={idePanel} />
     </div>
   );

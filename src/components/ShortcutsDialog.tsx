@@ -87,7 +87,7 @@ export function ShortcutsDialog({ onClose }: Props) {
 
   return (
     <div
-      className="absolute inset-0 z-50 flex items-center justify-center bg-black/60"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60"
       onClick={onClose}
     >
       <div
@@ -95,7 +95,7 @@ export function ShortcutsDialog({ onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="shortcuts-dialog-title"
-        className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl max-h-[85vh] flex flex-col"
+        className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-4 sm:p-6 max-w-md w-[min(100%,calc(100vw-2rem))] shadow-2xl max-h-[calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-2rem)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4 flex-shrink-0">
