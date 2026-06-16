@@ -32,11 +32,13 @@ import { challenge15 } from "./15-scale-vector";
 import { challenge16 } from "./16-classify";
 import { challenge17 } from "./17-transpose";
 import { challenge18 } from "./18-histogram";
+import { challenge19 } from "./19-swap-pairs";
+import { challenge20 } from "./20-moving-average";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
   challenge05, challenge06, challenge07, challenge08,
   challenge09, challenge10, challenge11, challenge12,
   challenge13, challenge14, challenge15, challenge16,
-  challenge17, challenge18,
+  challenge17, challenge18, challenge19, challenge20,
 ];

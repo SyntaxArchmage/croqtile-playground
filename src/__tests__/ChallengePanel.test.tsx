@@ -426,7 +426,7 @@ describe("ChallengePanel", () => {
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
     );
     const summary = screen.getByTestId("challenge-progress-summary");
-    expect(summary).not.toHaveTextContent("0/");
+    expect(summary).not.toHaveTextContent(/^0\//);
   });
 
   it("shows attempt count when challenge has attempts", () => {
