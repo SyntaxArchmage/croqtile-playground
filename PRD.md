@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (10 tutorials):
+**Current content** (12 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -216,6 +216,8 @@ interface Tutorial {
 | ch08 | Conditionals & Control Flow | 3 | if/else in parallel, conditional processing, guards |
 | ch09 | Common GPU Patterns | 3 | Map, reduce, stencil patterns |
 | ch10 | Debugging & Best Practices | 3 | println debugging, DMA validation, performance tips |
+| ch11 | Data Types & Casting | 3 | Numeric types, explicit casting, precision |
+| ch12 | Array Slicing & DMA Patterns | 3 | Slice notation, computed offsets, double buffering |
 
 All tutorials include interactive "Try it" inline code blocks.
 
