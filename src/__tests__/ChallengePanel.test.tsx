@@ -65,6 +65,15 @@ describe("ChallengePanel", () => {
     expect(screen.getAllByText("passed").length).toBeGreaterThan(0);
   });
 
+  it("shows in progress badge for attempted but not passed challenges", () => {
+    mockIsChallengePassed = false;
+    mockChallengeProgress = { status: "attempted", attempts: 2 };
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    expect(screen.getAllByText("in progress").length).toBeGreaterThan(0);
+  });
+
   it("shows attempt count when challenge has attempts", () => {
     mockChallengeProgress = { status: "attempted", attempts: 3 };
     render(

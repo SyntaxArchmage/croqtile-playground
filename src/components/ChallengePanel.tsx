@@ -203,9 +203,11 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                     {c.title}
                   </span>
                   <DifficultyBadge difficulty={c.difficulty} />
-                  {isChallengePassed(c.id) && (
+                  {isChallengePassed(c.id) ? (
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900 text-green-300 border border-green-800">passed</span>
-                  )}
+                  ) : cp.status === "attempted" ? (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-950/50 text-yellow-300 border border-yellow-800">in progress</span>
+                  ) : null}
                 </div>
                 <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mt-1">
                   <span>{c.tests.length} test{c.tests.length > 1 ? "s" : ""}</span>
