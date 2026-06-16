@@ -1,6 +1,7 @@
 export interface Example {
   id: string;
   name: string;
+  description: string;
   code: string;
 }
 
@@ -8,6 +9,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "hello",
     name: "Hello World",
+    description: "Basic __co__ function and println output",
     code: `__co__ void hello() {
   println("Hello from Croqtile!");
 }
@@ -16,6 +18,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "parallel",
     name: "Parallel Loop",
+    description: "parallel {i} by [N] thread indexing",
     code: `__co__ void parallel_demo() {
   parallel {i} by [4] {
     println("thread", i);
@@ -26,6 +29,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "dma",
     name: "DMA Transfer",
+    description: "global/shared memory with dma() transfer",
     code: `__co__ void dma_demo() {
   global float A[16];
   shared float B[16];
@@ -45,6 +49,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "matmul",
     name: "Matrix Multiply",
+    description: "parallel + foreach matrix multiply accumulation",
     code: `__co__ void matmul() {
   global float A[4, 4];
   global float B[4, 4];
@@ -74,6 +79,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "shared-mem",
     name: "Shared Memory",
+    description: "DMA to shared tile and parallel read",
     code: `__co__ void shared_demo() {
   global float src[8];
   shared float tile[4];
@@ -94,6 +100,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "reduction",
     name: "Sum Reduction",
+    description: "foreach loop sum accumulation",
     code: `__co__ void sum_reduction() {
   global float data[8];
 
@@ -113,6 +120,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "tiled",
     name: "Tiled Processing",
+    description: "Loop over tiles with DMA load/process/store",
     code: `__co__ void tiled_process() {
   global float data[8];
   shared float tile[4];
@@ -143,6 +151,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "2d-parallel",
     name: "2D Parallel Grid",
+    description: "parallel {i, j} by [N, M] 2D grid",
     code: `__co__ void grid_2d() {
   global float grid[4, 4];
 
@@ -159,6 +168,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "conditional",
     name: "Conditional Logic",
+    description: "if/else branching inside parallel blocks",
     code: `__co__ void classify() {
   global float data[8];
 
@@ -181,6 +191,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "stencil",
     name: "1D Stencil",
+    description: "Neighbor averaging with boundary handling",
     code: `__co__ void stencil_1d() {
   global float input[8];
   global float output[8];
@@ -206,6 +217,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "transpose",
     name: "Matrix Transpose",
+    description: "2D index swapping for matrix transpose",
     code: `__co__ void transpose() {
   global float A[4, 4];
   global float T[4, 4];
@@ -227,6 +239,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "dot-product",
     name: "Dot Product",
+    description: "Vector multiply-accumulate with foreach",
     code: `__co__ void dot_product() {
   global float a[8];
   global float b[8];
@@ -248,6 +261,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "find-max",
     name: "Find Maximum",
+    description: "Conditional foreach reduction for maximum",
     code: `__co__ void find_max() {
   global float data[8];
 
@@ -273,6 +287,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "pipeline",
     name: "Two-Stage Pipeline",
+    description: "Two-stage DMA and shared memory processing",
     code: `__co__ void pipeline_demo() {
   global float raw[4];
   global float processed[4];
@@ -300,6 +315,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "conditional-processing",
     name: "Conditional Processing",
+    description: "Predicate-based parallel filtering",
     code: `__co__ void even_odd() {
   global float out[8];
 
@@ -324,6 +340,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "dma-tiling",
     name: "DMA Tiling",
+    description: "Multi-tile DMA with per-tile processing",
     code: `__co__ void dma_tiling() {
   global float src[12];
   global float dst[12];
@@ -355,6 +372,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "nested-reduction",
     name: "Nested Reduction",
+    description: "Hierarchical row/column sums with foreach",
     code: `__co__ void nested_reduction() {
   global float matrix[4, 4];
   global float row_sum[4];
@@ -390,6 +408,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "ping-pong",
     name: "Ping-Pong Pipeline",
+    description: "Double-buffered pipeline with shared memory",
     code: `__co__ void ping_pong_pipeline() {
   global float raw[8];
   global float cooked[8];
@@ -444,6 +463,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "bounded-queue",
     name: "Bounded Queue",
+    description: "Producer-consumer with bounded shared buffer",
     code: `__co__ void bounded_queue() {
   global float source[8];
   shared float queue[4];
@@ -476,6 +496,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "histogram",
     name: "Histogram",
+    description: "Histogram counting with sequential accumulation",
     code: `__co__ void histogram() {
   global int data[8];
   global int bins[4];
@@ -501,6 +522,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "array-reduction",
     name: "Array Reduction",
+    description: "Multi-stage parallel chunk reduction",
     code: `__co__ void array_reduction() {
   global float data[16];
   global float partial[4];
@@ -531,6 +553,7 @@ export const EXAMPLES: Example[] = [
   {
     id: "pipeline-processing",
     name: "Pipeline Processing",
+    description: "Multi-stage pipeline with DMA and compute",
     code: `__co__ void pipeline_processing() {
   global float raw[8];
   global float normalized[8];
@@ -568,6 +591,89 @@ export const EXAMPLES: Example[] = [
 
   parallel {i} by [8] {
     println("final[", i, "] =", final[i]);
+  }
+}
+`,
+  },
+  {
+    id: "assert-validation",
+    name: "Assert Validation",
+    description: "assert_true usage for runtime validation of preconditions and results",
+    code: `__co__ void assert_validation() {
+  global float data[8];
+  int N = 8;
+
+  assert_true(N > 0);
+  assert_true(N <= 8);
+
+  parallel {i} by [8] {
+    data[i] = (float)(i + 1);
+  }
+
+  float sum = 0.0f;
+  foreach i in [0:8] {
+    sum = sum + data[i];
+  }
+
+  assert_true(sum == 36.0f);
+  println("validation passed, sum =", sum);
+}
+`,
+  },
+  {
+    id: "multi-stage-reduction",
+    name: "Multi-Stage Reduction",
+    description: "Three-stage pipeline for hierarchical sum reduction",
+    code: `__co__ void multi_stage_reduction() {
+  global float data[16];
+  global float partial[4];
+  global float pair_sum[2];
+  float total = 0.0f;
+
+  parallel {i} by [16] {
+    data[i] = (float)(i + 1);
+  }
+
+  // Stage 1: reduce each 4-element chunk
+  parallel {block} by [4] {
+    float chunk_sum = 0.0f;
+    foreach i in [block*4 : block*4+4] {
+      chunk_sum = chunk_sum + data[i];
+    }
+    partial[block] = chunk_sum;
+  }
+
+  // Stage 2: combine adjacent partials
+  parallel {i} by [2] {
+    pair_sum[i] = partial[i*2] + partial[i*2 + 1];
+  }
+
+  // Stage 3: final reduction
+  foreach i in [0:2] {
+    total = total + pair_sum[i];
+  }
+
+  println("sum of 1..16 =", total);
+}
+`,
+  },
+  {
+    id: "pattern-fill",
+    name: "Pattern Fill",
+    description: "Fill a 2D array with a checkerboard pattern using nested parallel",
+    code: `__co__ void pattern_fill() {
+  global float grid[4, 4];
+
+  parallel {i, j} by [4, 4] {
+    if ((i + j) % 2 == 0) {
+      grid[i, j] = 1.0f;
+    } else {
+      grid[i, j] = 0.0f;
+    }
+  }
+
+  parallel {i, j} by [4, 4] {
+    println("grid[", i, ",", j, "] =", grid[i, j]);
   }
 }
 `,

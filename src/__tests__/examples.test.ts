@@ -22,6 +22,12 @@ describe("EXAMPLES", () => {
     }
   });
 
+  it("every example has a description", () => {
+    for (const ex of EXAMPLES) {
+      expect(ex.description.trim().length).toBeGreaterThan(0);
+    }
+  });
+
   it("every example contains __co__ kernel definition", () => {
     for (const ex of EXAMPLES) {
       expect(ex.code).toContain("__co__");

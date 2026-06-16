@@ -928,6 +928,33 @@ describe("Toolbar", () => {
     }
   });
 
+  it("registers openFileRef callback and clears it on unmount", () => {
+    const openFileRef = { current: null as (() => void) | null };
+    const { unmount } = render(<Toolbar {...defaultProps} openFileRef={openFileRef} />);
+    expect(typeof openFileRef.current).toBe("function");
+
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const clickSpy = jest.spyOn(input, "click");
+    openFileRef.current!();
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+
+    unmount();
+    expect(openFileRef.current).toBeNull();
+  });
+
+  it("clears existing reset timeout when Reset progress is clicked twice before confirm", () => {
+    jest.useFakeTimers();
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    const resetBtn = screen.getByText("Reset progress");
+    act(() => {
+      fireEvent.click(resetBtn);
+      fireEvent.click(resetBtn);
+    });
+    expect(screen.getByText("Confirm?")).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
   it("no-ops menu keyboard navigation when menu ref is cleared", () => {
     const shareTimeoutRef = { current: null as ReturnType<typeof setTimeout> | null };
     const fileInputRef = { current: null as HTMLInputElement | null };
