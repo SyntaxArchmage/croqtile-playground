@@ -202,6 +202,28 @@ describe("useChoreoWorker", () => {
       expect(result.current.errors).toBe("Execution timed out after 30 seconds.");
     });
 
+    it("ignores worker messages with null, missing, or non-object data", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+      act(() => { result.current.run("code"); });
+      expect(result.current.status).toBe("running");
+
+      act(() => {
+        mockWorker.onmessage?.({ data: null } as MessageEvent);
+      });
+      expect(result.current.status).toBe("running");
+
+      act(() => {
+        mockWorker.onmessage?.({} as MessageEvent);
+      });
+      expect(result.current.status).toBe("running");
+
+      act(() => {
+        mockWorker.onmessage?.({ data: "not-an-object" } as MessageEvent);
+      });
+      expect(result.current.status).toBe("running");
+    });
+
     it("clears pending timeout when compile-result arrives", () => {
       const { result } = renderHook(() => useChoreoWorker());
       makeReady();
@@ -245,6 +267,8 @@ describe("useChoreoWorker", () => {
 
   describe("timeout when status already changed", () => {
     it("no-ops if status changed from running before timeout fires", () => {
+      const clearTimeoutSpy = jest.spyOn(global, "clearTimeout").mockImplementation(() => {});
+
       const { result } = renderHook(() => useChoreoWorker());
       makeReady();
       act(() => { result.current.run("code"); });
@@ -254,6 +278,8 @@ describe("useChoreoWorker", () => {
       act(() => { jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS); });
       expect(result.current.status).toBe("error");
       expect(result.current.errors).toBe("crash");
+
+      clearTimeoutSpy.mockRestore();
     });
   });
 

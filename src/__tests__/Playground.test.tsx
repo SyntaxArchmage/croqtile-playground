@@ -445,6 +445,28 @@ describe("Playground", () => {
 
       jest.useRealTimers();
     });
+
+    it("cancels pending load-and-run timer when a new tutorial step is loaded", async () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      await act(async () => { jest.runAllTimers(); });
+
+      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+      mockRun.mockClear();
+
+      fireEvent.click(screen.getByText("Hello Croqtile"));
+      act(() => { jest.advanceTimersByTime(50); });
+
+      fireEvent.click(screen.getByText("The __co__ keyword"));
+      act(() => { jest.advanceTimersByTime(100); });
+
+      expect(mockRun).toHaveBeenCalledTimes(1);
+      expect(mockRun).toHaveBeenCalledWith(
+        expect.stringContaining("__co__"),
+      );
+
+      jest.useRealTimers();
+    });
   });
 
   describe("share functionality", () => {
@@ -482,6 +504,27 @@ describe("Playground", () => {
       setUrl("/?tutorial=ch01");
       const { container } = renderPlayground();
       expect(container.querySelector(".flex-col")).toBeTruthy();
+    });
+
+    it("uses false SSR snapshot for mobile detection (useIsMobile)", () => {
+      const serverSnapshots: Array<() => unknown> = [];
+      const spy = jest.spyOn(React, "useSyncExternalStore").mockImplementation(
+        (subscribe, getSnapshot, getServerSnapshot) => {
+          if (getServerSnapshot) serverSnapshots.push(getServerSnapshot);
+          return getSnapshot();
+        },
+      );
+
+      renderPlayground();
+      expect(serverSnapshots.some((fn) => fn() === false)).toBe(true);
+
+      spy.mockRestore();
+    });
+
+    it("opens command palette from mobile toolbar button", () => {
+      renderPlayground();
+      fireEvent.click(screen.getByLabelText("Open command palette"));
+      expect(screen.getByLabelText("Search commands")).toBeInTheDocument();
     });
   });
 
