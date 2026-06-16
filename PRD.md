@@ -223,6 +223,9 @@ interface Tutorial {
 | ch15 | Common Pitfalls | 3 | Race conditions, memory aliasing, off-by-one in DMA |
 | ch16 | Real-World Patterns | 3 | GEMM tiling, reduction tree, producer-consumer pipeline |
 | ch17 | Rotate & Shuffle | 3 | Circular shift, array reversal, even-odd permutation |
+| ch18 | Error Handling & Assertions | 3 | `assert_true`, bounds validation, parallel assertions |
+| ch19 | Multi-Dimensional Arrays | 3 | 3D indexing, row-major traversal, nested parallel |
+| ch20 | DMA Patterns & Double Buffering | 3 | DMA sizing, double buffering, overlapped compute/transfer |
 
 All tutorials include interactive "Try it" inline code blocks.
 
@@ -252,7 +255,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (40):
+**Current challenges** (48):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -296,10 +299,18 @@ interface Challenge {
 | c38 | Even-Odd Split | Medium | `parallel`, conditional index arithmetic |
 | c39 | Matrix Anti-Diagonal | Medium | 2D indexing, anti-diagonal extraction |
 | c40 | Weighted Average | Hard | `foreach`, dual accumulator reduction |
+| c41 | Running Sum | Easy | `foreach`, cumulative total |
+| c42 | Matrix Flatten | Medium | 2D indexing, row-major linearization |
+| c43 | Parallel Absolute | Easy | `parallel`, conditional abs value |
+| c44 | Ring Broadcast | Hard | `pipeline`, shared memory ring pass |
+| c45 | String Builder | Easy | `foreach`, character array iteration |
+| c46 | Matrix Border | Medium | `parallel`, conditional border detection |
+| c47 | Prefix Product | Medium | `foreach`, inclusive scan multiplication |
+| c48 | Scatter Gather | Hard | `dma`, shared memory, scatter/gather |
 
 ### 5.6 Example Programs
 
-Built-in code snippets loadable from toolbar dropdown (17 examples):
+Built-in code snippets loadable from toolbar dropdown (22 examples):
 
 | Name | Demonstrates |
 |------|-------------|
@@ -320,6 +331,11 @@ Built-in code snippets loadable from toolbar dropdown (17 examples):
 | Conditional Processing | Predicate-based parallel filtering |
 | DMA Tiling | Multi-tile DMA with boundary handling |
 | Nested Reduction | Hierarchical sum with parallel + foreach |
+| Ping-Pong Pipeline | Double-buffered pipeline with shared memory |
+| Bounded Queue | Producer-consumer with bounded buffer |
+| Histogram | Histogram counting with sequential accumulation |
+| Array Reduction | Multi-stage parallel array reduction |
+| Pipeline Processing | Multi-stage pipeline with DMA and compute |
 
 ---
 

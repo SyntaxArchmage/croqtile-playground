@@ -71,7 +71,6 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
   }
 
   const content = activeTab === "ast" ? ast : activeTab === "output" ? output : errors;
-  const displayContent = content && lineNumbers ? formatWithLineNumbers(content) : content;
   const scrollRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -300,7 +299,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
           </div>
         ) : (
           <pre className={`text-xs font-mono text-[var(--text-primary)] ${wordWrap ? "whitespace-pre-wrap" : "whitespace-pre"}`}>
-            {displayContent || (
+            {(content && lineNumbers ? formatWithLineNumbers(content) : content) || (
               <span className="text-[var(--text-muted)]">
                 Click &ldquo;Run&rdquo; or &ldquo;Compile&rdquo; to see output.
               </span>

@@ -109,6 +109,12 @@ export function Playground() {
   }, [source]);
 
   useEffect(() => {
+    const flush = () => saveSource(sourceRef.current);
+    window.addEventListener("beforeunload", flush);
+    return () => window.removeEventListener("beforeunload", flush);
+  }, []);
+
+  useEffect(() => {
     if (status === "running" && prevStatusRef.current !== "running") {
       setStatusAnnouncement("Running code");
     } else if (output && output !== prevOutputRef.current) {
@@ -157,7 +163,7 @@ export function Playground() {
   }, [showShortcuts]);
 
   const sourceRef = useRef(source);
-  useEffect(() => { sourceRef.current = source; }, [source]);
+  sourceRef.current = source;
   const getCode = useCallback(() => editorRef.current?.getValue() ?? sourceRef.current, []);
 
   const skipLoadConfirmRef = useRef(true);

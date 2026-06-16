@@ -676,6 +676,17 @@ describe("Playground", () => {
       expect(saveSource).toHaveBeenCalledWith("__co__ void edited() {}");
       jest.useRealTimers();
     });
+
+    it("flushes save on beforeunload", () => {
+      renderPlayground();
+      fireEvent.change(screen.getByTestId("code-editor"), {
+        target: { value: "__co__ void unsaved() {}" },
+      });
+      const { saveSource } = jest.requireMock("@/lib/sourceStorage");
+      saveSource.mockClear();
+      window.dispatchEvent(new Event("beforeunload"));
+      expect(saveSource).toHaveBeenCalledWith("__co__ void unsaved() {}");
+    });
   });
 
   describe("unsaved changes warning", () => {
@@ -892,6 +903,32 @@ describe("Playground", () => {
       expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
     });
 
+    it("wraps focus from last to first on Tab in shortcuts dialog", () => {
+      renderPlayground();
+      runPaletteCommand("Keyboard Shortcuts");
+      const dialog = screen.getByRole("dialog");
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      const last = focusable[focusable.length - 1];
+      last.focus();
+      fireEvent.keyDown(dialog, { key: "Tab" });
+      expect(document.activeElement).toBe(focusable[0]);
+    });
+
+    it("wraps focus from first to last on Shift+Tab in shortcuts dialog", () => {
+      renderPlayground();
+      runPaletteCommand("Keyboard Shortcuts");
+      const dialog = screen.getByRole("dialog");
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      const first = focusable[0];
+      first.focus();
+      fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
+      expect(document.activeElement).toBe(focusable[focusable.length - 1]);
+    });
+
     it("formats code via palette command", () => {
       renderPlayground();
       const editor = screen.getByTestId("code-editor");
@@ -916,6 +953,15 @@ describe("Playground", () => {
       renderPlayground();
       runPaletteCommand("Redo");
       expect(mockEditorRedo).toHaveBeenCalledTimes(1);
+    });
+
+    it("undo and redo palette commands tolerate missing editor ref", () => {
+      mockEditorProvidesRef = false;
+      renderPlayground();
+      expect(() => {
+        runPaletteCommand("Undo");
+        runPaletteCommand("Redo");
+      }).not.toThrow();
     });
 
     it("opens challenges via palette command", () => {
@@ -1102,6 +1148,17 @@ describe("Playground", () => {
       expect(document.activeElement).toBe(trigger);
 
       document.body.removeChild(trigger);
+    });
+
+    it("focuses the first focusable element when shortcuts dialog opens", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "?" });
+      const dialog = screen.getByRole("dialog");
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      expect(focusable.length).toBeGreaterThan(0);
+      expect(document.activeElement).toBe(focusable[0]);
     });
 
     it("ignores Tab wrap when focus is not on the last focusable element", () => {
