@@ -1261,4 +1261,274 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "transpose-tiled",
+    name: "Transpose",
+    description: "Matrix transpose with shared-memory tile staging for coalesced access",
+    code: `__co__ void transpose_tiled() {
+  global float input[3, 4];
+  global float output[4, 3];
+  shared float tile[3, 4];
+
+  parallel {r, c} by [3, 4] {
+    input[r, c] = (float)(r * 4 + c);
+  }
+
+  dma(input[0:12], tile[0:12]);
+
+  parallel {r, c} by [3, 4] {
+    output[c, r] = tile[r, c];
+  }
+
+  parallel {r, c} by [4, 3] {
+    println("output[", r, ",", c, "] =", output[r, c]);
+  }
+}
+`,
+  },
+  {
+    id: "fibonacci",
+    name: "Fibonacci",
+    description: "Sequential Fibonacci computation with foreach dependency chain",
+    code: `__co__ void fibonacci() {
+  global int fib[8];
+
+  fib[0] = 0;
+  fib[1] = 1;
+  foreach i in [2:8] {
+    fib[i] = fib[i - 1] + fib[i - 2];
+  }
+
+  foreach i in [0:8] {
+    println("fib[", i, "] =", fib[i]);
+  }
+}
+`,
+  },
+  {
+    id: "two-pass",
+    name: "Two-Pass",
+    description: "Two-pass algorithm: first pass counts, second pass compacts results",
+    code: `__co__ void two_pass() {
+  global int data[8];
+  global int result[8];
+
+  parallel {i} by [8] {
+    data[i] = (i + 1) * 3;
+  }
+
+  // Pass 1: count elements greater than 10
+  int count = 0;
+  foreach i in [0:8] {
+    if (data[i] > 10) {
+      count = count + 1;
+    }
+  }
+
+  // Pass 2: compact qualifying elements
+  int write = 0;
+  foreach i in [0:8] {
+    if (data[i] > 10) {
+      result[write] = data[i];
+      write = write + 1;
+    }
+  }
+
+  println("count =", count);
+  foreach i in [0:count] {
+    println("result[", i, "] =", result[i]);
+  }
+}
+`,
+  },
+  {
+    id: "loop-tiling",
+    name: "Loop Tiling",
+    description: "Loop tiling with foreach tile loops and DMA for cache-friendly blocking",
+    code: `__co__ void loop_tiling() {
+  global float data[8];
+  global float out[8];
+  shared float tile[4];
+  int TILE = 4;
+
+  parallel {i} by [8] {
+    data[i] = (float)(i + 1);
+  }
+
+  foreach t in [0:2] {
+    dma(data[t * TILE : t * TILE + TILE], tile[0:TILE]);
+
+    parallel {i} by [TILE] {
+      tile[i] = tile[i] * 2.0f;
+    }
+
+    parallel {i} by [TILE] {
+      out[t * TILE + i] = tile[i];
+    }
+  }
+
+  parallel {i} by [8] {
+    println("out[", i, "] =", out[i]);
+  }
+}
+`,
+  },
+  {
+    id: "scatter-write",
+    name: "Scatter Write",
+    description: "Parallel scatter writes to computed destination indices",
+    code: `__co__ void scatter_write() {
+  global int src[8];
+  global int dst[8];
+
+  parallel {i} by [8] {
+    src[i] = (i + 1) * 10;
+    dst[i] = 0;
+  }
+
+  parallel {i} by [8] {
+    int dst_idx = (i * 3) % 8;
+    dst[dst_idx] = src[i];
+  }
+
+  parallel {i} by [8] {
+    println("dst[", i, "] =", dst[i]);
+  }
+}
+`,
+  },
+  {
+    id: "gather-read",
+    name: "Gather Read",
+    description: "Parallel gather reads from computed source indices",
+    code: `__co__ void gather_read() {
+  global int src[8];
+  global int dst[8];
+
+  parallel {i} by [8] {
+    src[i] = (i + 1) * 10;
+  }
+
+  parallel {i} by [8] {
+    int src_idx = (i * 3) % 8;
+    dst[i] = src[src_idx];
+  }
+
+  parallel {i} by [8] {
+    println("dst[", i, "] =", dst[i]);
+  }
+}
+`,
+  },
+  {
+    id: "local-memory",
+    name: "Local Memory",
+    description: "Per-thread local registers with shared-memory staging via DMA",
+    code: `__co__ void local_memory() {
+  global float data[8];
+  global float out[8];
+  shared float tile[8];
+
+  parallel {i} by [8] {
+    data[i] = (float)(i + 1);
+  }
+
+  dma(data[0:8], tile[0:8]);
+
+  parallel {i} by [8] {
+    float local_acc = tile[i];
+    local_acc = local_acc * local_acc + 1.0f;
+    out[i] = local_acc;
+  }
+
+  parallel {i} by [8] {
+    println("out[", i, "] =", out[i]);
+  }
+}
+`,
+  },
+  {
+    id: "warp-shuffle",
+    name: "Warp Shuffle",
+    description: "Simulate warp-level shuffle with rotate across a thread group",
+    code: `__co__ void warp_shuffle() {
+  global int data[4];
+  global int shuffled[4];
+
+  parallel {i} by [4] {
+    data[i] = (i + 1) * 10;
+  }
+
+  println("before shuffle:");
+  foreach i in [0:4] {
+    println("  data[", i, "] =", data[i]);
+  }
+
+  parallel {i} by [4] {
+    int val = data[i];
+    rotate val by 1;
+    shuffled[i] = val;
+  }
+
+  println("after rotate by 1:");
+  foreach i in [0:4] {
+    println("  shuffled[", i, "] =", shuffled[i]);
+  }
+}
+`,
+  },
+  {
+    id: "coalesced-access",
+    name: "Coalesced Access",
+    description: "Coalesced contiguous reads vs strided uncoalesced access pattern",
+    code: `__co__ void coalesced_access() {
+  global float data[32];
+  global float coalesced[8];
+  global float strided[8];
+
+  parallel {i} by [32] {
+    data[i] = (float)(i + 1);
+  }
+
+  parallel {i} by [8] {
+    coalesced[i] = data[i];
+  }
+
+  parallel {i} by [8] {
+    strided[i] = data[i * 4];
+  }
+
+  parallel {i} by [8] {
+    println("coalesced[", i, "] =", coalesced[i],
+            " strided[", i, "] =", strided[i]);
+  }
+}
+`,
+  },
+  {
+    id: "stencil-pattern",
+    name: "Stencil",
+    description: "1D three-point stencil with boundary copy and neighbor averaging",
+    code: `__co__ void stencil_pattern() {
+  global float input[8];
+  global float output[8];
+
+  parallel {i} by [8] {
+    input[i] = (float)(i * 10);
+  }
+
+  parallel {i} by [8] {
+    if (i == 0 || i == 7) {
+      output[i] = input[i];
+    } else {
+      output[i] = (input[i - 1] + input[i] + input[i + 1]) / 3.0f;
+    }
+  }
+
+  parallel {i} by [8] {
+    println("stencil[", i, "] =", output[i]);
+  }
+}
+`,
+  },
 ];

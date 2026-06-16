@@ -200,6 +200,31 @@ import { challenge172 } from "./172-matrix-vertical-flip";
 import { challenge173 } from "./173-array-pack";
 import { challenge174 } from "./174-parallel-threshold-zero";
 import { challenge175 } from "./175-grand-spmv";
+import { challenge176 } from "./176-parallel-min";
+import { challenge177 } from "./177-matrix-row-sort";
+import { challenge178 } from "./178-array-cumulative-max";
+import { challenge179 } from "./179-parallel-ternary";
+import { challenge180 } from "./180-matrix-determinant-2x2";
+import { challenge181 } from "./181-array-split-even-odd";
+import { challenge182 } from "./182-parallel-invert";
+import { challenge183 } from "./183-matrix-minor";
+import { challenge184 } from "./184-array-all-positive";
+import { challenge185 } from "./185-parallel-map-apply";
+import { challenge186 } from "./186-matrix-cofactor";
+import { challenge187 } from "./187-array-scan-min";
+import { challenge188 } from "./188-parallel-abs-diff";
+import { challenge189 } from "./189-matrix-band";
+import { challenge190 } from "./190-grand-bitonic-sort";
+import { challenge191 } from "./191-array-segment-sum";
+import { challenge192 } from "./192-parallel-exponential";
+import { challenge193 } from "./193-matrix-cholesky";
+import { challenge194 } from "./194-array-running-product";
+import { challenge195 } from "./195-parallel-log-approx";
+import { challenge196 } from "./196-matrix-skew-check";
+import { challenge197 } from "./197-array-majority-element";
+import { challenge198 } from "./198-parallel-saturate";
+import { challenge199 } from "./199-matrix-eigenvalue-2x2";
+import { challenge200 } from "./200-grand-jacobi-solver";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -249,4 +274,11 @@ export const CHALLENGES: Challenge[] = [
   challenge165, challenge166, challenge167, challenge168,
   challenge169, challenge170, challenge171, challenge172,
   challenge173, challenge174, challenge175,
+  challenge176, challenge177, challenge178, challenge179,
+  challenge180, challenge181, challenge182, challenge183,
+  challenge184, challenge185, challenge186, challenge187,
+  challenge188, challenge189, challenge190, challenge191,
+  challenge192, challenge193, challenge194, challenge195,
+  challenge196, challenge197, challenge198, challenge199,
+  challenge200,
 ];

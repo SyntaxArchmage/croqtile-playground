@@ -14,7 +14,7 @@ jest.mock("react", () => {
   };
 });
 
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { CommandPalette, type CommandItem } from "@/components/CommandPalette";
 
@@ -219,5 +219,58 @@ describe("CommandPalette", () => {
       render(<CommandPalette commands={makeCommands()} onClose={jest.fn()} />),
     ).not.toThrow();
     syncEmptyEffects = false;
+  });
+
+  it("focus-trap wraps Shift+Tab from first to last focusable element", async () => {
+    render(<CommandPalette commands={makeCommands()} onClose={jest.fn()} />);
+    await act(async () => {});
+    const dialog = screen.getByRole("dialog");
+    const input = screen.getByLabelText("Search commands");
+    const buttons = dialog.querySelectorAll("button");
+    const lastButton = buttons[buttons.length - 1] as HTMLElement;
+    const focusSpy = jest.spyOn(lastButton, "focus");
+    input.focus();
+    expect(document.activeElement).toBe(input);
+    fireEvent.keyDown(input, { key: "Tab", shiftKey: true, bubbles: true });
+    expect(focusSpy).toHaveBeenCalled();
+    focusSpy.mockRestore();
+  });
+
+  it("focus-trap wraps Tab from last to first focusable element", async () => {
+    render(<CommandPalette commands={makeCommands()} onClose={jest.fn()} />);
+    await act(async () => {});
+    const dialog = screen.getByRole("dialog");
+    const input = screen.getByLabelText("Search commands");
+    const buttons = dialog.querySelectorAll("button");
+    const lastButton = buttons[buttons.length - 1] as HTMLElement;
+    const focusSpy = jest.spyOn(input, "focus");
+    lastButton.focus();
+    expect(document.activeElement).toBe(lastButton);
+    focusSpy.mockClear();
+    fireEvent.keyDown(lastButton, { key: "Tab", shiftKey: false, bubbles: true });
+    expect(focusSpy).toHaveBeenCalled();
+    focusSpy.mockRestore();
+  });
+
+  it("focus-trap does not wrap Tab when not at boundary", async () => {
+    render(<CommandPalette commands={makeCommands()} onClose={jest.fn()} />);
+    await act(async () => {});
+    const dialog = screen.getByRole("dialog");
+    const buttons = dialog.querySelectorAll("button");
+    const firstBtn = buttons[0] as HTMLElement;
+    const lastBtn = buttons[buttons.length - 1] as HTMLElement;
+    const input = screen.getByLabelText("Search commands");
+    const inputSpy = jest.spyOn(input, "focus");
+    const lastSpy = jest.spyOn(lastBtn, "focus");
+    firstBtn.focus();
+    inputSpy.mockClear();
+    lastSpy.mockClear();
+    act(() => {
+      dialog.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: false, bubbles: true }));
+    });
+    expect(inputSpy).not.toHaveBeenCalled();
+    expect(lastSpy).not.toHaveBeenCalled();
+    inputSpy.mockRestore();
+    lastSpy.mockRestore();
   });
 });
