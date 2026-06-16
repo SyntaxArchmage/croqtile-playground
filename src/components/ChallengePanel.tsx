@@ -306,14 +306,24 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
               }`}
             >
               <div><span aria-hidden="true">{t.passed ? "✓" : t.ran ? "✗" : "○"}</span> {t.description}</div>
-              {t.ran && !t.passed && t.expected && (
-                <div className="mt-1.5 pt-1.5 border-t border-red-800/50 space-y-1 font-mono text-[10px]">
-                  <div>
-                    <span className="text-red-400/70">Expected:</span>
-                    <pre className="text-red-200 whitespace-pre-wrap mt-0.5 max-h-24 overflow-auto">{t.expected}</pre>
+              {t.ran && !t.passed && (
+                <div className="mt-1.5 pt-1.5 border-t border-red-800/50 space-y-1.5 font-mono text-[10px]">
+                  <div
+                    className="rounded border border-green-800/60 bg-green-950/25 p-1.5"
+                    data-testid="test-expected"
+                  >
+                    <span className="text-green-400/90 font-sans font-medium uppercase tracking-wide text-[9px]">
+                      Expected
+                    </span>
+                    <pre className="text-green-200 whitespace-pre-wrap mt-0.5 max-h-24 overflow-auto">{t.expected}</pre>
                   </div>
-                  <div>
-                    <span className="text-red-400/70">Got:</span>
+                  <div
+                    className="rounded border border-red-800/60 bg-red-950/25 p-1.5"
+                    data-testid="test-actual"
+                  >
+                    <span className="text-red-400/90 font-sans font-medium uppercase tracking-wide text-[9px]">
+                      Actual
+                    </span>
                     <pre className="text-red-200 whitespace-pre-wrap mt-0.5 max-h-24 overflow-auto">{t.actual || "(no output)"}</pre>
                   </div>
                 </div>

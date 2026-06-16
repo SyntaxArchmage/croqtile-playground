@@ -129,8 +129,8 @@ describe("ChallengePanel", () => {
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="wrong output" />
     );
     fireEvent.click(screen.getByText("Hello Threads"));
-    expect(screen.getByText("Expected:")).toBeInTheDocument();
-    expect(screen.getByText("Got:")).toBeInTheDocument();
+    expect(screen.getByTestId("test-expected")).toBeInTheDocument();
+    expect(screen.getByTestId("test-actual")).toBeInTheDocument();
   });
 
   it("shows hint button when challenge has hint", () => {
