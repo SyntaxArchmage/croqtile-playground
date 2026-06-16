@@ -177,6 +177,46 @@ function registerChoreoLanguage(monaco: Monaco) {
           detail: "DMA transfer",
           documentation: "Direct memory access transfer",
         },
+        {
+          label: "pipeline-block",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "pipeline {\n  stage {\n    ${1}\n  }\n  stage {\n    ${0}\n  }\n}",
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          detail: "Pipeline block",
+          documentation: "Creates a multi-stage pipeline block",
+        },
+        {
+          label: "shared-array",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "shared float ${1:name}[${2:N}];",
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          detail: "Shared array",
+          documentation: "Declares a shared memory array",
+        },
+        {
+          label: "global-array",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "global float ${1:name}[${2:N}];",
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          detail: "Global array",
+          documentation: "Declares a global memory array",
+        },
+        {
+          label: "parallel-2d",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "parallel {${1:i}, ${2:j}} by [${3:M}, ${4:N}] {\n  ${0}\n}",
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          detail: "2D parallel block",
+          documentation: "Creates a 2D parallel execution block",
+        },
+        {
+          label: "println",
+          kind: monaco.languages.CompletionItemKind.Snippet,
+          insertText: "println(\"${1:message}\", ${2:variable});",
+          insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          detail: "Print line",
+          documentation: "Prints a message and variable followed by a newline",
+        },
       ];
       return { suggestions };
     },
@@ -201,6 +241,11 @@ function registerChoreoLanguage(monaco: Monaco) {
     signal: "Signal an event for synchronization.",
     wait: "Wait for an event signal.",
     arrive: "Arrive at a synchronization barrier.",
+    exec: "Execute a masked MMA or tensor operation.",
+    event: "Declare a synchronization event. Syntax: shared event e; or shared event e[N];",
+    assert_true: "Assert a runtime condition is true. Syntax: assert_true(condition);",
+    inblocks: "Execute within block context.",
+    ingroups: "Execute within group context.",
   };
 
   monaco.languages.registerHoverProvider("choreo", {

@@ -366,4 +366,266 @@ describe("OutputPanel", () => {
     expect(screen.getByText("Copy")).toBeInTheDocument();
     jest.useRealTimers();
   });
+
+  it("auto-scrolls tabpanel when content changes", () => {
+    const { rerender } = render(<OutputPanel output="" errors="" />);
+    const tabpanel = screen.getByRole("tabpanel");
+    Object.defineProperty(tabpanel, "scrollHeight", { value: 500, configurable: true });
+    let scrollTop = 0;
+    Object.defineProperty(tabpanel, "scrollTop", {
+      get: () => scrollTop,
+      set: (v: number) => { scrollTop = v; },
+      configurable: true,
+    });
+
+    rerender(<OutputPanel output="line one\nline two\nline three" errors="" />);
+    expect(scrollTop).toBe(500);
+  });
+
+  it("clamps resize height to min and max bounds", () => {
+    const { container } = render(
+      <div style={{ height: 600 }}>
+        <OutputPanel output="data" errors="" />
+      </div>
+    );
+    const parent = container.firstElementChild as HTMLElement;
+    parent.getBoundingClientRect = jest.fn(() => ({
+      top: 0,
+      bottom: 600,
+      height: 600,
+      left: 0,
+      right: 800,
+      width: 800,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }));
+
+    const sep = screen.getByRole("separator");
+    fireEvent.mouseDown(sep);
+
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 600 }));
+    });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(15);
+
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 0 }));
+    });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(65);
+
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mouseup"));
+    });
+  });
+
+  it("skips resize when panel has no parent element", () => {
+    const { container } = render(
+      <div style={{ height: 600 }}>
+        <OutputPanel output="data" errors="" />
+      </div>
+    );
+    const panelRoot = container.querySelector(".min-h-\\[120px\\]") as HTMLElement;
+    Object.defineProperty(panelRoot, "parentElement", { get: () => null });
+
+    const sep = screen.getByRole("separator");
+    const initialVal = Number(sep.getAttribute("aria-valuenow"));
+    fireEvent.mouseDown(sep);
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 100 }));
+    });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialVal);
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mouseup"));
+    });
+  });
+
+  it("ignores mousemove handler when drag flag is cleared", () => {
+    const addListenerSpy = jest.spyOn(document, "addEventListener");
+    let moveHandler: ((e: MouseEvent) => void) | undefined;
+
+    addListenerSpy.mockImplementation(function (type, listener, options) {
+      if (type === "mousemove") {
+        moveHandler = listener as (e: MouseEvent) => void;
+      }
+      return EventTarget.prototype.addEventListener.call(this, type, listener, options);
+    });
+
+    const { container } = render(
+      <div style={{ height: 600 }}>
+        <OutputPanel output="data" errors="" />
+      </div>
+    );
+    const parent = container.firstElementChild as HTMLElement;
+    parent.getBoundingClientRect = jest.fn(() => ({
+      top: 0,
+      bottom: 600,
+      height: 600,
+      left: 0,
+      right: 800,
+      width: 800,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }));
+
+    const sep = screen.getByRole("separator");
+    fireEvent.mouseDown(sep);
+    act(() => {
+      document.dispatchEvent(new MouseEvent("mouseup"));
+    });
+
+    const valAfterUp = Number(sep.getAttribute("aria-valuenow"));
+    act(() => {
+      moveHandler?.(new MouseEvent("mousemove", { clientY: 100 }));
+    });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(valAfterUp);
+
+    addListenerSpy.mockRestore();
+  });
+
+  it("focuses next tab on ArrowRight and previous tab on ArrowLeft", () => {
+    const focusSpy = jest.spyOn(HTMLElement.prototype, "focus");
+    render(<OutputPanel output="data" errors="err" ast="tree" />);
+    const tablist = screen.getByRole("tablist");
+
+    fireEvent.keyDown(tablist, { key: "ArrowRight" });
+    expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
+    expect(focusSpy).toHaveBeenCalled();
+
+    focusSpy.mockClear();
+    fireEvent.keyDown(tablist, { key: "ArrowLeft" });
+    expect(screen.getByRole("tab", { name: /Output/ })).toHaveAttribute("aria-selected", "true");
+    expect(focusSpy).toHaveBeenCalled();
+
+    focusSpy.mockRestore();
+  });
+
+  it("handles touchcancel during touch resize", () => {
+    const { container } = render(
+      <div style={{ height: 600 }}>
+        <OutputPanel output="data" errors="" />
+      </div>
+    );
+    const parent = container.firstElementChild as HTMLElement;
+    parent.getBoundingClientRect = jest.fn(() => ({
+      top: 0,
+      bottom: 600,
+      height: 600,
+      left: 0,
+      right: 800,
+      width: 800,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }));
+
+    const sep = screen.getByRole("separator");
+    fireEvent.touchStart(sep);
+    act(() => {
+      document.dispatchEvent(new TouchEvent("touchcancel"));
+    });
+    const valAfterCancel = Number(sep.getAttribute("aria-valuenow"));
+    act(() => {
+      document.dispatchEvent(
+        new TouchEvent("touchmove", {
+          touches: [{ clientY: 100 } as Touch],
+        })
+      );
+    });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(valAfterCancel);
+  });
+
+  it("clears copy timeout on unmount", () => {
+    jest.useFakeTimers();
+    const { unmount } = render(<OutputPanel output="data" errors="" />);
+    fireEvent.click(screen.getByText("Copy"));
+    expect(screen.getByText("Copied!")).toBeInTheDocument();
+    unmount();
+    act(() => {
+      jest.advanceTimersByTime(1500);
+    });
+    jest.useRealTimers();
+  });
+
+  it("handles clipboard write rejection without throwing", async () => {
+    writeText.mockRejectedValueOnce(new Error("denied"));
+    render(<OutputPanel output="data" errors="" />);
+    fireEvent.click(screen.getByText("Copy"));
+    expect(writeText).toHaveBeenCalledWith("data");
+    expect(screen.getByText("Copied!")).toBeInTheDocument();
+    await act(async () => {
+      await Promise.resolve();
+    });
+  });
+
+  it("ignores touchmove handler when touch drag flag is cleared", () => {
+    const addListenerSpy = jest.spyOn(document, "addEventListener");
+    let touchMoveHandler: ((ev: TouchEvent) => void) | undefined;
+
+    addListenerSpy.mockImplementation(function (type, listener, options) {
+      if (type === "touchmove") {
+        touchMoveHandler = listener as (ev: TouchEvent) => void;
+      }
+      return EventTarget.prototype.addEventListener.call(this, type, listener, options);
+    });
+
+    const { container } = render(
+      <div style={{ height: 600 }}>
+        <OutputPanel output="data" errors="" />
+      </div>
+    );
+    const parent = container.firstElementChild as HTMLElement;
+    parent.getBoundingClientRect = jest.fn(() => ({
+      top: 0,
+      bottom: 600,
+      height: 600,
+      left: 0,
+      right: 800,
+      width: 800,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }));
+
+    const sep = screen.getByRole("separator");
+    fireEvent.touchStart(sep);
+    act(() => {
+      document.dispatchEvent(new TouchEvent("touchend"));
+    });
+
+    const valAfterEnd = Number(sep.getAttribute("aria-valuenow"));
+    act(() => {
+      touchMoveHandler?.(
+        new TouchEvent("touchmove", {
+          touches: [{ clientY: 100 } as Touch],
+        })
+      );
+    });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(valAfterEnd);
+
+    addListenerSpy.mockRestore();
+  });
+
+  it("ignores non-arrow keys on tablist", () => {
+    render(<OutputPanel output="data" errors="err" ast="tree" />);
+    const tablist = screen.getByRole("tablist");
+    expect(screen.getByRole("tab", { name: /Output/ })).toHaveAttribute("aria-selected", "true");
+    fireEvent.keyDown(tablist, { key: "Enter" });
+    expect(screen.getByRole("tab", { name: /Output/ })).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("navigates tabs when focus target is missing from document", () => {
+    const getElementByIdSpy = jest.spyOn(document, "getElementById").mockReturnValue(null);
+    render(<OutputPanel output="data" errors="err" ast="tree" />);
+    const tablist = screen.getByRole("tablist");
+
+    fireEvent.keyDown(tablist, { key: "ArrowRight" });
+    expect(screen.getByRole("tab", { name: /Errors/ })).toHaveAttribute("aria-selected", "true");
+
+    fireEvent.keyDown(tablist, { key: "ArrowLeft" });
+    expect(screen.getByRole("tab", { name: /Output/ })).toHaveAttribute("aria-selected", "true");
+
+    getElementByIdSpy.mockRestore();
+  });
 });

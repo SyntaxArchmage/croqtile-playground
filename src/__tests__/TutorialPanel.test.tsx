@@ -264,4 +264,46 @@ describe("TutorialPanel", () => {
     expect(summary.textContent).toMatch(/^\d+\/\d+ done$/);
     expect(summary.textContent).not.toMatch(/^0\//);
   });
+
+  it("falls back to first step code when deep-linked step lacks code", async () => {
+    await jest.isolateModulesAsync(async () => {
+      jest.doMock("@/lib/tutorials", () => ({
+        TUTORIALS: [
+          {
+            id: "nocode",
+            title: "No Code Step",
+            description: "Tutorial with a step missing code",
+            steps: [
+              { title: "First", content: "First step", code: "fallback-code" },
+              { title: "Second", content: "Second step without code field" },
+            ],
+          },
+        ],
+      }));
+      jest.doMock("@/lib/progress", () => ({
+        getTutorialProgress: () => -1,
+        markTutorialStep: () => {},
+      }));
+
+      const React = require("react");
+      const { act } = require("react");
+      const { createRoot } = require("react-dom/client");
+      const { TutorialPanel: IsolatedPanel } = require("@/components/TutorialPanel");
+      const onLoadCode = jest.fn();
+      window.history.pushState({}, "", "/?tutorial=nocode&step=2");
+      const container = document.createElement("div");
+      const root = createRoot(container);
+      await act(async () => {
+        root.render(
+          React.createElement(IsolatedPanel, {
+            onLoadCode,
+            onClose: () => {},
+            initialId: "nocode",
+          }),
+        );
+      });
+      expect(onLoadCode).toHaveBeenCalledWith("fallback-code");
+      window.history.pushState({}, "", "/");
+    });
+  });
 });
