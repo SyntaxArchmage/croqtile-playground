@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (16 tutorials):
+**Current content** (17 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -222,6 +222,7 @@ interface Tutorial {
 | ch14 | Performance Optimization | 3 | Minimizing global reads, tiled processing, parallelism trade-offs |
 | ch15 | Common Pitfalls | 3 | Race conditions, memory aliasing, off-by-one in DMA |
 | ch16 | Real-World Patterns | 3 | GEMM tiling, reduction tree, producer-consumer pipeline |
+| ch17 | Rotate & Shuffle | 3 | Circular shift, array reversal, even-odd permutation |
 
 All tutorials include interactive "Try it" inline code blocks.
 
@@ -251,7 +252,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (32):
+**Current challenges** (40):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -287,6 +288,14 @@ interface Challenge {
 | c30 | Stencil Average | Hard | `dma`, `shared`, neighbor averaging, boundary handling |
 | c31 | All Positive | Easy | `foreach`, boolean flag accumulation |
 | c32 | Matrix Multiply | Hard | `parallel`, `foreach`, multiply-accumulate |
+| c33 | Interleave Arrays | Easy | `parallel`, index arithmetic, interleaving |
+| c34 | Matrix Row Swap | Medium | `dma`, shared buffer, row swap |
+| c35 | Count Evens | Easy | `foreach`, conditional counting |
+| c36 | Parallel Max Index | Hard | `foreach`, sequential max tracking with index |
+| c37 | Array Reverse | Easy | `dma`, shared buffer, parallel reverse |
+| c38 | Even-Odd Split | Medium | `parallel`, conditional index arithmetic |
+| c39 | Matrix Anti-Diagonal | Medium | 2D indexing, anti-diagonal extraction |
+| c40 | Weighted Average | Hard | `foreach`, dual accumulator reduction |
 
 ### 5.6 Example Programs
 
@@ -481,7 +490,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (583 tests across 30 suites)
+- [x] Unit tests (630 tests across 32 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
