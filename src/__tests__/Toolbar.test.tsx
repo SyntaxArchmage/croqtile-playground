@@ -3,6 +3,7 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { Toolbar } from "@/components/Toolbar";
 import * as progress from "@/lib/progress";
+import * as progressExport from "@/lib/progressExport";
 import { TUTORIALS } from "@/lib/tutorials";
 import { CHALLENGES } from "@/lib/challenges";
 
@@ -1004,5 +1005,158 @@ describe("Toolbar", () => {
     } finally {
       useRefSpy.mockRestore();
     }
+  });
+
+  it("calls exportProgress and closes menu when Export progress is clicked", () => {
+    const spy = jest.spyOn(progressExport, "exportProgress").mockImplementation(() => {});
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByText("Export progress"));
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("Export progress")).not.toBeInTheDocument();
+    spy.mockRestore();
+  });
+
+  it("opens file picker when Import progress is clicked", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    const importBtn = screen.getByText("Import progress");
+    fireEvent.click(importBtn);
+  });
+
+  it("alerts on non-JSON file for progress import", () => {
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+    render(<Toolbar {...defaultProps} />);
+
+    const input = document.querySelector('input[accept=".json,application/json"]') as HTMLInputElement;
+    expect(input).toBeTruthy();
+
+    const file = new File(["data"], "test.txt", { type: "text/plain" });
+    fireEvent.change(input, { target: { files: [file] } });
+    expect(alertSpy).toHaveBeenCalledWith("Please select a .json progress export file.");
+    alertSpy.mockRestore();
+  });
+
+  it("alerts on oversized file for progress import", () => {
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+
+    const input = document.querySelector('input[accept=".json,application/json"]') as HTMLInputElement;
+    expect(input).toBeTruthy();
+
+    const bigContent = "x".repeat(6 * 1024 * 1024);
+    const file = new File([bigContent], "big.json", { type: "application/json" });
+    fireEvent.change(input, { target: { files: [file] } });
+    expect(alertSpy).toHaveBeenCalled();
+    alertSpy.mockRestore();
+  });
+
+  it("imports valid progress file successfully", () => {
+    const importSpy = jest.spyOn(progressExport, "importProgress").mockReturnValue({ ok: true });
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+
+    render(<Toolbar {...defaultProps} />);
+
+    const input = document.querySelector('input[accept=".json,application/json"]') as HTMLInputElement;
+    const validPayload = JSON.stringify({ version: 1, exportedAt: "2024-01-01", progress: {}, settings: {}, lastSource: null });
+    const file = new File([validPayload], "progress.json", { type: "application/json" });
+
+    const mockReader = {
+      readAsText: jest.fn(),
+      onload: null as null | (() => void),
+      onerror: null as null | (() => void),
+      result: validPayload,
+    };
+    jest.spyOn(window, "FileReader").mockImplementation(() => mockReader as unknown as FileReader);
+
+    fireEvent.change(input, { target: { files: [file] } });
+    expect(mockReader.readAsText).toHaveBeenCalledWith(file);
+
+    mockReader.onload!();
+    expect(importSpy).toHaveBeenCalled();
+    expect(alertSpy).not.toHaveBeenCalled();
+
+    importSpy.mockRestore();
+    alertSpy.mockRestore();
+    jest.restoreAllMocks();
+  });
+
+  it("alerts on import error result", () => {
+    const importSpy = jest.spyOn(progressExport, "importProgress").mockReturnValue({ ok: false, error: "Bad data" });
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+
+    const input = document.querySelector('input[accept=".json,application/json"]') as HTMLInputElement;
+    const payload = JSON.stringify({ version: 1 });
+    const file = new File([payload], "progress.json", { type: "application/json" });
+
+    const mockReader = {
+      readAsText: jest.fn(),
+      onload: null as null | (() => void),
+      onerror: null as null | (() => void),
+      result: payload,
+    };
+    jest.spyOn(window, "FileReader").mockImplementation(() => mockReader as unknown as FileReader);
+
+    fireEvent.change(input, { target: { files: [file] } });
+    mockReader.onload!();
+    expect(alertSpy).toHaveBeenCalledWith("Bad data");
+
+    importSpy.mockRestore();
+    alertSpy.mockRestore();
+    jest.restoreAllMocks();
+  });
+
+  it("alerts when progress file is not valid JSON", () => {
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+
+    const input = document.querySelector('input[accept=".json,application/json"]') as HTMLInputElement;
+    const file = new File(["not-json{"], "progress.json", { type: "application/json" });
+
+    const mockReader = {
+      readAsText: jest.fn(),
+      onload: null as null | (() => void),
+      onerror: null as null | (() => void),
+      result: "not-json{",
+    };
+    jest.spyOn(window, "FileReader").mockImplementation(() => mockReader as unknown as FileReader);
+
+    fireEvent.change(input, { target: { files: [file] } });
+    mockReader.onload!();
+    expect(alertSpy).toHaveBeenCalledWith("Could not parse the selected file as JSON.");
+
+    alertSpy.mockRestore();
+    jest.restoreAllMocks();
+  });
+
+  it("alerts when FileReader onerror fires", () => {
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+
+    const input = document.querySelector('input[accept=".json,application/json"]') as HTMLInputElement;
+    const file = new File(["data"], "progress.json", { type: "application/json" });
+
+    const mockReader = {
+      readAsText: jest.fn(),
+      onload: null as null | (() => void),
+      onerror: null as null | (() => void),
+      result: null,
+    };
+    jest.spyOn(window, "FileReader").mockImplementation(() => mockReader as unknown as FileReader);
+
+    fireEvent.change(input, { target: { files: [file] } });
+    mockReader.onerror!();
+    expect(alertSpy).toHaveBeenCalledWith("Could not read the selected file.");
+
+    alertSpy.mockRestore();
+    jest.restoreAllMocks();
   });
 });
