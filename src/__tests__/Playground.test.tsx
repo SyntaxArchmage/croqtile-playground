@@ -7,7 +7,14 @@ const mockCompile = jest.fn();
 const mockDumpAST = jest.fn();
 const mockClearOutput = jest.fn();
 const mockLoadLastSource = jest.fn(() => null);
-const mockLoadSettings = jest.fn(() => ({ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "dark" as const }));
+const mockLoadSettings = jest.fn(() => ({
+  fontSize: 14,
+  fontFamily: "JetBrains Mono, monospace",
+  wordWrap: true,
+  tabSize: 2,
+  lastTarget: "cc",
+  theme: "dark" as const,
+}));
 const mockSaveSettings = jest.fn();
 let mockStatus: "ready" | "running" | "loading" | "error" = "ready";
 let mockOutput = "";
@@ -45,12 +52,14 @@ jest.mock("@/lib/sourceStorage", () => ({
 }));
 
 jest.mock("@/lib/settings", () => ({
+  ...jest.requireActual("@/lib/settings"),
   loadSettings: (...args: unknown[]) => mockLoadSettings(...args),
   saveSettings: (...args: unknown[]) => mockSaveSettings(...args),
 }));
 
 const mockDownloadCoSource = jest.fn();
 jest.mock("@/lib/fileIO", () => ({
+  ...jest.requireActual("@/lib/fileIO"),
   downloadCoSource: (...args: unknown[]) => mockDownloadCoSource(...args),
 }));
 
@@ -125,7 +134,7 @@ beforeEach(() => {
   mockErrors = "";
   mockAst = "";
   mockLoadLastSource.mockReturnValue(null);
-  mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "dark" });
+  mockLoadSettings.mockReturnValue({ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "dark" });
   mockMatchMedia(false);
   setUrl("/");
   window.history.replaceState = jest.fn();
