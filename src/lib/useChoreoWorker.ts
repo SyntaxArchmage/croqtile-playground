@@ -13,6 +13,8 @@ export interface BuildManifest {
 
 export type CommandType = "mockRun" | "compile" | "dumpAST";
 
+export const EXECUTION_TIMEOUT_MS = 30000;
+
 function parseBuildManifest(raw: unknown): BuildManifest | null {
   if (typeof raw !== "object" || raw === null) return null;
   const m = raw as Record<string, unknown>;
@@ -38,7 +40,6 @@ export function useChoreoWorker() {
   const lastCommandRef = useRef<CommandType | null>(null);
   const startTimeRef = useRef<number>(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const EXECUTION_TIMEOUT_MS = 30000;
 
   useEffect(() => {
     fetch("/wasm/build-manifest.json")
@@ -57,35 +58,52 @@ export function useChoreoWorker() {
     };
 
     worker.onmessage = (e) => {
-      if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
       if (!e.data || typeof e.data !== "object") return;
       const { type, data } = e.data;
+      const payload = data && typeof data === "object" ? data : {};
       switch (type) {
         case "ready":
+          if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
           updateStatus("ready");
-          if (data?.version) setCompilerVersion(data.version);
+          if (typeof payload.version === "string") setCompilerVersion(payload.version);
           break;
         case "compile-result":
+          if (statusRef.current !== "running") break;
+          if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
           updateStatus("ready");
           setElapsedMs(Math.round(performance.now() - startTimeRef.current));
           if (lastCommandRef.current === "dumpAST") {
-            setAst(data.output ?? "");
+            setAst(typeof payload.output === "string" ? payload.output : "");
           } else {
-            setOutput(data.output ?? "");
+            setOutput(typeof payload.output === "string" ? payload.output : "");
           }
-          setErrors(data.errors ?? "");
+          setErrors(typeof payload.errors === "string" ? payload.errors : "");
           break;
         case "error":
+          if (statusRef.current === "error") break;
+          if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
           updateStatus("error");
-          setErrors(data.message ?? "Unknown error");
+          setErrors(
+            typeof payload.message === "string"
+              ? payload.message
+              : "Unknown error"
+          );
           break;
       }
     };
 
-    worker.onerror = () => {
+    worker.onerror = (e) => {
       if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
       updateStatus("error");
-      setErrors("Worker failed to initialize. WASM files may not be available.");
+      const ev = e as ErrorEvent;
+      const nested =
+        ev.error && typeof ev.error === "object" && "message" in ev.error
+          ? String((ev.error as Error).message)
+          : "";
+      const msg = (typeof ev.message === "string" && ev.message) || nested;
+      setErrors(
+        msg || "Worker failed to initialize. WASM files may not be available."
+      );
     };
 
     return () => {

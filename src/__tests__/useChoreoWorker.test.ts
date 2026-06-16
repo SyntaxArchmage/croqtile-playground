@@ -3,9 +3,7 @@
  */
 
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { useChoreoWorker } from "@/lib/useChoreoWorker";
-
-const EXECUTION_TIMEOUT_MS = 30000;
+import { useChoreoWorker, EXECUTION_TIMEOUT_MS } from "@/lib/useChoreoWorker";
 
 class MockWorker {
   onmessage: ((e: MessageEvent) => void) | null = null;
@@ -140,6 +138,61 @@ describe("useChoreoWorker", () => {
       });
       expect(result.current.status).toBe("error");
       expect(result.current.errors).toBe("Worker failed to initialize. WASM files may not be available.");
+    });
+
+    it("uses ErrorEvent message when worker onerror provides one", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      act(() => {
+        mockWorker.onerror?.({ message: "Script load failed" } as ErrorEvent);
+      });
+      expect(result.current.status).toBe("error");
+      expect(result.current.errors).toBe("Script load failed");
+    });
+
+    it("handles WASM init error during loading", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      expect(result.current.status).toBe("loading");
+
+      postWorkerMessage("error", { message: "Failed to initialize WASM module: fetch failed" });
+      expect(result.current.status).toBe("error");
+      expect(result.current.errors).toContain("Failed to initialize WASM module");
+
+      act(() => { result.current.run("should not post"); });
+      expect(mockWorker.postMessage).not.toHaveBeenCalled();
+    });
+
+    it("ignores compile-result when not in running state", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+      postWorkerMessage("error", { message: "crash" });
+      expect(result.current.status).toBe("error");
+
+      postWorkerMessage("compile-result", { output: "late result", errors: "" });
+      expect(result.current.status).toBe("error");
+      expect(result.current.output).toBe("");
+      expect(result.current.errors).toBe("crash");
+    });
+
+    it("recovers to ready when worker sends ready after error", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+      postWorkerMessage("error", { message: "transient failure" });
+      expect(result.current.status).toBe("error");
+
+      postWorkerMessage("ready", { version: "2.2.0" });
+      expect(result.current.status).toBe("ready");
+      expect(result.current.compilerVersion).toBe("2.2.0");
+
+      act(() => { result.current.run("retry"); });
+      expect(mockWorker.postMessage).toHaveBeenCalledWith({ type: "mockRun", source: "retry" });
+    });
+
+    it("ignores duplicate error messages while already in error state", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+      postWorkerMessage("error", { message: "first error" });
+      postWorkerMessage("error", { message: "second error" });
+      expect(result.current.errors).toBe("first error");
     });
 
     it("handles worker onerror during loading before ready message", () => {
