@@ -24,6 +24,12 @@ export interface SelectionInfo {
   lines: number;
 }
 
+export interface EditorHandle {
+  getValue: () => string;
+  undo: () => void;
+  redo: () => void;
+}
+
 interface Props {
   value: string;
   onChange: (value: string) => void;
@@ -428,17 +434,16 @@ function registerChoreoLanguage(monaco: Monaco) {
   });
 }
 
-export const Editor = forwardRef<{ getValue: () => string }, Props>(
+export const Editor = forwardRef<EditorHandle, Props>(
   function Editor({ value, onChange, onCursorChange, onSelectionChange, fontSize = 14, fontFamily = "JetBrains Mono, monospace", wordWrap = false, minimap = false, tabSize = 2, theme = "dark" }, ref) {
-    const editorRef = useRef<unknown>(null);
+    const editorRef = useRef<{ getValue?: () => string; trigger?: (source: string, handlerId: string, payload: unknown) => void } | null>(null);
     const monacoRef = useRef<Monaco | null>(null);
     const monacoTheme = theme === "light" ? "choreo-light" : "choreo-dark";
 
     useImperativeHandle(ref, () => ({
-      getValue: () => {
-        const editor = editorRef.current as { getValue?: () => string } | null;
-        return editor?.getValue?.() ?? value;
-      },
+      getValue: () => editorRef.current?.getValue?.() ?? value,
+      undo: () => editorRef.current?.trigger?.("keyboard", "undo", null),
+      redo: () => editorRef.current?.trigger?.("keyboard", "redo", null),
     }));
 
     useEffect(() => {

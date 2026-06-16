@@ -65,6 +65,8 @@ jest.mock("@/lib/fileIO", () => ({
 
 let mockEditorProvidesRef = true;
 let mockOmitToolbarOpenFileRef = false;
+const mockEditorUndo = jest.fn();
+const mockEditorRedo = jest.fn();
 jest.mock("@/components/Toolbar", () => {
   const React = require("react") as typeof import("react");
   const actual = jest.requireActual<typeof import("@/components/Toolbar")>("@/components/Toolbar");
@@ -81,12 +83,16 @@ jest.mock("@/components/Toolbar", () => {
 });
 jest.mock("@/components/Editor", () => ({
   Editor: React.forwardRef<
-    { getValue: () => string },
+    { getValue: () => string; undo: () => void; redo: () => void },
     { value: string; onChange: (value: string) => void; fontSize?: number; wordWrap?: boolean }
   >(function MockEditor({ value, onChange, fontSize, wordWrap }, ref) {
     React.useImperativeHandle(ref, () => {
-      if (!mockEditorProvidesRef) return null as unknown as { getValue: () => string };
-      return { getValue: () => value };
+      if (!mockEditorProvidesRef) return null as unknown as { getValue: () => string; undo: () => void; redo: () => void };
+      return {
+        getValue: () => value,
+        undo: mockEditorUndo,
+        redo: mockEditorRedo,
+      };
     });
     return (
       <textarea
@@ -207,6 +213,33 @@ describe("Playground", () => {
       mockLoadLastSource.mockReturnValue(savedCode);
       renderPlayground();
       expect(screen.getByTestId("code-editor")).toHaveValue(savedCode);
+    });
+
+    it("loads example from ?example= slug on page load", () => {
+      setUrl("/?example=hello-world");
+      renderPlayground();
+      expect(screen.getByTestId("code-editor")).toHaveValue(EXAMPLES[0].code);
+    });
+
+    it("loads example by id via ?example=", () => {
+      setUrl("/?example=parallel");
+      renderPlayground();
+      expect(screen.getByTestId("code-editor")).toHaveValue(EXAMPLES[1].code);
+    });
+
+    it("prefers hash over ?example=", () => {
+      const hashCode = "__co__ void fromHash() {}";
+      mockLoadLastSource.mockReturnValue(null);
+      setUrl(`/?example=parallel#${encodeURIComponent(hashCode)}`);
+      renderPlayground();
+      expect(screen.getByTestId("code-editor")).toHaveValue(hashCode);
+    });
+
+    it("prefers ?example= over saved source", () => {
+      mockLoadLastSource.mockReturnValue("__co__ void fromStorage() {}");
+      setUrl("/?example=parallel");
+      renderPlayground();
+      expect(screen.getByTestId("code-editor")).toHaveValue(EXAMPLES[1].code);
     });
   });
 
@@ -794,6 +827,8 @@ describe("Playground", () => {
     expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
     expect(screen.getByText("Run code")).toBeInTheDocument();
     expect(screen.getByText("Share link")).toBeInTheDocument();
+    expect(screen.getByText("Undo")).toBeInTheDocument();
+    expect(screen.getByText("Redo")).toBeInTheDocument();
   });
 
   it("traps focus within shortcuts dialog on Tab", () => {
@@ -869,6 +904,18 @@ describe("Playground", () => {
       expect(screen.getByTestId("code-editor")).toHaveValue(
         '__co__ void f() {\n  println("ok");\n}'
       );
+    });
+
+    it("undoes via palette command", () => {
+      renderPlayground();
+      runPaletteCommand("Undo");
+      expect(mockEditorUndo).toHaveBeenCalledTimes(1);
+    });
+
+    it("redoes via palette command", () => {
+      renderPlayground();
+      runPaletteCommand("Redo");
+      expect(mockEditorRedo).toHaveBeenCalledTimes(1);
     });
 
     it("opens challenges via palette command", () => {

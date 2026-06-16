@@ -21,7 +21,7 @@ jest.mock("next/dynamic", () => {
   };
 });
 
-import { Editor, CursorPosition } from "@/components/Editor";
+import { Editor, CursorPosition, EditorHandle } from "@/components/Editor";
 
 describe("Editor", () => {
   beforeEach(() => {
@@ -113,6 +113,34 @@ describe("Editor", () => {
 
     act(() => capturedOnMount?.(mockEditor, mockMonaco));
     expect(ref.current?.getValue()).toBe("editor-content");
+  });
+
+  it("exposes undo via ref and triggers Monaco undo command", () => {
+    const ref = React.createRef<EditorHandle>();
+    render(<Editor ref={ref} value="" onChange={jest.fn()} />);
+    const mockEditor = {
+      ...createMockEditor(),
+      trigger: jest.fn(),
+    };
+    const mockMonaco = createMockMonaco();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    act(() => ref.current?.undo());
+    expect(mockEditor.trigger).toHaveBeenCalledWith("keyboard", "undo", null);
+  });
+
+  it("exposes redo via ref and triggers Monaco redo command", () => {
+    const ref = React.createRef<EditorHandle>();
+    render(<Editor ref={ref} value="" onChange={jest.fn()} />);
+    const mockEditor = {
+      ...createMockEditor(),
+      trigger: jest.fn(),
+    };
+    const mockMonaco = createMockMonaco();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    act(() => ref.current?.redo());
+    expect(mockEditor.trigger).toHaveBeenCalledWith("keyboard", "redo", null);
   });
 
   it("registers Choreo language on mount", () => {

@@ -13,7 +13,7 @@ import { EXAMPLES } from "@/lib/examples";
 import type { PanelMode } from "@/lib/types";
 import { saveSource } from "@/lib/sourceStorage";
 import { loadSettings, saveSettings, type EditorSettings } from "@/lib/settings";
-import type { CursorPosition, SelectionInfo } from "./Editor";
+import type { CursorPosition, EditorHandle, SelectionInfo } from "./Editor";
 import { encodeCode } from "@/lib/urlCodec";
 import { formatChoreoCode } from "@/lib/formatCode";
 import { downloadCoSource } from "@/lib/fileIO";
@@ -65,7 +65,7 @@ export function Playground() {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", settings.theme);
   }, [settings.theme]);
-  const editorRef = useRef<{ getValue: () => string }>(null);
+  const editorRef = useRef<EditorHandle>(null);
   const openFileRef = useRef<(() => void) | null>(null);
   const shortcutsDialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -263,6 +263,14 @@ export function Playground() {
     setSource(formatChoreoCode(getCode()));
   }, [getCode]);
 
+  const handleUndo = useCallback(() => {
+    editorRef.current?.undo();
+  }, []);
+
+  const handleRedo = useCallback(() => {
+    editorRef.current?.redo();
+  }, []);
+
   const openCommandPalette = useCallback(() => {
     setShowCommandPalette(true);
   }, []);
@@ -282,13 +290,15 @@ export function Playground() {
     { label: "Share Link", action: handleShare, shortcut: "Ctrl+S" },
     { label: "Clear Output", action: clearOutput, shortcut: "Ctrl+L" },
     { label: "Toggle Theme", action: handleToggleTheme, shortcut: "Ctrl+Shift+T" },
+    { label: "Undo", action: handleUndo, shortcut: "Ctrl+Z" },
+    { label: "Redo", action: handleRedo, shortcut: "Ctrl+Shift+Z" },
     { label: "Open File", action: () => openFileRef.current?.() },
     { label: "Download Code", action: handleDownload },
     { label: "Format Code", action: handleFormatCode },
     { label: "Open Tutorial", action: () => handleTogglePanel("tutorial") },
     { label: "Open Challenges", action: () => handleTogglePanel("challenge") },
     { label: "Keyboard Shortcuts", action: () => setShowShortcuts(true), shortcut: "?" },
-  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme, handleDownload, handleTogglePanel, handleFormatCode]);
+  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme, handleUndo, handleRedo, handleDownload, handleTogglePanel, handleFormatCode]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -371,6 +381,8 @@ export function Playground() {
             ["Ctrl+S", "Share link"],
             ["Ctrl+L", "Clear output"],
             ["Ctrl+Shift+T", "Toggle theme"],
+            ["Ctrl+Z", "Undo"],
+            ["Ctrl+Shift+Z", "Redo"],
             ["Ctrl+P", "Command palette"],
             ["?", "Toggle this help"],
             ["Esc", "Close dialog"],
