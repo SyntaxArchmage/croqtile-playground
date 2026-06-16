@@ -9,7 +9,8 @@ export interface TestResult {
 }
 
 export function checkTests(challenge: Challenge, output: string): TestResult[] {
-  if (!output) {
+  const trimmedOutput = output.trim();
+  if (!trimmedOutput) {
     return challenge.tests.map((t) => ({
       passed: false,
       ran: false,
@@ -18,10 +19,11 @@ export function checkTests(challenge: Challenge, output: string): TestResult[] {
     }));
   }
 
-  const lines = output.trim().replace(/\r\n/g, "\n").split("\n");
+  const lines = trimmedOutput.replace(/\r\n/g, "\n").split("\n");
 
   return challenge.tests.map((t) => {
-    const expectedLines = t.expectedOutput.trim().split("\n");
+    const expectedRaw = t.expectedOutput.trim();
+    const expectedLines = expectedRaw === "" ? [] : expectedRaw.split("\n");
     let searchFrom = 0;
     const passed = expectedLines.every((exp) => {
       const idx = lines.findIndex((line, i) => i >= searchFrom && line.trim() === exp.trim());
@@ -34,7 +36,7 @@ export function checkTests(challenge: Challenge, output: string): TestResult[] {
       ran: true,
       description: t.description,
       expected: t.expectedOutput.trim(),
-      actual: output.trim(),
+      actual: trimmedOutput,
     };
   });
 }

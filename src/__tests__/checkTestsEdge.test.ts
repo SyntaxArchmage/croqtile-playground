@@ -21,21 +21,21 @@ describe("checkTests edge cases", () => {
     expect(results[0].passed).toBe(true);
   });
 
-  it("handles empty expected output (empty matches any output)", () => {
+  it("handles empty expected output (vacuous pass when output exists)", () => {
     const c = makeChallenge([
       { expectedOutput: "", description: "empty" },
     ]);
     const results = checkTests(c, "anything\n");
-    // Empty expected splits to [""], and trimmed "" matches trimmed "" from any output line
-    // This is an edge case - the test checks current behavior
     expect(results[0].ran).toBe(true);
+    expect(results[0].passed).toBe(true);
   });
 
-  it("handles output with only whitespace", () => {
+  it("handles output with only whitespace as not run", () => {
     const c = makeChallenge([
       { expectedOutput: "hello", description: "ws" },
     ]);
     const results = checkTests(c, "   \n  \n");
+    expect(results[0].ran).toBe(false);
     expect(results[0].passed).toBe(false);
   });
 

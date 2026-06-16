@@ -147,4 +147,55 @@ describe("checkTests", () => {
       }
     }
   });
+
+  it("treats whitespace-only output as not run", () => {
+    const c = makeChallenge([
+      { expectedOutput: "hello", description: "prints hello" },
+    ]);
+    for (const output of ["   ", "\n\n", "  \t  \n"]) {
+      const results = checkTests(c, output);
+      expect(results[0].ran).toBe(false);
+      expect(results[0].passed).toBe(false);
+    }
+  });
+
+  it("matches special characters literally (not as regex)", () => {
+    const c = makeChallenge([
+      { expectedOutput: "a.b*c[d]\\(x+)", description: "regex-like" },
+    ]);
+    const results = checkTests(c, "a.b*c[d]\\(x+)\n");
+    expect(results[0].passed).toBe(true);
+  });
+
+  it("finds expected line in very long output (>10K characters)", () => {
+    const c = makeChallenge([
+      { expectedOutput: "needle", description: "buried line" },
+    ]);
+    const lineCount = 1200;
+    const lines = Array.from({ length: lineCount }, (_, i) => `line-${i}`);
+    lines.splice(Math.floor(lineCount / 2), 0, "needle");
+    const output = lines.join("\n");
+    expect(output.length).toBeGreaterThan(10_000);
+
+    const results = checkTests(c, output);
+    expect(results[0].passed).toBe(true);
+    expect(results[0].ran).toBe(true);
+  });
+
+  it("passes vacuously when expected output is empty", () => {
+    const c = makeChallenge([
+      { expectedOutput: "", description: "no lines required" },
+    ]);
+    const results = checkTests(c, "anything\n");
+    expect(results[0].ran).toBe(true);
+    expect(results[0].passed).toBe(true);
+  });
+
+  it("matches lines with trailing whitespace in output", () => {
+    const c = makeChallenge([
+      { expectedOutput: "hello", description: "trim output line" },
+    ]);
+    const results = checkTests(c, "hello   \n");
+    expect(results[0].passed).toBe(true);
+  });
 });

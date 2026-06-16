@@ -344,14 +344,16 @@ describe("ChallengePanel", () => {
     expect(onLoadCode).toHaveBeenCalledWith("saved solution");
   });
 
-  it("shows '(no output)' when test output is whitespace-only", () => {
+  it("shows tests as not run when output is whitespace-only", () => {
     const { rerender } = render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
     );
     rerender(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="   " initialId="c01" />
     );
-    expect(screen.getByText("(no output)")).toBeInTheDocument();
+    const results = screen.getAllByTestId("test-result");
+    expect(results.some((el) => el.textContent?.includes("○"))).toBe(true);
+    expect(screen.queryByText("(no output)")).not.toBeInTheDocument();
   });
 
   it("updates URL param when selecting a challenge", () => {
