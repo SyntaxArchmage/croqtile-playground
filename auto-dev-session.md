@@ -512,3 +512,52 @@ This session performed 54 development cycles on `croqtile-playground`, a browser
 - **Commits**: ~10 this session (369 total)
 - **PRD progress**: 45 tutorials, 160 challenges, 50 examples, 987 tests across 44 suites
 - **Next priority**: remaining branch coverage in ShortcutsDialog (84%), Playwright E2E improvements, visual inspection
+
+### Auto-Dev Session 2026-06-16 17:42
+- **Duration**: ~180 minutes
+- **Defects found**: 6 (P0: 0, P1: 2, P2: 0, P3: 3, P4: 1)
+  - P1: CommandPalette focus-trap test failures (fixed with fireEvent)
+  - P1: Toolbar test failures after a11y menuitem changes (fixed by a11y subagent)
+  - P3: formatCode brace handling after block comment (fixed)
+  - P3: playgroundInit empty saved source fallback (fixed)
+  - P3: playgroundInit getDeepLinkId("closed") queried wrong param (fixed)
+  - P4: Test suite quality (duplicate tests, weak assertions, mock leaks)
+- **Defects fixed**: 6
+- **Tests added**: ~200 (from 794 to ~991)
+- **Features implemented**:
+  - ShortcutsDialog extraction with grouped sections and platform modifiers (⌘/Ctrl)
+  - ListSearchInput for challenge/tutorial filtering
+  - Challenge pagination (20/page with Show more)
+  - Progressive hint reveal (one at a time, Hint X of N counter)
+  - Tutorial breadcrumb navigation
+  - Tutorial completion message with Next Tutorial
+  - Progress stats in status bar (X/N challenges passed)
+  - Export/Import progress as JSON
+  - Print Code feature with print-friendly CSS
+  - Responsive mobile layout improvements (safe areas, touch targets, overflow)
+  - Comprehensive accessibility improvements (focus-visible, focus traps, contrast, ARIA, landmarks)
+  - Monaco snippet improvements (keyword triggers, assert_true)
+  - Challenge difficulty filter counts (passed/total per difficulty)
+  - Ctrl+K as command palette alias
+  - Auto-run delay tuned to 500ms
+- **Content added**: Tutorials ch28-ch50, challenges c85-c250 (pending), examples to 59
+- **Coverage**: 99.91% stmts, 98.67% branches, 100% functions, 100% lines
+- **Commits**: ~20 commits this session
+- **PRD progress**: 50 tutorials, 210+ challenges, 59 examples, 991 tests across 44 suites
+- **Next priority**: Light/dark theme for command palette, challenge categories/tags, progress charts
+
+### Auto-Dev Session 2026-06-16 20:13 (continuation)
+- **Duration**: 180 minutes (target)
+- **Defects found**: 1 (P1: Playground integration test failing — panel toggle not flushing state)
+- **Defects fixed**: 1 (wrapped panel toggle click in act() for React 19 batching)
+- **Tests added**: ~7 (CommandPalette focus-trap boundary tests, content integrity expansion)
+- **Features implemented**: none
+- **Improvements**:
+  - Fixed stale documentation counts (HANDOFF.md, PRD.md) to match actual: 210 challenges, 59 examples
+  - Raised jest coverage thresholds to 99/98/99/99 (all achievable)
+  - Added content integrity tests: difficulty balance, challenge ordering, empty expectedOutput, unique example IDs
+  - Added CommandPalette focus-trap tests: Shift+Tab wrap, Tab wrap, non-boundary no-op
+- **Coverage**: 99.91% stmts, 98.67% branches, 100% functions, 100% lines
+- **Commits**: 3 this session
+- **PRD progress**: 50 tutorials, 210 challenges, 59 examples, 991 tests across 44 suites
+- **Next priority**: remaining branch coverage in CommandPalette/ShortcutsDialog (istanbul native handler limitation), Playwright E2E improvements
