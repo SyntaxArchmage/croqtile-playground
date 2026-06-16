@@ -23,6 +23,8 @@ import { readInitialSource, readInitialPanelMode, getDeepLinkId } from "@/lib/pl
 
 const noop = () => () => {};
 
+const TUTORIAL_AUTO_RUN_DELAY_MS = 500;
+
 function isTypingContext(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return true;
@@ -175,7 +177,7 @@ export function Playground() {
         loadAndRunTimerRef.current = setTimeout(() => {
           loadAndRunTimerRef.current = null;
           run(code);
-        }, 100);
+        }, TUTORIAL_AUTO_RUN_DELAY_MS);
       }
     },
     [confirmAndLoad, run],
@@ -456,6 +458,7 @@ export function Playground() {
         selection={selection}
         elapsedMs={elapsedMs}
         hasUnsavedChanges={source !== lastSavedSource}
+        panelMode={panelMode}
       />
     </div>
   );

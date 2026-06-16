@@ -1,8 +1,12 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useSyncExternalStore } from "react";
 import type { WorkerStatus, BuildManifest } from "@/lib/useChoreoWorker";
 import type { CursorPosition, SelectionInfo } from "./Editor";
+import type { PanelMode } from "@/lib/types";
+import { CHALLENGES } from "@/lib/challenges";
+import { TUTORIALS } from "@/lib/tutorials";
+import { getTutorialProgress, isChallengePassed, subscribeProgress, getProgressRevision } from "@/lib/progress";
 
 interface Props {
   status: WorkerStatus;
@@ -14,6 +18,7 @@ interface Props {
   selection?: SelectionInfo | null;
   elapsedMs?: number | null;
   hasUnsavedChanges?: boolean;
+  panelMode?: PanelMode;
 }
 
 function formatElapsedMs(ms: number): string {
@@ -28,11 +33,22 @@ const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
   error: { label: "Error", color: "text-[var(--error)]" },
 };
 
-export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount, selection, elapsedMs, hasUnsavedChanges }: Props) {
+export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount, selection, elapsedMs, hasUnsavedChanges, panelMode = "closed" }: Props) {
   const { label, color } = statusConfig[status];
   const statusLabel = status === "ready" && elapsedMs != null ? `${label} • ${formatElapsedMs(elapsedMs)}` : label;
   const version = compilerVersion ?? buildManifest?.version ?? null;
   const commit = buildManifest?.commit_short ?? null;
+
+  useSyncExternalStore(subscribeProgress, getProgressRevision, () => 0);
+
+  let progressSummary: string | null = null;
+  if (panelMode === "challenge") {
+    const passed = CHALLENGES.filter((c) => isChallengePassed(c.id)).length;
+    progressSummary = `${passed}/${CHALLENGES.length} challenges passed`;
+  } else if (panelMode === "tutorial") {
+    const completed = TUTORIALS.filter((t) => getTutorialProgress(t.id) >= t.steps.length - 1).length;
+    progressSummary = `${completed}/${TUTORIALS.length} tutorials completed`;
+  }
 
   return (
     <div className="flex items-center gap-2 px-4 py-1 border-t border-[var(--border)] bg-[var(--bg-secondary)] text-xs text-[var(--text-muted)]">
@@ -83,6 +99,11 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
         </>
       )}
       <div className="flex-1" />
+      {progressSummary && (
+        <span className="tabular-nums opacity-60 mr-2" aria-label={progressSummary}>
+          {progressSummary}
+        </span>
+      )}
       <span className="hidden sm:inline opacity-50">Ctrl+Enter: Run | Ctrl+Shift+Enter: Compile | Ctrl+S: Share | Ctrl+L: Clear | ?: Help</span>
     </div>
   );

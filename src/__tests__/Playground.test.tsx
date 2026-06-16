@@ -44,6 +44,8 @@ jest.mock("@/lib/progress", () => ({
   getChallengeProgress: () => ({ status: "not_started", attempts: 0 }),
   recordChallengeAttempt: jest.fn(),
   resetProgress: jest.fn(),
+  subscribeProgress: () => () => {},
+  getProgressRevision: () => 0,
 }));
 
 jest.mock("@/lib/sourceStorage", () => ({
@@ -598,11 +600,36 @@ describe("Playground", () => {
       expect(mockRun).not.toHaveBeenCalled();
 
       act(() => {
-        jest.advanceTimersByTime(100);
+        jest.advanceTimersByTime(500);
       });
       expect(mockRun).toHaveBeenCalledTimes(1);
       expect(mockRun).toHaveBeenCalledWith(
         expect.stringContaining('println("Hello from Croqtile!")'),
+      );
+
+      jest.useRealTimers();
+    });
+
+    it("auto-runs code loaded from Try it button after 500ms", async () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      await act(async () => { jest.runAllTimers(); });
+
+      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+      fireEvent.click(screen.getByText("Hello Croqtile"));
+      fireEvent.click(screen.getByText("Next →"));
+      mockRun.mockClear();
+
+      fireEvent.click(screen.getByLabelText("Try this code example"));
+      expect(mockRun).not.toHaveBeenCalled();
+
+      act(() => { jest.advanceTimersByTime(499); });
+      expect(mockRun).not.toHaveBeenCalled();
+
+      act(() => { jest.advanceTimersByTime(1); });
+      expect(mockRun).toHaveBeenCalledTimes(1);
+      expect(mockRun).toHaveBeenCalledWith(
+        expect.stringContaining('println("Hello,", "world!")'),
       );
 
       jest.useRealTimers();
@@ -617,10 +644,10 @@ describe("Playground", () => {
       mockRun.mockClear();
 
       fireEvent.click(screen.getByText("Hello Croqtile"));
-      act(() => { jest.advanceTimersByTime(50); });
+      act(() => { jest.advanceTimersByTime(250); });
       expect(mockRun).not.toHaveBeenCalled();
 
-      act(() => { jest.advanceTimersByTime(50); });
+      act(() => { jest.advanceTimersByTime(250); });
       expect(mockRun).toHaveBeenCalledTimes(1);
 
       jest.useRealTimers();
@@ -635,10 +662,10 @@ describe("Playground", () => {
       mockRun.mockClear();
 
       fireEvent.click(screen.getByText("Hello Croqtile"));
-      act(() => { jest.advanceTimersByTime(50); });
+      act(() => { jest.advanceTimersByTime(250); });
 
       fireEvent.click(screen.getByText("The __co__ keyword"));
-      act(() => { jest.advanceTimersByTime(100); });
+      act(() => { jest.advanceTimersByTime(500); });
 
       expect(mockRun).toHaveBeenCalledTimes(1);
       expect(mockRun).toHaveBeenCalledWith(
@@ -660,7 +687,7 @@ describe("Playground", () => {
       fireEvent.click(screen.getByText("Next →"));
 
       mockRun.mockClear();
-      act(() => { jest.advanceTimersByTime(100); });
+      act(() => { jest.advanceTimersByTime(500); });
       expect(mockRun).toHaveBeenCalledTimes(1);
       expect(mockRun).toHaveBeenCalledWith(
         expect.stringContaining("printing()"),

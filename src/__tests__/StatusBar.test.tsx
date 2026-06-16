@@ -1,8 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { StatusBar } from "@/components/StatusBar";
+import { markChallengePassed, markTutorialStep, resetProgress } from "@/lib/progress";
+import { CHALLENGES } from "@/lib/challenges";
+import { TUTORIALS } from "@/lib/tutorials";
 
 describe("StatusBar", () => {
+  beforeEach(() => {
+    resetProgress();
+  });
   it("shows loading state", () => {
     render(<StatusBar status="loading" />);
     expect(screen.getByText("Loading WASM...")).toBeInTheDocument();
@@ -126,5 +132,30 @@ describe("StatusBar", () => {
   it("hides unsaved indicator when hasUnsavedChanges is false", () => {
     render(<StatusBar status="ready" hasUnsavedChanges={false} />);
     expect(screen.queryByLabelText("Unsaved changes")).not.toBeInTheDocument();
+  });
+
+  it("shows challenge progress when panelMode is challenge", () => {
+    markChallengePassed(CHALLENGES[0].id);
+    markChallengePassed(CHALLENGES[1].id);
+    render(<StatusBar status="ready" panelMode="challenge" />);
+    expect(screen.getByLabelText(`2/${CHALLENGES.length} challenges passed`)).toHaveTextContent(
+      `2/${CHALLENGES.length} challenges passed`,
+    );
+  });
+
+  it("shows tutorial progress when panelMode is tutorial", () => {
+    const tut = TUTORIALS[0];
+    markTutorialStep(tut.id, tut.steps.length - 1);
+    render(<StatusBar status="ready" panelMode="tutorial" />);
+    expect(screen.getByLabelText(`1/${TUTORIALS.length} tutorials completed`)).toHaveTextContent(
+      `1/${TUTORIALS.length} tutorials completed`,
+    );
+  });
+
+  it("hides progress summary when panelMode is closed", () => {
+    markChallengePassed(CHALLENGES[0].id);
+    render(<StatusBar status="ready" panelMode="closed" />);
+    expect(screen.queryByText(/challenges passed/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/tutorials completed/)).not.toBeInTheDocument();
   });
 });

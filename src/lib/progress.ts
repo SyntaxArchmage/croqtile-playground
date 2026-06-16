@@ -2,6 +2,24 @@ import { SOURCE_STORAGE_KEY, loadSavedSource, saveSource } from "./sourceStorage
 
 const STORAGE_KEY = "croqtile-playground-progress";
 
+type ProgressListener = () => void;
+const listeners = new Set<ProgressListener>();
+let revision = 0;
+
+function notifyProgressListeners(): void {
+  revision += 1;
+  listeners.forEach((listener) => listener());
+}
+
+export function subscribeProgress(listener: ProgressListener): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+export function getProgressRevision(): number {
+  return revision;
+}
+
 export interface ChallengeProgress {
   status: "not_started" | "attempted" | "passed";
   bestCode?: string;
@@ -76,6 +94,7 @@ export function saveProgress(progress: Progress): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    notifyProgressListeners();
   } catch {
     // localStorage full or unavailable
   }
@@ -128,6 +147,7 @@ export function resetProgress(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(SOURCE_STORAGE_KEY);
+    notifyProgressListeners();
   } catch {
     // noop
   }
