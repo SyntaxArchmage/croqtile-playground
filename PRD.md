@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (24 tutorials):
+**Current content** (25 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -230,6 +230,7 @@ interface Tutorial {
 | ch22 | Debugging Strategies | 3 | `println` tracing, state inspection, common pitfalls |
 | ch23 | Working with Strings | 3 | Character arrays, string construction, iteration |
 | ch24 | Optimization Techniques | 3 | Memory coalescing, foreach unrolling, sync overhead |
+| ch25 | Pattern Matching & Conditionals | 3 | Conditional patterns, predicate guards, branch logic |
 
 All tutorials include interactive "Try it" inline code blocks.
 
@@ -259,7 +260,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (66):
+**Current challenges** (70):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -329,6 +330,10 @@ interface Challenge {
 | c64 | Matrix Column Swap | Medium | `foreach`, 2D column swap |
 | c65 | Exclusive Prefix Sum | Hard | `foreach`, exclusive scan |
 | c66 | Array Compress | Easy | `foreach`, zero removal / compact |
+| c67 | Parallel Decrement | Easy | `parallel`, element-wise decrement |
+| c68 | Matrix Diagonal Fill | Medium | `parallel`, conditional diagonal assignment |
+| c69 | Running Minimum | Medium | `foreach`, sequential min tracking |
+| c70 | Double Buffer Copy | Hard | `pipeline`, `dma`, double-buffer pattern |
 
 ### 5.6 Example Programs
 
@@ -528,7 +533,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (758 tests across 36 suites)
+- [x] Unit tests (774 tests across 37 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
@@ -540,7 +545,7 @@ src/
 - [ ] L2 execution: Remote GPU Server integration
 - [ ] Extend MockInterpreter to support mma (CPU simulation)
 - [x] ~~Additional tutorials (ch04–ch09)~~ — Done
-- [x] ~~Additional challenges (9–15 total)~~ — Done (66 total)
+- [x] ~~Additional challenges (9–15 total)~~ — Done (70 total)
 - [x] ~~Code sharing via short links~~ — Done (base64url encoding)
 - [ ] WebGPU exploration (L3)
 
