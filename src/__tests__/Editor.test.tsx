@@ -186,6 +186,9 @@ describe("Editor", () => {
       getPosition: () => ({ lineNumber: 1, column: 1 }),
       onDidChangeCursorPosition: (cb: (e: any) => void) => { cursorListener.mockImplementation(cb); },
       getValue: () => "",
+      getSelection: () => ({ isEmpty: () => true }),
+      onDidChangeCursorSelection: jest.fn(),
+      getModel: () => null,
     };
     const mockMonaco = createMockMonaco();
 
@@ -202,6 +205,72 @@ describe("Editor", () => {
 
     act(() => capturedOnMount?.(mockEditor, mockMonaco));
     expect(mockEditor.onDidChangeCursorPosition).not.toHaveBeenCalled();
+  });
+
+  it("reports initial selection on mount", () => {
+    const onSelectionChange = jest.fn();
+    render(<Editor value="" onChange={jest.fn()} onSelectionChange={onSelectionChange} />);
+    const mockEditor = createMockEditor();
+    mockEditor.getSelection = jest.fn(() => ({
+      isEmpty: () => false,
+      startLineNumber: 1,
+      startColumn: 1,
+      endLineNumber: 1,
+      endColumn: 5,
+    }));
+    mockEditor.getModel = jest.fn(() => ({
+      getValueInRange: () => "hello",
+    }));
+    const mockMonaco = createMockMonaco();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    expect(onSelectionChange).toHaveBeenCalledWith({ characters: 5, lines: 1 });
+  });
+
+  it("reports null when selection is empty", () => {
+    const onSelectionChange = jest.fn();
+    render(<Editor value="" onChange={jest.fn()} onSelectionChange={onSelectionChange} />);
+    const mockEditor = createMockEditor();
+    mockEditor.getSelection = jest.fn(() => ({ isEmpty: () => true }));
+    const mockMonaco = createMockMonaco();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    expect(onSelectionChange).toHaveBeenCalledWith(null);
+  });
+
+  it("subscribes to selection changes on mount", () => {
+    const onSelectionChange = jest.fn();
+    render(<Editor value="" onChange={jest.fn()} onSelectionChange={onSelectionChange} />);
+    let selectionListener: (() => void) | undefined;
+    const mockEditor = createMockEditor();
+    mockEditor.onDidChangeCursorSelection = jest.fn((cb: () => void) => {
+      selectionListener = cb;
+    });
+    mockEditor.getSelection = jest.fn(() => ({
+      isEmpty: () => false,
+      startLineNumber: 1,
+      startColumn: 1,
+      endLineNumber: 2,
+      endColumn: 1,
+    }));
+    mockEditor.getModel = jest.fn(() => ({
+      getValueInRange: () => "a\nb",
+    }));
+    const mockMonaco = createMockMonaco();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    onSelectionChange.mockClear();
+    act(() => selectionListener?.());
+    expect(onSelectionChange).toHaveBeenCalledWith({ characters: 3, lines: 2 });
+  });
+
+  it("does not subscribe to selection changes when onSelectionChange is not provided", () => {
+    render(<Editor value="" onChange={jest.fn()} />);
+    const mockEditor = createMockEditor();
+    const mockMonaco = createMockMonaco();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    expect(mockEditor.onDidChangeCursorSelection).not.toHaveBeenCalled();
   });
 
   it("handles null cursor position on mount", () => {
@@ -307,5 +376,8 @@ function createMockEditor(position?: { lineNumber: number; column: number } | nu
     getPosition: jest.fn(() => position === undefined ? ({ lineNumber: 1, column: 1 }) : position),
     onDidChangeCursorPosition: jest.fn(),
     getValue: jest.fn(() => ""),
+    getSelection: jest.fn(() => ({ isEmpty: () => true })),
+    onDidChangeCursorSelection: jest.fn(),
+    getModel: jest.fn(() => null),
   };
 }

@@ -19,10 +19,16 @@ export interface CursorPosition {
   column: number;
 }
 
+export interface SelectionInfo {
+  characters: number;
+  lines: number;
+}
+
 interface Props {
   value: string;
   onChange: (value: string) => void;
   onCursorChange?: (pos: CursorPosition) => void;
+  onSelectionChange?: (selection: SelectionInfo | null) => void;
   fontSize?: number;
   wordWrap?: boolean;
   theme?: Theme;
@@ -147,6 +153,9 @@ function registerChoreoLanguage(monaco: Monaco) {
         action: { indentAction: monaco.languages.IndentAction.None, removeText: /^\s*/ },
       },
     ],
+    folding: {
+      offSide: false,
+    },
   });
 
   monaco.editor.defineTheme("choreo-dark", {
@@ -417,7 +426,7 @@ function registerChoreoLanguage(monaco: Monaco) {
 }
 
 export const Editor = forwardRef<{ getValue: () => string }, Props>(
-  function Editor({ value, onChange, onCursorChange, fontSize = 14, wordWrap = true, theme = "dark" }, ref) {
+  function Editor({ value, onChange, onCursorChange, onSelectionChange, fontSize = 14, wordWrap = true, theme = "dark" }, ref) {
     const editorRef = useRef<unknown>(null);
     const monacoRef = useRef<Monaco | null>(null);
     const monacoTheme = theme === "light" ? "choreo-light" : "choreo-dark";
@@ -454,6 +463,28 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
               onCursorChange({ line: e.position.lineNumber, column: e.position.column });
             });
           }
+          if (onSelectionChange) {
+            const reportSelection = () => {
+              const sel = editor.getSelection();
+              if (!sel || sel.isEmpty()) {
+                onSelectionChange(null);
+                return;
+              }
+              const model = editor.getModel();
+              if (!model) {
+                onSelectionChange(null);
+                return;
+              }
+              const text = model.getValueInRange(sel);
+              let lines = 1;
+              for (let i = 0; i < text.length; i++) {
+                if (text.charCodeAt(i) === 10) lines++;
+              }
+              onSelectionChange({ characters: text.length, lines });
+            };
+            reportSelection();
+            editor.onDidChangeCursorSelection(reportSelection);
+          }
         }}
         loading={
           <div className="flex items-center justify-center h-full bg-[var(--bg-primary)]">
@@ -469,6 +500,7 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
           lineNumbers: "on",
           renderLineHighlight: "line",
           bracketPairColorization: { enabled: true },
+          folding: true,
           tabSize: 2,
           insertSpaces: true,
           autoIndent: "full",
