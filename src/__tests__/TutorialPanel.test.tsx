@@ -133,6 +133,20 @@ describe("TutorialPanel", () => {
     const onLoadCode = jest.fn();
     render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} initialId="ch01" />);
     expect(onLoadCode).toHaveBeenCalledTimes(1);
+    expect(onLoadCode).toHaveBeenCalledWith(
+      expect.stringContaining('println("Hello from Croqtile!")'),
+    );
+  });
+
+  it("loads code for deep-linked step on mount", () => {
+    window.history.pushState({}, "", "/?tutorial=ch01&step=2");
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} initialId="ch01" />);
+    expect(onLoadCode).toHaveBeenCalledTimes(1);
+    expect(onLoadCode).toHaveBeenCalledWith(
+      expect.stringContaining('println("The answer is", 42)'),
+    );
+    window.history.pushState({}, "", "/");
   });
 
   it("shows tutorial list when initialId is invalid", () => {

@@ -348,13 +348,14 @@ describe("Toolbar", () => {
     expect(screen.getByText("Challenges")).toBeInTheDocument();
   });
 
-  it("confirms before resetting progress", () => {
-    const confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(false);
+  it("requires two clicks before resetting progress", () => {
+    const resetProgressSpy = jest.spyOn(progress, "resetProgress");
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByText("Reset progress"));
-    expect(confirmSpy).toHaveBeenCalledWith("Reset all tutorial and challenge progress?");
-    confirmSpy.mockRestore();
+    expect(screen.getByText("Confirm?")).toBeInTheDocument();
+    expect(resetProgressSpy).not.toHaveBeenCalled();
+    resetProgressSpy.mockRestore();
   });
 
   it("closes File menu on Escape", () => {
@@ -594,19 +595,17 @@ describe("Toolbar", () => {
 
   it("resets progress when reset confirmed", () => {
     const resetProgressSpy = jest.spyOn(progress, "resetProgress");
-    const confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(true);
     const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByText("Reset progress"));
+    fireEvent.click(screen.getByText("Confirm?"));
 
-    expect(confirmSpy).toHaveBeenCalledWith("Reset all tutorial and challenge progress?");
     expect(resetProgressSpy).toHaveBeenCalledTimes(1);
     expect(screen.queryByText("Reset progress")).not.toBeInTheDocument();
 
     consoleSpy.mockRestore();
-    confirmSpy.mockRestore();
     resetProgressSpy.mockRestore();
   });
 
@@ -631,19 +630,43 @@ describe("Toolbar", () => {
     expect(formatItem).toHaveFocus();
   });
 
-  it("does not reset progress when confirm is cancelled", () => {
+  it("does not reset progress when confirmation expires", () => {
+    jest.useFakeTimers();
     const resetProgressSpy = jest.spyOn(progress, "resetProgress");
-    const confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(false);
 
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByText("Reset progress"));
+    expect(screen.getByText("Confirm?")).toBeInTheDocument();
 
-    expect(confirmSpy).toHaveBeenCalled();
+    act(() => {
+      jest.advanceTimersByTime(3000);
+    });
+    expect(screen.getByText("Reset progress")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Reset progress"));
+
     expect(resetProgressSpy).not.toHaveBeenCalled();
 
-    confirmSpy.mockRestore();
+    jest.useRealTimers();
     resetProgressSpy.mockRestore();
+  });
+
+  it("starts a fresh reset confirmation cycle after the prior timeout expires", () => {
+    jest.useFakeTimers();
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByText("Reset progress"));
+    expect(screen.getByText("Confirm?")).toBeInTheDocument();
+
+    act(() => {
+      jest.advanceTimersByTime(3000);
+    });
+    expect(screen.getByText("Reset progress")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Reset progress"));
+    expect(screen.getByText("Confirm?")).toBeInTheDocument();
+
+    jest.useRealTimers();
   });
 
   it("ignores file input change when files is undefined", () => {

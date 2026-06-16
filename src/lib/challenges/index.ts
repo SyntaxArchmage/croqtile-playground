@@ -62,6 +62,8 @@ import { challenge45 } from "./45-string-builder";
 import { challenge46 } from "./46-matrix-border";
 import { challenge47 } from "./47-prefix-product";
 import { challenge48 } from "./48-scatter-gather";
+import { challenge49 } from "./49-parallel-copy";
+import { challenge50 } from "./50-zigzag-traversal";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -76,4 +78,5 @@ export const CHALLENGES: Challenge[] = [
   challenge37, challenge38, challenge39, challenge40,
   challenge41, challenge42, challenge43, challenge44,
   challenge45, challenge46, challenge47, challenge48,
+  challenge49, challenge50,
 ];

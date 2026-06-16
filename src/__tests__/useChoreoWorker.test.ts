@@ -492,5 +492,39 @@ describe("useChoreoWorker", () => {
       });
       expect(result.current.buildManifest).toBeNull();
     });
+
+    it("leaves buildManifest null when manifest JSON is not an object", async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(null),
+      });
+      const { result } = renderHook(() => useChoreoWorker());
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalled();
+      });
+      expect(result.current.buildManifest).toBeNull();
+    });
+
+    it("parses build manifest with non-string fields as null", async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            version: 42,
+            commit: { sha: "abc" },
+            commit_short: true,
+            built_at: ["2024-01-01"],
+          }),
+      });
+      const { result } = renderHook(() => useChoreoWorker());
+      await waitFor(() => {
+        expect(result.current.buildManifest).toEqual({
+          version: null,
+          commit: null,
+          commit_short: null,
+          built_at: null,
+        });
+      });
+    });
   });
 });

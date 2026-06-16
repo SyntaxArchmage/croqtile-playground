@@ -56,6 +56,11 @@ describe("Editor", () => {
     expect(capturedOptions?.wordWrap).toBe("off");
   });
 
+  it("passes wordWrap on when enabled", () => {
+    render(<Editor value="" onChange={jest.fn()} wordWrap={true} />);
+    expect(capturedOptions?.wordWrap).toBe("on");
+  });
+
   it("passes minimap to options", () => {
     render(<Editor value="" onChange={jest.fn()} minimap={true} />);
     expect(capturedOptions?.minimap).toEqual({ enabled: true });
@@ -141,6 +146,17 @@ describe("Editor", () => {
     act(() => capturedOnMount?.(mockEditor, mockMonaco));
     act(() => ref.current?.redo());
     expect(mockEditor.trigger).toHaveBeenCalledWith("keyboard", "redo", null);
+  });
+
+  it("undo and redo are no-ops before Monaco editor mounts", () => {
+    const ref = React.createRef<EditorHandle>();
+    render(<Editor ref={ref} value="" onChange={jest.fn()} />);
+    expect(() => {
+      act(() => {
+        ref.current?.undo();
+        ref.current?.redo();
+      });
+    }).not.toThrow();
   });
 
   it("registers Choreo language on mount", () => {

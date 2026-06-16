@@ -425,6 +425,22 @@ describe("OutputPanel", () => {
     expect(scrollTop).toBe(500);
   });
 
+  it("auto-scrolls AST tab when ast content changes", () => {
+    const { rerender } = render(<OutputPanel output="" errors="" ast="" />);
+    fireEvent.click(screen.getByRole("tab", { name: /AST/ }));
+    const tabpanel = screen.getByRole("tabpanel");
+    Object.defineProperty(tabpanel, "scrollHeight", { value: 400, configurable: true });
+    let scrollTop = 0;
+    Object.defineProperty(tabpanel, "scrollTop", {
+      get: () => scrollTop,
+      set: (v: number) => { scrollTop = v; },
+      configurable: true,
+    });
+
+    rerender(<OutputPanel output="" errors="" ast="(program\n  (func main))" />);
+    expect(scrollTop).toBe(400);
+  });
+
   it("clamps resize height to min and max bounds", () => {
     const { container } = render(
       <div style={{ height: 600 }}>

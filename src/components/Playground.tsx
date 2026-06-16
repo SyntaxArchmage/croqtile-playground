@@ -109,10 +109,10 @@ export function Playground() {
   }, [source]);
 
   useEffect(() => {
-    const flush = () => saveSource(sourceRef.current);
+    const flush = () => saveSource(source);
     window.addEventListener("beforeunload", flush);
     return () => window.removeEventListener("beforeunload", flush);
-  }, []);
+  }, [source]);
 
   useEffect(() => {
     if (status === "running" && prevStatusRef.current !== "running") {

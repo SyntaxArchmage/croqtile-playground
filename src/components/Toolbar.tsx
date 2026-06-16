@@ -63,7 +63,9 @@ export const Toolbar = memo(function Toolbar({
   const [copied, setCopied] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showFileMenu, setShowFileMenu] = useState(false);
+  const [resetConfirmPending, setResetConfirmPending] = useState(false);
   const shareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resetConfirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fileMenuRef = useRef<HTMLDivElement>(null);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
@@ -130,6 +132,33 @@ export const Toolbar = memo(function Toolbar({
     downloadCoSource(getCode());
   }, [getCode]);
 
+  const clearResetConfirm = useCallback(() => {
+    setResetConfirmPending(false);
+    if (resetConfirmTimeoutRef.current) {
+      clearTimeout(resetConfirmTimeoutRef.current);
+      resetConfirmTimeoutRef.current = null;
+    }
+  }, []);
+
+  const handleResetProgressClick = useCallback(() => {
+    if (resetConfirmPending) {
+      clearResetConfirm();
+      resetProgress();
+      setShowMenu(false);
+      window.location.reload();
+      return;
+    }
+
+    setResetConfirmPending(true);
+    if (resetConfirmTimeoutRef.current) {
+      clearTimeout(resetConfirmTimeoutRef.current);
+    }
+    resetConfirmTimeoutRef.current = setTimeout(() => {
+      setResetConfirmPending(false);
+      resetConfirmTimeoutRef.current = null;
+    }, 3000);
+  }, [resetConfirmPending, clearResetConfirm]);
+
   const handleOpenClick = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
@@ -174,8 +203,17 @@ export const Toolbar = memo(function Toolbar({
       if (shareTimeoutRef.current) {
         clearTimeout(shareTimeoutRef.current);
       }
+      if (resetConfirmTimeoutRef.current) {
+        clearTimeout(resetConfirmTimeoutRef.current);
+      }
     };
   }, []);
+
+  useEffect(() => {
+    if (!showMenu) {
+      clearResetConfirm();
+    }
+  }, [showMenu, clearResetConfirm]);
 
   useEffect(() => {
     if (!showFileMenu) return;
@@ -564,16 +602,19 @@ export const Toolbar = memo(function Toolbar({
             <div role="separator" className="border-t border-[var(--border)] my-1" />
             <button
               role="menuitem"
-              onClick={() => {
-                if (window.confirm("Reset all tutorial and challenge progress?")) {
-                  resetProgress();
-                  setShowMenu(false);
-                  window.location.reload();
-                }
-              }}
-              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+              onClick={handleResetProgressClick}
+              className={`w-full text-left px-3 py-2 text-xs transition-colors ${
+                resetConfirmPending
+                  ? "text-red-400 hover:bg-red-900/20 font-medium"
+                  : "text-[var(--text-secondary)] hover:bg-[var(--bg-primary)]"
+              }`}
+              aria-label={
+                resetConfirmPending
+                  ? "Confirm reset of all tutorial and challenge progress"
+                  : "Reset all tutorial and challenge progress"
+              }
             >
-              Reset progress
+              {resetConfirmPending ? "Confirm?" : "Reset progress"}
             </button>
           </div>
         )}
