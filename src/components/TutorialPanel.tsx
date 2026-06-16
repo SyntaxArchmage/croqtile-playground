@@ -147,6 +147,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
               key={t.id}
               type="button"
               onClick={() => {
+                setSearchQuery("");
                 setSelectedTutorial(t);
                 const resumeStep = Math.min(getTutorialProgress(t.id) + 1, t.steps.length - 1);
                 setStepIndex(resumeStep);
