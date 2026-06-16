@@ -9,6 +9,11 @@ import { TUTORIALS } from "@/lib/tutorials";
 import { CHALLENGES } from "@/lib/challenges";
 import { getTutorialProgress, isChallengePassed, resetProgress } from "@/lib/progress";
 import type { EditorSettings } from "@/lib/settings";
+import {
+  downloadCoSource,
+  isAllowedOpenExtension,
+  MAX_OPEN_FILE_BYTES,
+} from "@/lib/fileIO";
 
 interface Props {
   target: string;
@@ -117,14 +122,7 @@ export const Toolbar = memo(function Toolbar({
   }, [onShare]);
 
   const handleDownload = useCallback(() => {
-    const code = getCode();
-    const blob = new Blob([code], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "croqtile-code.co";
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadCoSource(getCode());
   }, [getCode]);
 
   const handleOpenClick = useCallback(() => {
@@ -134,13 +132,26 @@ export const Toolbar = memo(function Toolbar({
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
+      e.target.value = "";
       if (!file) return;
+
+      if (!isAllowedOpenExtension(file.name)) {
+        window.alert("Please select a .co or .txt file.");
+        return;
+      }
+      if (file.size > MAX_OPEN_FILE_BYTES) {
+        window.alert(`File is too large (max ${MAX_OPEN_FILE_BYTES / (1024 * 1024)} MB).`);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === "string") onLoadCode(reader.result);
       };
+      reader.onerror = () => {
+        window.alert("Could not read the selected file.");
+      };
       reader.readAsText(file);
-      e.target.value = "";
     },
     [onLoadCode],
   );
@@ -258,6 +269,7 @@ export const Toolbar = memo(function Toolbar({
         onClick={onDumpAST}
         disabled={busy}
         className="px-3 py-1 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)] disabled:opacity-50"
+        title="Print AST dump (Ctrl+Alt+D)"
         aria-label="Dump AST"
       >
         AST

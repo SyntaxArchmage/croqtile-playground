@@ -108,7 +108,9 @@ describe("Toolbar", () => {
   });
 
   it("downloads code as .co file via File menu", () => {
-    render(<Toolbar {...defaultProps} />);
+    jest.useFakeTimers();
+    const getCode = jest.fn(() => "__co__ void hello() {}");
+    render(<Toolbar {...defaultProps} getCode={getCode} />);
 
     const click = jest.fn();
     const anchor = document.createElement("a");
@@ -126,13 +128,17 @@ describe("Toolbar", () => {
     try {
       fireEvent.click(screen.getByLabelText("File menu"));
       fireEvent.click(screen.getByText("Download .co"));
-      expect(defaultProps.getCode).toHaveBeenCalledTimes(1);
+      expect(getCode).toHaveBeenCalledTimes(1);
       expect(mockCreateObjectURL).toHaveBeenCalled();
-      expect(anchor.download).toBe("croqtile-code.co");
+      expect(anchor.download).toMatch(/^hello-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.co$/);
       expect(click).toHaveBeenCalledTimes(1);
+      act(() => {
+        jest.runAllTimers();
+      });
       expect(mockRevokeObjectURL).toHaveBeenCalledWith("blob:test");
     } finally {
       createElementSpy.mockRestore();
+      jest.useRealTimers();
     }
   });
 
@@ -450,6 +456,58 @@ describe("Toolbar", () => {
 
     fireEvent.change(fileInput, { target: { files: [file] } });
     expect(defaultProps.onLoadCode).not.toHaveBeenCalled();
+    (window.FileReader as unknown as jest.SpyInstance).mockRestore();
+  });
+
+  it("rejects files with disallowed extensions", () => {
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+    render(<Toolbar {...defaultProps} />);
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+
+    const file = new File(["code"], "kernel.cpp", { type: "text/plain" });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    expect(alertSpy).toHaveBeenCalledWith("Please select a .co or .txt file.");
+    expect(defaultProps.onLoadCode).not.toHaveBeenCalled();
+    alertSpy.mockRestore();
+  });
+
+  it("rejects files larger than the size limit", () => {
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+    render(<Toolbar {...defaultProps} />);
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+
+    const file = new File(["x"], "big.co", { type: "text/plain" });
+    Object.defineProperty(file, "size", { value: 2 * 1024 * 1024 });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    expect(alertSpy).toHaveBeenCalledWith("File is too large (max 1 MB).");
+    expect(defaultProps.onLoadCode).not.toHaveBeenCalled();
+    alertSpy.mockRestore();
+  });
+
+  it("alerts when FileReader fails", () => {
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+    render(<Toolbar {...defaultProps} />);
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+
+    const file = new File(["data"], "test.co", { type: "text/plain" });
+    const readAsText = jest.fn();
+    const mockFileReader = {
+      onload: null as (() => void) | null,
+      onerror: null as (() => void) | null,
+      result: null,
+      readAsText,
+    };
+    readAsText.mockImplementation(function (this: typeof mockFileReader) {
+      this.onerror?.();
+    }.bind(mockFileReader));
+    jest.spyOn(window, "FileReader").mockImplementation(() => mockFileReader as unknown as FileReader);
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+    expect(alertSpy).toHaveBeenCalledWith("Could not read the selected file.");
+    expect(defaultProps.onLoadCode).not.toHaveBeenCalled();
+    alertSpy.mockRestore();
     (window.FileReader as unknown as jest.SpyInstance).mockRestore();
   });
 
