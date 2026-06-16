@@ -120,6 +120,15 @@ describe("progressExport", () => {
       expect(restoredSettings.fontSize).toBe(22);
     });
 
+    it("cleans up transient keys when validating against empty localStorage", () => {
+      localStorage.clear();
+      const payload = buildProgressExport();
+      const validated = validateProgressExport(payload);
+      expect(validated).not.toBeNull();
+      expect(localStorage.getItem("croqtile-playground-progress")).toBeNull();
+      expect(localStorage.getItem("croqtile-playground-settings")).toBeNull();
+    });
+
     it("normalizes invalid settings fields", () => {
       const payload = {
         version: PROGRESS_EXPORT_VERSION,

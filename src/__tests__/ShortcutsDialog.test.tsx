@@ -249,6 +249,98 @@ describe("ShortcutsDialog", () => {
     expect(event.defaultPrevented).toBe(true);
   });
 
+  it("handles Shift+Tab wrap when last focusable entry is missing", () => {
+    const originalQuerySelectorAll = Element.prototype.querySelectorAll;
+    Element.prototype.querySelectorAll = function (this: Element, selector: string) {
+      if (this.getAttribute?.("role") === "dialog" && selector.includes("tabindex")) {
+        const closeBtn = this.querySelector('button[aria-label="Close keyboard shortcuts"]');
+        return { 0: closeBtn, length: 2 } as unknown as NodeListOf<HTMLElement>;
+      }
+      return originalQuerySelectorAll.call(this, selector);
+    };
+
+    try {
+      render(<ShortcutsDialog onClose={jest.fn()} />);
+      const dialog = screen.getByRole("dialog");
+      const closeBtn = screen.getByLabelText("Close keyboard shortcuts");
+      act(() => {
+        closeBtn.focus();
+      });
+      act(() => {
+        dialog.dispatchEvent(
+          new KeyboardEvent("keydown", {
+            key: "Tab",
+            shiftKey: true,
+            bubbles: true,
+            cancelable: true,
+          }),
+        );
+      });
+      expect(document.activeElement).toBe(closeBtn);
+    } finally {
+      Element.prototype.querySelectorAll = originalQuerySelectorAll;
+    }
+  });
+
+  it("handles Tab wrap when first focusable entry is missing", () => {
+    const originalQuerySelectorAll = Element.prototype.querySelectorAll;
+    Element.prototype.querySelectorAll = function (this: Element, selector: string) {
+      if (this.getAttribute?.("role") === "dialog" && selector.includes("tabindex")) {
+        const closeBtn = this.querySelector('button[aria-label="Close keyboard shortcuts"]');
+        return { 1: closeBtn, length: 2 } as unknown as NodeListOf<HTMLElement>;
+      }
+      return originalQuerySelectorAll.call(this, selector);
+    };
+
+    try {
+      render(<ShortcutsDialog onClose={jest.fn()} />);
+      const dialog = screen.getByRole("dialog");
+      const closeBtn = screen.getByLabelText("Close keyboard shortcuts");
+      act(() => {
+        closeBtn.focus();
+      });
+      act(() => {
+        dialog.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }),
+        );
+      });
+      expect(document.activeElement).toBe(closeBtn);
+    } finally {
+      Element.prototype.querySelectorAll = originalQuerySelectorAll;
+    }
+  });
+
+  it("ignores Tab when focusable query returns undefined in the trap handler", () => {
+    const originalQuerySelectorAll = Element.prototype.querySelectorAll;
+    Element.prototype.querySelectorAll = function (this: Element, selector: string) {
+      if (this.getAttribute?.("role") === "dialog" && selector.includes("tabindex")) {
+        return undefined as unknown as NodeListOf<HTMLElement>;
+      }
+      return originalQuerySelectorAll.call(this, selector);
+    };
+
+    try {
+      render(<ShortcutsDialog onClose={jest.fn()} />);
+      const dialog = screen.getByRole("dialog");
+      act(() => {
+        dialog.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }),
+        );
+      });
+      expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
+    } finally {
+      Element.prototype.querySelectorAll = originalQuerySelectorAll;
+    }
+  });
+
+  it("registers keydown listener on the dialog element", () => {
+    const addListenerSpy = jest.spyOn(HTMLDivElement.prototype, "addEventListener");
+    const { unmount } = render(<ShortcutsDialog onClose={jest.fn()} />);
+    expect(addListenerSpy).toHaveBeenCalledWith("keydown", expect.any(Function));
+    unmount();
+    addListenerSpy.mockRestore();
+  });
+
   it("unmounts without restoring focus when activeElement was null on open", () => {
     const activeElementDescriptor = Object.getOwnPropertyDescriptor(document, "activeElement");
     Object.defineProperty(document, "activeElement", {

@@ -1169,4 +1169,126 @@ describe("Toolbar", () => {
     alertSpy.mockRestore();
     jest.restoreAllMocks();
   });
+
+  it("opens progress file picker when Import progress is clicked", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    const input = document.querySelector('input[accept=".json,application/json"]') as HTMLInputElement;
+    const clickSpy = jest.spyOn(input, "click");
+    fireEvent.click(screen.getByText("Import progress"));
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("no-ops Import progress when progress input ref is cleared", () => {
+    const shareTimeoutRef = { current: null as ReturnType<typeof setTimeout> | null };
+    const resetConfirmTimeoutRef = { current: null as ReturnType<typeof setTimeout> | null };
+    const fileInputRef = { current: null as HTMLInputElement | null };
+    const progressInputRef = { current: null as HTMLInputElement | null };
+    const fileMenuRef = { current: null as HTMLDivElement | null };
+    const settingsMenuRef = { current: null as HTMLDivElement | null };
+    const refs = [
+      shareTimeoutRef,
+      resetConfirmTimeoutRef,
+      fileInputRef,
+      progressInputRef,
+      fileMenuRef,
+      settingsMenuRef,
+    ];
+    let useRefCall = 0;
+    const useRefSpy = jest.spyOn(React, "useRef").mockImplementation((initial) => {
+      const ref = refs[useRefCall % refs.length];
+      useRefCall += 1;
+      if (ref === shareTimeoutRef && initial !== undefined) {
+        ref.current = initial as ReturnType<typeof setTimeout> | null;
+      }
+      return ref;
+    });
+
+    try {
+      render(<Toolbar {...defaultProps} />);
+      fireEvent.click(screen.getByLabelText("Settings menu"));
+      expect(() => fireEvent.click(screen.getByText("Import progress"))).not.toThrow();
+    } finally {
+      useRefSpy.mockRestore();
+    }
+  });
+
+  it("ignores progress import when no file is selected", () => {
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+    render(<Toolbar {...defaultProps} />);
+
+    const input = document.querySelector('input[accept=".json,application/json"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [] } });
+    expect(alertSpy).not.toHaveBeenCalled();
+
+    alertSpy.mockRestore();
+  });
+
+  it("ignores progress import when files is undefined", () => {
+    render(<Toolbar {...defaultProps} />);
+    const input = document.querySelector('input[accept=".json,application/json"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { files: undefined } });
+    expect(screen.getByLabelText("Settings menu")).toBeInTheDocument();
+  });
+
+  it("no-ops Open file when file input ref is null", () => {
+    const shareTimeoutRef = { current: null as ReturnType<typeof setTimeout> | null };
+    const resetConfirmTimeoutRef = { current: null as ReturnType<typeof setTimeout> | null };
+    const fileInputRef = { current: null as HTMLInputElement | null };
+    const progressInputRef = { current: null as HTMLInputElement | null };
+    const fileMenuRef = { current: null as HTMLDivElement | null };
+    const settingsMenuRef = { current: null as HTMLDivElement | null };
+    const refs = [
+      shareTimeoutRef,
+      resetConfirmTimeoutRef,
+      fileInputRef,
+      progressInputRef,
+      fileMenuRef,
+      settingsMenuRef,
+    ];
+    let useRefCall = 0;
+    const useRefSpy = jest.spyOn(React, "useRef").mockImplementation((initial) => {
+      const ref = refs[useRefCall % refs.length];
+      useRefCall += 1;
+      if (ref === shareTimeoutRef && initial !== undefined) {
+        ref.current = initial as ReturnType<typeof setTimeout> | null;
+      }
+      return ref;
+    });
+
+    try {
+      render(<Toolbar {...defaultProps} />);
+      fireEvent.click(screen.getByLabelText("File menu"));
+      expect(() => fireEvent.click(screen.getByText("Open file..."))).not.toThrow();
+    } finally {
+      useRefSpy.mockRestore();
+    }
+  });
+
+  it("ignores progress import when FileReader result is not a string", () => {
+    const importSpy = jest.spyOn(progressExport, "importProgress");
+    const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+
+    render(<Toolbar {...defaultProps} />);
+
+    const input = document.querySelector('input[accept=".json,application/json"]') as HTMLInputElement;
+    const file = new File(["{}"], "progress.json", { type: "application/json" });
+
+    const mockReader = {
+      readAsText: jest.fn(),
+      onload: null as null | (() => void),
+      onerror: null as null | (() => void),
+      result: new ArrayBuffer(8),
+    };
+    jest.spyOn(window, "FileReader").mockImplementation(() => mockReader as unknown as FileReader);
+
+    fireEvent.change(input, { target: { files: [file] } });
+    mockReader.onload!();
+    expect(importSpy).not.toHaveBeenCalled();
+    expect(alertSpy).not.toHaveBeenCalled();
+
+    importSpy.mockRestore();
+    alertSpy.mockRestore();
+    jest.restoreAllMocks();
+  });
 });

@@ -1,5 +1,12 @@
+import React from "react";
 import { detectIsMac, formatShortcut, useIsMac } from "@/lib/platform";
 import { renderHook } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
+
+function MacBadge() {
+  const isMac = useIsMac();
+  return React.createElement("span", null, isMac ? "mac" : "pc");
+}
 
 describe("platform", () => {
   describe("detectIsMac", () => {
@@ -25,6 +32,22 @@ describe("platform", () => {
     it("returns true for iPad platform", () => {
       Object.defineProperty(global, "navigator", {
         value: { platform: "iPad", userAgent: "" },
+        configurable: true,
+      });
+      expect(detectIsMac()).toBe(true);
+    });
+
+    it("returns true for iPhone platform", () => {
+      Object.defineProperty(global, "navigator", {
+        value: { platform: "iPhone", userAgent: "" },
+        configurable: true,
+      });
+      expect(detectIsMac()).toBe(true);
+    });
+
+    it("returns true for iPod platform", () => {
+      Object.defineProperty(global, "navigator", {
+        value: { platform: "iPod", userAgent: "" },
         configurable: true,
       });
       expect(detectIsMac()).toBe(true);
@@ -75,6 +98,10 @@ describe("platform", () => {
       rerender();
       expect(result.current).toBe(first);
       unmount();
+    });
+
+    it("uses server snapshot false during SSR rendering", () => {
+      expect(renderToString(React.createElement(MacBadge))).toContain("pc");
     });
   });
 

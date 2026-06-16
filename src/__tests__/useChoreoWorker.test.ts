@@ -436,6 +436,29 @@ describe("useChoreoWorker", () => {
       clearSpy.mockRestore();
     });
 
+    it("handles compile-result when execution timeout id is falsy", () => {
+      const setTimeoutSpy = jest.spyOn(global, "setTimeout").mockImplementation((fn, delay) => {
+        if (delay === EXECUTION_TIMEOUT_MS) {
+          return 0 as unknown as ReturnType<typeof setTimeout>;
+        }
+        return jest.requireActual<typeof globalThis>("timers").setTimeout(fn, delay as number);
+      });
+
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+
+      act(() => {
+        result.current.run("code");
+      });
+      expect(result.current.status).toBe("running");
+
+      postWorkerMessage("compile-result", { output: "ok", errors: "" });
+      expect(result.current.status).toBe("ready");
+      expect(result.current.output).toBe("ok");
+
+      setTimeoutSpy.mockRestore();
+    });
+
     it("clears pending timeout when ready message arrives during run", () => {
       const clearSpy = jest.spyOn(global, "clearTimeout");
       const { result } = renderHook(() => useChoreoWorker());

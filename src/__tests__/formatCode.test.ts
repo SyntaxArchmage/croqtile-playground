@@ -521,4 +521,13 @@ inner {
     expect(formatted).toContain("inner {");
     expect(formatted.split("\n").every((line) => line === "" || line.trim().length > 0)).toBe(true);
   });
+
+  it("handles inline empty block without leaving blank split segments", () => {
+    expect(formatChoreoCode("a{}")).toBe("a{}");
+  });
+
+  it("skips whitespace-only segments produced by same-line brace splits", () => {
+    const formatted = formatChoreoCode("}   }");
+    expect(formatted.split("\n").every((line) => line.trim().length > 0)).toBe(true);
+  });
 });
