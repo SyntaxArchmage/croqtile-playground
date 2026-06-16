@@ -17,6 +17,41 @@ function getDefault(): Progress {
   return { tutorialSteps: {}, challengesPassed: [], challengeProgress: {} };
 }
 
+function normalizeChallengeProgress(raw: unknown): ChallengeProgress {
+  if (typeof raw !== "object" || raw === null) {
+    return { status: "not_started", attempts: 0 };
+  }
+  const cp = raw as Record<string, unknown>;
+  const status =
+    cp.status === "passed" || cp.status === "attempted" || cp.status === "not_started"
+      ? cp.status
+      : "not_started";
+  const attempts =
+    typeof cp.attempts === "number" && Number.isFinite(cp.attempts)
+      ? Math.max(0, Math.floor(cp.attempts))
+      : 0;
+  const result: ChallengeProgress = { status, attempts };
+  if (typeof cp.bestCode === "string") result.bestCode = cp.bestCode;
+  return result;
+}
+
+function normalizeTutorialSteps(raw: unknown): Record<string, number> {
+  if (typeof raw !== "object" || raw === null) return {};
+  return Object.fromEntries(
+    Object.entries(raw).filter(
+      (entry): entry is [string, number] =>
+        typeof entry[1] === "number" && Number.isFinite(entry[1]),
+    ).map(([k, v]) => [k, Math.floor(v)]),
+  );
+}
+
+function normalizeChallengeProgressMap(raw: unknown): Record<string, ChallengeProgress> {
+  if (typeof raw !== "object" || raw === null) return {};
+  return Object.fromEntries(
+    Object.entries(raw).map(([id, cp]) => [id, normalizeChallengeProgress(cp)]),
+  );
+}
+
 export function loadProgress(): Progress {
   if (typeof window === "undefined") return getDefault();
   try {
@@ -25,12 +60,11 @@ export function loadProgress(): Progress {
     const parsed = JSON.parse(raw);
     const def = getDefault();
     return {
-      tutorialSteps: typeof parsed.tutorialSteps === "object" && parsed.tutorialSteps !== null
-        ? parsed.tutorialSteps : def.tutorialSteps,
+      tutorialSteps: normalizeTutorialSteps(parsed.tutorialSteps),
       challengesPassed: Array.isArray(parsed.challengesPassed)
-        ? parsed.challengesPassed : def.challengesPassed,
-      challengeProgress: typeof parsed.challengeProgress === "object" && parsed.challengeProgress !== null
-        ? parsed.challengeProgress : def.challengeProgress,
+        ? parsed.challengesPassed.filter((id: unknown): id is string => typeof id === "string")
+        : def.challengesPassed,
+      challengeProgress: normalizeChallengeProgressMap(parsed.challengeProgress),
     };
   } catch {
     return getDefault();

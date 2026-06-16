@@ -46,6 +46,7 @@ export function useChoreoWorker() {
 
     worker.onmessage = (e) => {
       if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
+      if (!e.data || typeof e.data !== "object") return;
       const { type, data } = e.data;
       switch (type) {
         case "ready":

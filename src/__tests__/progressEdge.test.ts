@@ -61,6 +61,14 @@ describe("progress edge cases", () => {
     const p = loadProgress();
     expect(p.challengeProgress).toEqual({});
   });
+
+  it("normalizes invalid challengeProgress entry fields on load", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      challengeProgress: { c1: { status: "attempted", attempts: "3" } },
+    }));
+    recordChallengeAttempt("c1");
+    expect(getChallengeProgress("c1").attempts).toBe(1);
+  });
 });
 
 describe("challenge progress tracking", () => {
