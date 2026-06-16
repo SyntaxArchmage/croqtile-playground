@@ -271,7 +271,7 @@ export const Toolbar = memo(function Toolbar({
             : "border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
         }`}
         title="Copy shareable link (Ctrl+S)"
-        aria-label="Share code"
+        aria-label={copied ? "Link copied to clipboard" : "Share code"}
       >
         {copied ? (
           <>

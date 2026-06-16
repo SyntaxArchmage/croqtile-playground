@@ -146,18 +146,20 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
   }`;
 
   return (
-    <div
-      ref={panelRef}
-      className="min-h-[120px] border-t border-[var(--border)] flex flex-col"
-      style={{ height: `${heightPct}%` }}
-    >
+      <div
+        ref={panelRef}
+        className="min-h-[120px] border-t border-[var(--border)] flex flex-col"
+        style={{ height: `${heightPct}%` }}
+        role="region"
+        aria-label="Output panel"
+      >
       <div
         role="separator"
         aria-orientation="horizontal"
         aria-valuenow={Math.round(heightPct)}
         aria-valuemin={MIN_HEIGHT_PCT}
         aria-valuemax={MAX_HEIGHT_PCT}
-        aria-label="Resize output panel"
+        aria-label="Resize output panel height"
         tabIndex={0}
         onMouseDown={onResizeMouseDown}
         onTouchStart={onResizeTouchStart}
@@ -188,16 +190,16 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
           }
         }}
       >
-        <button id="output-tab" role="tab" tabIndex={activeTab === "output" ? 0 : -1} aria-selected={activeTab === "output"} aria-controls="output-tabpanel" onClick={() => setActiveTab("output")} className={tabClass("output")}>
+        <button id="output-tab" type="button" role="tab" tabIndex={activeTab === "output" ? 0 : -1} aria-selected={activeTab === "output"} aria-controls="output-tabpanel" onClick={() => setActiveTab("output")} className={tabClass("output")}>
           Output
         </button>
-        <button id="errors-tab" role="tab" tabIndex={activeTab === "errors" ? 0 : -1} aria-selected={activeTab === "errors"} aria-controls="output-tabpanel" onClick={() => setActiveTab("errors")} className={tabClass("errors")}>
+        <button id="errors-tab" type="button" role="tab" tabIndex={activeTab === "errors" ? 0 : -1} aria-selected={activeTab === "errors"} aria-controls="output-tabpanel" aria-label={errors ? "Errors (has errors)" : "Errors"} onClick={() => setActiveTab("errors")} className={tabClass("errors")}>
           Errors
           {errors && (
             <span className="ml-1 w-1.5 h-1.5 rounded-full bg-red-500 inline-block" aria-hidden="true" />
           )}
         </button>
-        <button id="ast-tab" role="tab" tabIndex={activeTab === "ast" ? 0 : -1} aria-selected={activeTab === "ast"} aria-controls="output-tabpanel" onClick={() => setActiveTab("ast")} className={tabClass("ast")}>
+        <button id="ast-tab" type="button" role="tab" tabIndex={activeTab === "ast" ? 0 : -1} aria-selected={activeTab === "ast"} aria-controls="output-tabpanel" aria-label={ast ? "AST (available)" : "AST"} onClick={() => setActiveTab("ast")} className={tabClass("ast")}>
           AST
           {ast && (
             <span className="ml-1 w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" aria-hidden="true" />
@@ -208,16 +210,19 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
             {content && (
               <>
                 <button
+                  type="button"
                   onClick={handleCopy}
                   className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                  aria-label="Copy output"
+                  aria-label={copied ? "Copied to clipboard" : "Copy output"}
                 >
                   {copied ? "Copied!" : "Copy"}
                 </button>
                 <button
+                  type="button"
                   onClick={() => setWordWrap((w) => !w)}
                   className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                   aria-label="Toggle word wrap"
+                  aria-pressed={wordWrap}
                 >
                   {wordWrap ? "Wrap" : "No Wrap"}
                 </button>
@@ -225,6 +230,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
             )}
             {(output || errors || ast) && onClear && (
               <button
+                type="button"
                 onClick={onClear}
                 className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 aria-label="Clear output"

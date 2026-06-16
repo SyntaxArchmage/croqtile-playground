@@ -34,6 +34,8 @@ import { challenge17 } from "./17-transpose";
 import { challenge18 } from "./18-histogram";
 import { challenge19 } from "./19-swap-pairs";
 import { challenge20 } from "./20-moving-average";
+import { challenge21 } from "./21-running-maximum";
+import { challenge22 } from "./22-matrix-column-sum";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -41,4 +43,5 @@ export const CHALLENGES: Challenge[] = [
   challenge09, challenge10, challenge11, challenge12,
   challenge13, challenge14, challenge15, challenge16,
   challenge17, challenge18, challenge19, challenge20,
+  challenge21, challenge22,
 ];

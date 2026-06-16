@@ -297,4 +297,94 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "conditional-processing",
+    name: "Conditional Processing",
+    code: `__co__ void even_odd() {
+  global float out[8];
+
+  parallel {i} by [8] {
+    if (i % 2 == 0) {
+      out[i] = (float)(i * 2);
+    } else {
+      out[i] = (float)(i * 2 + 1);
+    }
+  }
+
+  parallel {i} by [8] {
+    if (i % 2 == 0) {
+      println("out[", i, "] =", out[i], " (even)");
+    } else {
+      println("out[", i, "] =", out[i], " (odd)");
+    }
+  }
+}
+`,
+  },
+  {
+    id: "dma-tiling",
+    name: "DMA Tiling",
+    code: `__co__ void dma_tiling() {
+  global float src[12];
+  global float dst[12];
+  shared float tile[4];
+
+  parallel {i} by [12] {
+    src[i] = (float)(i + 1);
+  }
+
+  // Load → process → store, one tile at a time
+  foreach t in [0:3] {
+    dma(src[t*4 : t*4+4], tile[0:4]);
+
+    parallel {i} by [4] {
+      tile[i] = tile[i] * 2.0f;
+    }
+
+    parallel {i} by [4] {
+      dst[t*4 + i] = tile[i];
+    }
+  }
+
+  parallel {i} by [12] {
+    println("dst[", i, "] =", dst[i]);
+  }
+}
+`,
+  },
+  {
+    id: "nested-reduction",
+    name: "Nested Reduction",
+    code: `__co__ void nested_reduction() {
+  global float matrix[4, 4];
+  global float row_sum[4];
+  global float col_sum[4];
+
+  parallel {i, j} by [4, 4] {
+    matrix[i, j] = (float)(i * 4 + j + 1);
+  }
+
+  foreach i in [0:4] {
+    float rsum = 0.0f;
+    foreach j in [0:4] {
+      rsum = rsum + matrix[i, j];
+    }
+    row_sum[i] = rsum;
+  }
+
+  foreach j in [0:4] {
+    float csum = 0.0f;
+    foreach i in [0:4] {
+      csum = csum + matrix[i, j];
+    }
+    col_sum[j] = csum;
+  }
+
+  parallel {i} by [4] {
+    println("row_sum[", i, "] =", row_sum[i]);
+    println("col_sum[", i, "] =", col_sum[i]);
+  }
+}
+`,
+  },
 ];

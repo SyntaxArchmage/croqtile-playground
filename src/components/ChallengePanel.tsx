@@ -49,6 +49,19 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
   const testContainerRef = useRef<HTMLDivElement>(null);
   const prevOutputRef = useRef(lastOutput);
 
+  const testAnnouncement = useMemo(() => {
+    if (!selectedChallenge || !lastOutput) return "";
+    if (allPassed) {
+      return `All ${testResults.length} tests passed!`;
+    }
+    if (testResults.some((r) => r.ran)) {
+      const passed = testResults.filter((r) => r.passed).length;
+      const failed = testResults.filter((r) => r.ran && !r.passed).length;
+      return `${passed} of ${testResults.length} tests passed, ${failed} failed`;
+    }
+    return "";
+  }, [selectedChallenge, lastOutput, testResults, allPassed]);
+
   useEffect(() => {
     if (!lastOutput || !testContainerRef.current) return;
     const firstFailure = testContainerRef.current.querySelector<HTMLElement>(
@@ -102,10 +115,11 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
     });
 
     return (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col" role="region" aria-label="Challenges">
         <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
           <span className="text-sm font-medium text-[var(--text-primary)]">Challenges</span>
           <button
+            type="button"
             onClick={onClose}
             className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg"
             aria-label="Close challenges panel"
@@ -196,12 +210,14 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
             return (
               <button
                 key={c.id}
+                type="button"
                 onClick={() => {
                   setSelectedChallenge(c);
                   setShowHint(false);
                   onLoadCode(c.starterCode);
                   updateUrlParam("challenge", c.id);
                 }}
+                aria-label={`${c.title}, ${c.difficulty} difficulty, ${c.tests.length} test${c.tests.length > 1 ? "s" : ""}${isChallengePassed(c.id) ? ", passed" : cp.status === "attempted" ? ", in progress" : ""}`}
                 className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
               >
                 <div className="flex items-center gap-2">
@@ -229,16 +245,22 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col" role="region" aria-label={`Challenge: ${selectedChallenge.title}`}>
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {testAnnouncement}
+      </div>
       <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
         <button
+          type="button"
           onClick={() => { setSelectedChallenge(null); updateUrlParam("challenge", null); }}
           className="text-xs text-[var(--accent)] hover:underline"
+          aria-label="Back to challenges list"
         >
           ← Back
         </button>
         <DifficultyBadge difficulty={selectedChallenge.difficulty} />
         <button
+          type="button"
           onClick={onClose}
           className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg"
           aria-label="Close challenges panel"
@@ -265,14 +287,16 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
           {selectedChallenge.description}
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2" role="list" aria-label="Test results">
           <h3 className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">
             Tests
           </h3>
           {testResults.map((t, i) => (
             <div
               key={i}
+              role="listitem"
               data-testid="test-result"
+              aria-label={`${t.passed ? "Passed" : t.ran ? "Failed" : "Not run"}: ${t.description}`}
               className={`p-2 rounded text-xs border ${
                 t.passed
                   ? "border-green-800 bg-green-950/30 text-green-300"
@@ -281,7 +305,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                   : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-muted)]"
               }`}
             >
-              <div>{t.passed ? "✓" : t.ran ? "✗" : "○"} {t.description}</div>
+              <div><span aria-hidden="true">{t.passed ? "✓" : t.ran ? "✗" : "○"}</span> {t.description}</div>
               {t.ran && !t.passed && t.expected && (
                 <div className="mt-1.5 pt-1.5 border-t border-red-800/50 space-y-1 font-mono text-[10px]">
                   <div>
@@ -319,8 +343,10 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
               </div>
             ) : (
               <button
+                type="button"
                 onClick={() => setShowHint(true)}
                 className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)]"
+                aria-label="Show hint"
               >
                 Show hint
               </button>
@@ -331,8 +357,10 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
 
       <div className="flex items-center gap-2 px-4 py-3 border-t border-[var(--border)] bg-[var(--bg-secondary)]">
         <button
+          type="button"
           onClick={() => onLoadCode(selectedChallenge.starterCode)}
           className="px-3 py-1 text-xs rounded border border-[var(--border)] hover:bg-[var(--bg-surface)]"
+          aria-label="Reset code to starter template"
         >
           Reset Code
         </button>
@@ -340,8 +368,10 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
           const cp = getChallengeProgress(selectedChallenge.id);
           return cp.bestCode ? (
             <button
+              type="button"
               onClick={() => onLoadCode(cp.bestCode!)}
               className="px-3 py-1 text-xs rounded border border-green-800 text-green-400 hover:bg-green-950/30"
+              aria-label="Load best saved solution"
             >
               Load Best
             </button>
@@ -374,6 +404,8 @@ function ChallengeSuccessBanner({
 
   return (
     <div
+      role="status"
+      aria-live="polite"
       className="relative p-3 rounded border border-green-600 bg-green-950/30 text-center space-y-2 overflow-hidden"
       style={{ animation: "challengeSuccessIn 300ms ease-out forwards" }}
     >
@@ -405,8 +437,10 @@ function ChallengeSuccessBanner({
       </div>
       {next ? (
         <button
+          type="button"
           onClick={() => onNext(next)}
           className="relative z-10 px-3 py-1 text-xs rounded bg-[var(--accent)] text-[var(--bg-primary)] font-medium hover:opacity-90"
+          aria-label={`Next challenge: ${next.title}`}
         >
           Next: {next.title} →
         </button>

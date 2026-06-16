@@ -361,8 +361,18 @@ export function Playground() {
     </div>
   );
 
+  const skipLink = (
+    <a
+      href="#main-content"
+      className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded focus:bg-[var(--accent)] focus:text-[var(--bg-primary)] focus:text-sm focus:font-medium focus:outline-none"
+    >
+      Skip to editor
+    </a>
+  );
+
   const idePanel = (
     <div className="h-full flex flex-col relative">
+      {skipLink}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {statusAnnouncement}
       </div>
@@ -404,7 +414,7 @@ export function Playground() {
         onSettingsChange={handleSettingsChange}
       />
       <div className="flex-1 min-h-0 flex flex-col">
-        <div className="flex-1 min-h-0 relative">
+        <div id="main-content" className="flex-1 min-h-0 relative" tabIndex={-1}>
           <Editor
             ref={editorRef}
             value={source}

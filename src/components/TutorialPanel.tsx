@@ -26,6 +26,7 @@ function renderContent(
         <button
           onClick={() => onTryIt(part.content)}
           className="w-full px-3 py-1.5 text-xs font-medium bg-[var(--accent)] text-[var(--bg-primary)] hover:opacity-90 transition-opacity"
+          aria-label="Try this code example"
         >
           Try it →
         </button>
@@ -96,10 +97,11 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
       : TUTORIALS;
 
     return (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col" role="region" aria-label="Tutorials">
         <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
           <span className="text-sm font-medium text-[var(--text-primary)]">Tutorials</span>
           <button
+            type="button"
             onClick={onClose}
             className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg"
             aria-label="Close tutorials panel"
@@ -143,6 +145,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
             filteredTutorials.map((t) => (
             <button
               key={t.id}
+              type="button"
               onClick={() => {
                 setSelectedTutorial(t);
                 const resumeStep = Math.min(getTutorialProgress(t.id) + 1, t.steps.length - 1);
@@ -151,6 +154,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
                 markTutorialStep(t.id, resumeStep);
                 updateUrlParam("tutorial", t.id, resumeStep);
               }}
+              aria-label={`${t.title}: ${t.description}`}
               className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
             >
               <div className="flex items-center justify-between">
@@ -178,18 +182,21 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
   const progress = getTutorialProgress(selectedTutorial.id);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col" role="region" aria-label={`Tutorial: ${selectedTutorial.title}`}>
       <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
         <button
+          type="button"
           onClick={() => { setSelectedTutorial(null); updateUrlParam("tutorial", null); }}
           className="text-xs text-[var(--accent)] hover:underline"
+          aria-label="Back to tutorials list"
         >
           ← Back
         </button>
-        <span className="text-xs text-[var(--text-muted)]">
+        <span className="text-xs text-[var(--text-muted)]" aria-label={`Step ${stepIndex + 1} of ${totalSteps}`}>
           {stepIndex + 1} / {totalSteps}
         </span>
         <button
+          type="button"
           onClick={onClose}
           className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg"
           aria-label="Close tutorials panel"
@@ -198,7 +205,14 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
         </button>
       </div>
 
-      <div className="h-1 bg-[var(--bg-surface)]">
+      <div
+        className="h-1 bg-[var(--bg-surface)]"
+        role="progressbar"
+        aria-valuenow={stepIndex + 1}
+        aria-valuemin={1}
+        aria-valuemax={totalSteps}
+        aria-label="Tutorial progress"
+      >
         <div
           className="h-full bg-[var(--accent)] transition-all duration-300"
           style={{ width: `${((stepIndex + 1) / totalSteps) * 100}%` }}
@@ -216,6 +230,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
 
       <div className="flex items-center gap-2 px-4 py-3 border-t border-[var(--border)] bg-[var(--bg-secondary)]">
         <button
+          type="button"
           onClick={() => {
             const prev = Math.max(0, stepIndex - 1);
             setStepIndex(prev);
@@ -225,16 +240,18 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
           }}
           disabled={stepIndex === 0}
           className="px-3 py-1 text-xs rounded border border-[var(--border)] disabled:opacity-30 hover:bg-[var(--bg-surface)]"
+          aria-label="Previous step"
         >
           ← Prev
         </button>
-        <div className="flex gap-1 items-center">
+        <div className="flex gap-1 items-center" role="group" aria-label="Tutorial steps">
           {selectedTutorial.steps.map((_, i) => {
             const visited = i <= progress;
             const isCurrent = i === stepIndex;
             return (
               <button
                 key={i}
+                type="button"
                 data-testid="tutorial-step-dot"
                 aria-label={`Step ${i + 1}`}
                 aria-current={isCurrent ? "step" : undefined}
@@ -252,13 +269,16 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
           })}
         </div>
         <button
+          type="button"
           onClick={() => onLoadCode(step.code)}
           className="px-3 py-1 text-xs rounded bg-[var(--accent)] text-[var(--bg-primary)] font-medium hover:opacity-90"
+          aria-label="Load step code into editor"
         >
           Load Code
         </button>
         <div className="flex-1" />
         <button
+          type="button"
           onClick={() => {
             const next = Math.min(totalSteps - 1, stepIndex + 1);
             setStepIndex(next);
@@ -268,6 +288,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
           }}
           disabled={stepIndex === totalSteps - 1}
           className="px-3 py-1 text-xs rounded border border-[var(--border)] disabled:opacity-30 hover:bg-[var(--bg-surface)]"
+          aria-label="Next step"
         >
           Next →
         </button>
