@@ -233,7 +233,7 @@ export function Playground() {
 
   const handleSettingsChange = useCallback((s: EditorSettings) => {
     setSettings(s);
-    saveSettings(s);
+    saveSettings({ ...loadSettings(), ...s });
   }, []);
 
   const handleToggleTheme = useCallback(() => {

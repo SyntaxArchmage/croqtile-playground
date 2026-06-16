@@ -55,6 +55,21 @@ jest.mock("@/lib/fileIO", () => ({
 }));
 
 let mockEditorProvidesRef = true;
+let mockOmitToolbarOpenFileRef = false;
+jest.mock("@/components/Toolbar", () => {
+  const React = require("react") as typeof import("react");
+  const actual = jest.requireActual<typeof import("@/components/Toolbar")>("@/components/Toolbar");
+  return {
+    ...actual,
+    Toolbar: (props: React.ComponentProps<typeof actual.Toolbar>) => {
+      if (mockOmitToolbarOpenFileRef) {
+        const { openFileRef: _openFileRef, ...rest } = props;
+        return React.createElement(actual.Toolbar, rest);
+      }
+      return React.createElement(actual.Toolbar, props);
+    },
+  };
+});
 jest.mock("@/components/Editor", () => ({
   Editor: React.forwardRef<
     { getValue: () => string },
@@ -104,6 +119,7 @@ function renderPlayground() {
 beforeEach(() => {
   jest.clearAllMocks();
   mockEditorProvidesRef = true;
+  mockOmitToolbarOpenFileRef = false;
   mockStatus = "ready";
   mockOutput = "";
   mockErrors = "";
@@ -890,6 +906,22 @@ describe("Playground", () => {
       expect(mockSaveSettings).toHaveBeenCalledWith(
         expect.objectContaining({ theme: "light" }),
       );
+    });
+
+    it("executes Open File from command palette when open handler is registered", () => {
+      renderPlayground();
+      const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const clickSpy = jest.spyOn(input, "click");
+      runPaletteCommand("Open File");
+      expect(clickSpy).toHaveBeenCalledTimes(1);
+      clickSpy.mockRestore();
+    });
+
+    it("handles Open File from command palette when no open handler is registered", () => {
+      mockOmitToolbarOpenFileRef = true;
+      renderPlayground();
+      expect(() => runPaletteCommand("Open File")).not.toThrow();
+      expect(screen.queryByLabelText("Search commands")).not.toBeInTheDocument();
     });
   });
 
