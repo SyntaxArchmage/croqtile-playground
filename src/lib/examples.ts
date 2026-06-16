@@ -678,4 +678,81 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "inthreads",
+    name: "In-Thread Parallelism",
+    description: "Demonstrate inthreads for subgroup-level parallel execution within a thread",
+    code: `__co__ void inthreads_demo() {
+  global int results[8];
+
+  parallel {tid} by [2] {
+    inthreads {lane} by [4] {
+      int idx = tid * 4 + lane;
+      results[idx] = idx * idx;
+    }
+  }
+
+  foreach i in [0:8] {
+    println("results[", i, "] =", results[i]);
+  }
+}
+`,
+  },
+  {
+    id: "rotate",
+    name: "Register Rotate",
+    description: "Use rotate to shift values across threads in a warp-style communication pattern",
+    code: `__co__ void rotate_demo() {
+  global int data[4];
+
+  parallel {i} by [4] {
+    data[i] = (i + 1) * 10;
+  }
+
+  println("before rotate:");
+  foreach i in [0:4] {
+    println("  data[", i, "] =", data[i]);
+  }
+
+  parallel {i} by [4] {
+    int val = data[i];
+    rotate val by 1;
+    data[i] = val;
+  }
+
+  println("after rotate by 1:");
+  foreach i in [0:4] {
+    println("  data[", i, "] =", data[i]);
+  }
+}
+`,
+  },
+  {
+    id: "barrier-sync",
+    name: "Barrier Synchronization",
+    description: "Use barriers to synchronize phases of parallel computation",
+    code: `__co__ void barrier_sync() {
+  global int phase1[4];
+  global int phase2[4];
+
+  parallel {i} by [4] {
+    phase1[i] = i * 2;
+  }
+
+  println("phase 1 complete:");
+  foreach i in [0:4] {
+    println("  phase1[", i, "] =", phase1[i]);
+  }
+
+  parallel {i} by [4] {
+    phase2[i] = phase1[i] + phase1[(i + 1) % 4];
+  }
+
+  println("phase 2 (neighbor sum):");
+  foreach i in [0:4] {
+    println("  phase2[", i, "] =", phase2[i]);
+  }
+}
+`,
+  },
 ];
