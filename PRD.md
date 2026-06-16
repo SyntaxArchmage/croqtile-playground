@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (20 tutorials):
+**Current content** (23 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -226,6 +226,9 @@ interface Tutorial {
 | ch18 | Error Handling & Assertions | 3 | `assert_true`, bounds validation, parallel assertions |
 | ch19 | Multi-Dimensional Arrays | 3 | 3D indexing, row-major traversal, nested parallel |
 | ch20 | DMA Patterns & Double Buffering | 3 | DMA sizing, double buffering, overlapped compute/transfer |
+| ch21 | Pipeline Stages & Events | 3 | `pipeline`, `stage`, signal/wait, producer-consumer |
+| ch22 | Debugging Strategies | 3 | `println` tracing, state inspection, common pitfalls |
+| ch23 | Working with Strings | 3 | Character arrays, string construction, iteration |
 
 All tutorials include interactive "Try it" inline code blocks.
 
@@ -255,7 +258,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (48):
+**Current challenges** (62):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -307,6 +310,20 @@ interface Challenge {
 | c46 | Matrix Border | Medium | `parallel`, conditional border detection |
 | c47 | Prefix Product | Medium | `foreach`, inclusive scan multiplication |
 | c48 | Scatter Gather | Hard | `dma`, shared memory, scatter/gather |
+| c49 | Parallel Copy | Easy | `parallel`, array copy |
+| c50 | Zigzag Traversal | Hard | 2D indexing, alternating row traversal |
+| c51 | Vector Add | Easy | `parallel`, element-wise addition |
+| c52 | Spiral Count | Medium | 2D spiral order traversal |
+| c53 | Batch Normalize | Hard | Multi-pass: mean computation, normalization |
+| c54 | Parallel Sort Check | Medium | `parallel`, adjacent pair comparison |
+| c55 | Matrix Identity | Easy | `parallel`, conditional diagonal fill |
+| c56 | Array Deduplicate | Medium | `foreach`, sequential deduplication |
+| c57 | Parallel Clamp | Easy | `parallel`, conditional min/max clamping |
+| c58 | Reduction Tree | Hard | `pipeline`, `dma`, tree reduction |
+| c59 | Array Fill | Easy | `parallel`, constant fill |
+| c60 | Matrix Row Norm | Medium | 2D indexing, absolute value row sum |
+| c61 | Parallel Guard | Easy | `if/else`, `parallel`, conditional compute |
+| c62 | Two-Pass Filter | Hard | `foreach`, count + pack filtered elements |
 
 ### 5.6 Example Programs
 
@@ -506,7 +523,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (712 tests across 35 suites)
+- [x] Unit tests (728 tests across 36 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
@@ -518,7 +535,7 @@ src/
 - [ ] L2 execution: Remote GPU Server integration
 - [ ] Extend MockInterpreter to support mma (CPU simulation)
 - [x] ~~Additional tutorials (ch04–ch09)~~ — Done
-- [x] ~~Additional challenges (9–15 total)~~ — Done (58 total)
+- [x] ~~Additional challenges (9–15 total)~~ — Done (62 total)
 - [x] ~~Code sharing via short links~~ — Done (base64url encoding)
 - [ ] WebGPU exploration (L3)
 

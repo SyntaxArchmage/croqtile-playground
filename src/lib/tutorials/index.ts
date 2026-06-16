@@ -34,5 +34,6 @@ import { ch19 } from "./ch19-multi-dim";
 import { ch20 } from "./ch20-dma-patterns";
 import { ch21 } from "./ch21-pipeline-stages-events";
 import { ch22 } from "./ch22-debugging-strategies";
+import { ch23 } from "./ch23-working-with-strings";
 
-export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14, ch15, ch16, ch17, ch18, ch19, ch20, ch21, ch22];
+export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14, ch15, ch16, ch17, ch18, ch19, ch20, ch21, ch22, ch23];
