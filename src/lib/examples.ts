@@ -869,4 +869,54 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "foreach-sequential",
+    name: "Sequential Foreach",
+    description: "Sequential iteration with foreach for accumulation and ordered output",
+    code: `__co__ void foreach_demo() {
+  global int data[8];
+
+  parallel {i} by [8] {
+    data[i] = (i + 1) * 3;
+  }
+
+  int total = 0;
+  foreach i in [0:8] {
+    total = total + data[i];
+    println("data[", i, "] =", data[i], "  running total =", total);
+  }
+
+  println("final total =", total);
+}
+`,
+  },
+  {
+    id: "dma-double-buffer",
+    name: "Double Buffering",
+    description: "Classic double-buffering pattern using DMA for overlap of compute and transfer",
+    code: `__co__ void double_buffer() {
+  global int buf_a[4];
+  global int buf_b[4];
+  global int result[4];
+
+  parallel {i} by [4] {
+    buf_a[i] = i * 10;
+  }
+
+  dma {
+    foreach i in [0:4] {
+      buf_b[i] = buf_a[i];
+    }
+  }
+
+  parallel {i} by [4] {
+    result[i] = buf_b[i] + 1;
+  }
+
+  foreach i in [0:4] {
+    println("result[", i, "] =", result[i]);
+  }
+}
+`,
+  },
 ];
