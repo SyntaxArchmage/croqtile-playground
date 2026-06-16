@@ -58,7 +58,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
   }
   if (ast !== prevAst) {
     setPrevAst(ast);
-    if (ast) setActiveTab("ast");
+    if (ast && !errors) setActiveTab("ast");
   }
 
   const content = activeTab === "ast" ? ast : activeTab === "output" ? output : errors;
@@ -131,10 +131,12 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
       dragging.current = false;
       document.removeEventListener("touchmove", onTouchMove);
       document.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener("touchcancel", onTouchEnd);
     };
 
     document.addEventListener("touchmove", onTouchMove, { passive: true });
     document.addEventListener("touchend", onTouchEnd);
+    document.addEventListener("touchcancel", onTouchEnd);
   }, [updateHeight]);
 
   const tabClass = (tab: Tab) => `px-2 py-0.5 text-xs rounded ${

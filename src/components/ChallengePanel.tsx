@@ -38,6 +38,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
     return null;
   });
   const [showHint, setShowHint] = useState(false);
+  const [progressRevision, setProgressRevision] = useState(0);
 
   const testResults = useMemo(
     () => selectedChallenge ? checkTests(selectedChallenge, lastOutput) : [],
@@ -59,6 +60,10 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
   }, [testResults, lastOutput]);
 
   useEffect(() => {
+    prevOutputRef.current = lastOutput;
+  }, [selectedChallenge?.id]); // eslint-disable-line react-hooks/exhaustive-deps -- reset ref on challenge switch only
+
+  useEffect(() => {
     if (!selectedChallenge || !lastOutput) return;
     if (lastOutput !== prevOutputRef.current) {
       prevOutputRef.current = lastOutput;
@@ -66,6 +71,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
       if (allPassed) {
         markChallengePassed(selectedChallenge.id, getCode?.());
       }
+      setProgressRevision((n) => n + 1);
     }
   }, [selectedChallenge, allPassed, lastOutput, getCode]);
 
@@ -288,7 +294,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
 
         {allPassed && lastOutput && (
           <ChallengeSuccessBanner
-            key={lastOutput}
+            key={`${lastOutput}-${progressRevision}`}
             challengeId={selectedChallenge.id}
             onNext={(next) => {
               setSelectedChallenge(next);
