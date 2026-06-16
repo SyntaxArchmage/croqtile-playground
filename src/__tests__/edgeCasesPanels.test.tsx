@@ -126,6 +126,7 @@ describe("ChallengePanel edge cases", () => {
     render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />,
     );
+    fireEvent.change(screen.getByLabelText("Search challenges"), { target: { value: "No Tests" } });
     const btn = screen.getByText("No Tests Challenge");
     expect(btn.closest("button")).toHaveTextContent("0 tests");
   });

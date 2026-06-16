@@ -44,5 +44,8 @@ import { ch29 } from "./ch29-matrix-operations";
 import { ch30 } from "./ch30-event-driven-programming";
 import { ch31 } from "./ch31-performance-measurement";
 import { ch32 } from "./ch32-common-algorithms";
+import { ch33 } from "./ch33-debugging-techniques";
+import { ch34 } from "./ch34-data-structures";
+import { ch35 } from "./ch35-optimization-patterns";
 
-export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14, ch15, ch16, ch17, ch18, ch19, ch20, ch21, ch22, ch23, ch24, ch25, ch26, ch27, ch28, ch29, ch30, ch31, ch32];
+export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14, ch15, ch16, ch17, ch18, ch19, ch20, ch21, ch22, ch23, ch24, ch25, ch26, ch27, ch28, ch29, ch30, ch31, ch32, ch33, ch34, ch35];

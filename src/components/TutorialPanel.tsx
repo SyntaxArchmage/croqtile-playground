@@ -99,7 +99,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
         <div className="flex-1 overflow-auto p-4 space-y-3">
           {(() => {
             const completed = TUTORIALS.filter((t) => isTutorialComplete(t)).length;
-            const pct = Math.round((completed / TUTORIALS.length) * 100);
+            const pct = TUTORIALS.length ? Math.round((completed / TUTORIALS.length) * 100) : 0;
             return (
               <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
                 <div className="flex-1 h-1.5 rounded bg-[var(--bg-surface)]">

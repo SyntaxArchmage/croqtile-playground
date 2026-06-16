@@ -15,6 +15,7 @@ import {
   isAllowedOpenExtension,
   MAX_OPEN_FILE_BYTES,
 } from "@/lib/fileIO";
+import { exportProgress, importProgress } from "@/lib/progressExport";
 
 interface Props {
   target: string;
@@ -61,6 +62,7 @@ export const Toolbar = memo(function Toolbar({
   const shareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resetConfirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const progressInputRef = useRef<HTMLInputElement>(null);
   const fileMenuRef = useRef<HTMLDivElement>(null);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
 
@@ -156,6 +158,54 @@ export const Toolbar = memo(function Toolbar({
   const handleOpenClick = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
+
+  const handleExportProgress = useCallback(() => {
+    exportProgress();
+    setShowMenu(false);
+  }, []);
+
+  const handleImportProgressClick = useCallback(() => {
+    progressInputRef.current?.click();
+  }, []);
+
+  const handleProgressImportChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      e.target.value = "";
+      if (!file) return;
+
+      if (!file.name.toLowerCase().endsWith(".json")) {
+        window.alert("Please select a .json progress export file.");
+        return;
+      }
+      if (file.size > MAX_OPEN_FILE_BYTES) {
+        window.alert(`File is too large (max ${MAX_OPEN_FILE_BYTES / (1024 * 1024)} MB).`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result !== "string") return;
+        try {
+          const parsed = JSON.parse(reader.result);
+          const result = importProgress(parsed);
+          if (!result.ok) {
+            window.alert(result.error);
+            return;
+          }
+          setShowMenu(false);
+          window.location.reload();
+        } catch {
+          window.alert("Could not parse the selected file as JSON.");
+        }
+      };
+      reader.onerror = () => {
+        window.alert("Could not read the selected file.");
+      };
+      reader.readAsText(file);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!openFileRef) return;
@@ -354,6 +404,15 @@ export const Toolbar = memo(function Toolbar({
         aria-hidden="true"
         tabIndex={-1}
       />
+      <input
+        ref={progressInputRef}
+        type="file"
+        accept=".json,application/json"
+        className="hidden"
+        onChange={handleProgressImportChange}
+        aria-hidden="true"
+        tabIndex={-1}
+      />
 
       <div className="relative" data-file-menu>
         <button
@@ -453,7 +512,7 @@ export const Toolbar = memo(function Toolbar({
             ref={settingsMenuRef}
             role="menu"
             aria-label="Settings"
-            className="absolute right-0 top-full mt-1 w-48 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1"
+            className="absolute right-0 top-full mt-1 w-52 rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1"
             onKeyDown={(e) => handleMenuKeyDown(e, () => setShowMenu(false), settingsMenuRef)}
           >
             <div role="none" className="px-3 py-2 flex items-center justify-between">
@@ -606,6 +665,22 @@ export const Toolbar = memo(function Toolbar({
               );
             })()}
             <div role="separator" className="border-t border-[var(--border)] my-1" />
+            <button
+              type="button"
+              role="menuitem"
+              onClick={handleExportProgress}
+              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+            >
+              Export progress
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={handleImportProgressClick}
+              className="w-full text-left px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+            >
+              Import progress
+            </button>
             <button
               type="button"
               role="menuitem"

@@ -51,6 +51,17 @@ describe("ChallengePanel", () => {
     expect(screen.getByText("Hello Threads")).toBeInTheDocument();
   });
 
+  it("paginates challenge list and loads more on Show more", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    expect(screen.getByTestId("show-more-challenges")).toBeInTheDocument();
+    expect(screen.queryByText("Running Maximum")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("show-more-challenges"));
+    expect(screen.getByText("Running Maximum")).toBeInTheDocument();
+  });
+
   it("shows difficulty badges", () => {
     render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />

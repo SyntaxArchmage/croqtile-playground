@@ -28,10 +28,13 @@ interface Props {
 type DifficultyFilter = "all" | "easy" | "medium" | "hard";
 type StatusFilter = "all" | "todo" | "passed";
 
+const PAGE_SIZE = 20;
+
 export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initialId }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(() => {
     if (initialId) {
       return CHALLENGES.find((c) => c.id === initialId) ?? null;
@@ -115,8 +118,9 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
     return stats;
   }, [progressRevision]);
 
-  if (!selectedChallenge) {
-    const filteredChallenges = CHALLENGES.filter((c) => {
+  const filteredChallenges = useMemo(() => {
+    void progressRevision;
+    return CHALLENGES.filter((c) => {
       if (difficultyFilter !== "all" && c.difficulty !== difficultyFilter) {
         return false;
       }
@@ -127,6 +131,13 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
       }
       return matchesTitleSearch(c.title, searchQuery);
     });
+  }, [searchQuery, difficultyFilter, statusFilter, progressRevision]);
+
+  const resetPagination = () => setVisibleCount(PAGE_SIZE);
+
+  if (!selectedChallenge) {
+    const visibleChallenges = filteredChallenges.slice(0, visibleCount);
+    const hasMore = visibleCount < filteredChallenges.length;
 
     return (
       <div className="h-full flex flex-col" role="region" aria-label="Challenges">
@@ -161,7 +172,10 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
           })()}
           <ListSearchInput
             value={searchQuery}
-            onChange={setSearchQuery}
+            onChange={(q) => {
+              setSearchQuery(q);
+              resetPagination();
+            }}
             ariaLabel="Search challenges"
           />
           <div className="flex gap-3 flex-wrap">
@@ -179,7 +193,10 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                 <button
                   key={value}
                   type="button"
-                  onClick={() => setDifficultyFilter(value)}
+                  onClick={() => {
+                    setDifficultyFilter(value);
+                    resetPagination();
+                  }}
                   aria-pressed={difficultyFilter === value}
                   aria-label={`${label}, ${passed} of ${total} passed`}
                   className={`text-xs px-2 py-0.5 rounded tabular-nums ${
@@ -204,7 +221,10 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                 <button
                   key={value}
                   type="button"
-                  onClick={() => setStatusFilter(value)}
+                  onClick={() => {
+                    setStatusFilter(value);
+                    resetPagination();
+                  }}
                   aria-pressed={statusFilter === value}
                   className={`text-xs px-2 py-0.5 rounded ${
                     statusFilter === value
@@ -222,39 +242,52 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
               No challenges match
             </div>
           ) : (
-            filteredChallenges.map((c) => {
-            const cp = getChallengeProgress(c.id);
-            return (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => {
-                  setSelectedChallenge(c);
-                  setShowHint(false);
-                  onLoadCode(c.starterCode);
-                  updateUrlParam("challenge", c.id);
-                }}
-                aria-label={`${c.title}, ${c.difficulty} difficulty, ${c.tests.length} test${c.tests.length !== 1 ? "s" : ""}${isChallengePassed(c.id) ? ", passed" : cp.status === "attempted" ? ", in progress" : ""}`}
-                className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-[var(--text-primary)]">
-                    {c.title}
-                  </span>
-                  <DifficultyBadge difficulty={c.difficulty} />
-                  {isChallengePassed(c.id) ? (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900 text-green-300 border border-green-800">passed</span>
-                  ) : cp.status === "attempted" ? (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-950/50 text-yellow-300 border border-yellow-800">in progress</span>
-                  ) : null}
-                </div>
-                <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mt-1">
-                  <span>{c.tests.length} test{c.tests.length !== 1 ? "s" : ""}</span>
-                  {cp.attempts > 0 && <span>{cp.attempts} attempt{cp.attempts !== 1 ? "s" : ""}</span>}
-                </div>
-              </button>
-            );
-            })
+            <>
+              {visibleChallenges.map((c) => {
+                const cp = getChallengeProgress(c.id);
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedChallenge(c);
+                      setShowHint(false);
+                      onLoadCode(c.starterCode);
+                      updateUrlParam("challenge", c.id);
+                    }}
+                    aria-label={`${c.title}, ${c.difficulty} difficulty, ${c.tests.length} test${c.tests.length !== 1 ? "s" : ""}${isChallengePassed(c.id) ? ", passed" : cp.status === "attempted" ? ", in progress" : ""}`}
+                    className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-[var(--text-primary)]">
+                        {c.title}
+                      </span>
+                      <DifficultyBadge difficulty={c.difficulty} />
+                      {isChallengePassed(c.id) ? (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900 text-green-300 border border-green-800">passed</span>
+                      ) : cp.status === "attempted" ? (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-950/50 text-yellow-300 border border-yellow-800">in progress</span>
+                      ) : null}
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mt-1">
+                      <span>{c.tests.length} test{c.tests.length !== 1 ? "s" : ""}</span>
+                      {cp.attempts > 0 && <span>{cp.attempts} attempt{cp.attempts !== 1 ? "s" : ""}</span>}
+                    </div>
+                  </button>
+                );
+              })}
+              {hasMore && (
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+                  aria-label={`Show more challenges, ${filteredChallenges.length - visibleCount} remaining`}
+                  className="w-full py-2 text-xs rounded border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)] transition-colors"
+                  data-testid="show-more-challenges"
+                >
+                  Show more ({filteredChallenges.length - visibleCount} remaining)
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
