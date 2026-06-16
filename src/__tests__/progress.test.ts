@@ -10,6 +10,8 @@ import {
   resetProgress,
   recordChallengeAttempt,
   getChallengeProgress,
+  subscribeProgress,
+  getProgressRevision,
 } from "@/lib/progress";
 
 const STORAGE_KEY = "croqtile-playground-progress";
@@ -187,6 +189,49 @@ describe("progress", () => {
       expect(cp.status).toBe("passed");
       expect(cp.attempts).toBe(2);
       expect(cp.bestCode).toBe("done");
+    });
+  });
+
+  describe("subscription and revision", () => {
+    it("subscribeProgress notifies listeners on saveProgress", () => {
+      const listener = jest.fn();
+      const unsubscribe = subscribeProgress(listener);
+      markTutorialStep("sub-t1", 0);
+      expect(listener).toHaveBeenCalledTimes(1);
+      unsubscribe();
+    });
+
+    it("unsubscribe stops notifications", () => {
+      const listener = jest.fn();
+      const unsubscribe = subscribeProgress(listener);
+      markTutorialStep("sub-t2", 0);
+      expect(listener).toHaveBeenCalledTimes(1);
+
+      unsubscribe();
+      markTutorialStep("sub-t2", 1);
+      expect(listener).toHaveBeenCalledTimes(1);
+    });
+
+    it("getProgressRevision increments on each save", () => {
+      const rev1 = getProgressRevision();
+      markChallengePassed("sub-c1", "code");
+      const rev2 = getProgressRevision();
+      expect(rev2).toBe(rev1 + 1);
+
+      recordChallengeAttempt("sub-c1");
+      expect(getProgressRevision()).toBe(rev2 + 1);
+    });
+
+    it("resetProgress notifies listeners and increments revision", () => {
+      const listener = jest.fn();
+      const unsubscribe = subscribeProgress(listener);
+      const revBefore = getProgressRevision();
+
+      resetProgress();
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(getProgressRevision()).toBe(revBefore + 1);
+      unsubscribe();
     });
   });
 });
