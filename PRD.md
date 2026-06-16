@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (13 tutorials):
+**Current content** (14 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -219,6 +219,7 @@ interface Tutorial {
 | ch11 | Data Types & Casting | 3 | Numeric types, explicit casting, precision |
 | ch12 | Array Slicing & DMA Patterns | 3 | Slice notation, computed offsets, double buffering |
 | ch13 | Synchronization | 3 | Signal/wait events, pipeline barriers, double-buffer sync |
+| ch14 | Performance Optimization | 3 | Minimizing global reads, tiled processing, parallelism trade-offs |
 
 All tutorials include interactive "Try it" inline code blocks.
 

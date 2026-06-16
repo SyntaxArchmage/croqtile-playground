@@ -24,7 +24,7 @@
 - Error boundary with graceful crash recovery
 
 ### Content
-- 13 tutorials (ch01–ch13) with "Try it" inline code blocks
+- 14 tutorials (ch01–ch14) with "Try it" inline code blocks
 - 26 challenges (c01–c26) with auto-verification, progress badges, and "in progress" status
 - 17 example programs
 
