@@ -38,5 +38,6 @@ import { ch23 } from "./ch23-working-with-strings";
 import { ch24 } from "./ch24-optimization-techniques";
 import { ch25 } from "./ch25-pattern-matching-conditionals";
 import { ch26 } from "./ch26-best-practices";
+import { ch27 } from "./ch27-putting-it-all-together";
 
-export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14, ch15, ch16, ch17, ch18, ch19, ch20, ch21, ch22, ch23, ch24, ch25, ch26];
+export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14, ch15, ch16, ch17, ch18, ch19, ch20, ch21, ch22, ch23, ch24, ch25, ch26, ch27];
