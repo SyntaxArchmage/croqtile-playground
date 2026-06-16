@@ -86,8 +86,8 @@ jest.mock("@/components/Toolbar", () => {
 jest.mock("@/components/Editor", () => ({
   Editor: React.forwardRef<
     { getValue: () => string; undo: () => void; redo: () => void; find: () => void; replace: () => void },
-    { value: string; onChange: (value: string) => void; fontSize?: number; wordWrap?: boolean }
-  >(function MockEditor({ value, onChange, fontSize, wordWrap }, ref) {
+    { value: string; onChange: (value: string) => void; fontSize?: number; wordWrap?: boolean; tabSize?: number; theme?: string }
+  >(function MockEditor({ value, onChange, fontSize, wordWrap, tabSize, theme }, ref) {
     React.useImperativeHandle(ref, () => {
       if (!mockEditorProvidesRef) return null as unknown as { getValue: () => string; undo: () => void; redo: () => void; find: () => void; replace: () => void };
       return {
@@ -104,6 +104,8 @@ jest.mock("@/components/Editor", () => ({
         aria-label="Code editor"
         data-font-size={fontSize}
         data-word-wrap={wordWrap}
+        data-tab-size={tabSize}
+        data-theme={theme}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -1337,6 +1339,117 @@ describe("Playground", () => {
 
       expect(screen.getByLabelText("Toggle challenge panel")).toHaveAttribute("aria-pressed", "true");
       expect(screen.getByText("Hello Threads")).toBeInTheDocument();
+    });
+  });
+
+  describe("integration", () => {
+    it("persists theme across rerenders after toggle", () => {
+      const { rerender } = renderPlayground();
+      expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+
+      fireEvent.keyDown(window, { key: "T", ctrlKey: true, shiftKey: true });
+      expect(document.documentElement).toHaveAttribute("data-theme", "light");
+      expect(mockSaveSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ theme: "light" }),
+      );
+
+      rerender(<Playground />);
+      expect(document.documentElement).toHaveAttribute("data-theme", "light");
+      expect(screen.getByTestId("code-editor")).toHaveAttribute("data-theme", "light");
+    });
+
+    it("updates editor tab size when changed in settings menu", () => {
+      renderPlayground();
+      expect(screen.getByTestId("code-editor")).toHaveAttribute("data-tab-size", "2");
+
+      fireEvent.click(screen.getByLabelText("Settings menu"));
+      fireEvent.click(screen.getByLabelText("Increase tab size"));
+
+      expect(screen.getByTestId("code-editor")).toHaveAttribute("data-tab-size", "3");
+      expect(mockSaveSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ tabSize: 3 }),
+      );
+    });
+
+    it("loads tutorial content then switches to challenge panel with challenge code", async () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      await flushInitialLoadConfirm();
+
+      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+      expect(screen.getByText("Tutorials")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByText("Hello Croqtile"));
+      expect(screen.getByText("The __co__ keyword")).toBeInTheDocument();
+      expect((screen.getByTestId("code-editor") as HTMLTextAreaElement).value).toContain(
+        'println("Hello from Croqtile!")',
+      );
+
+      fireEvent.click(screen.getByLabelText("Toggle challenge panel"));
+      expect(screen.getByText("Challenges")).toBeInTheDocument();
+      expect(screen.queryByText("Tutorials")).not.toBeInTheDocument();
+      expect(screen.queryByText("The __co__ keyword")).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByText("Hello Threads"));
+      expect(screen.getByText("Hello Threads")).toBeInTheDocument();
+      expect((screen.getByTestId("code-editor") as HTMLTextAreaElement).value).toContain(
+        "hello_threads",
+      );
+
+      jest.useRealTimers();
+    });
+
+    it("opens tutorial panel and step from ?tutorial= deep link", () => {
+      setUrl("/?tutorial=ch01");
+      renderPlayground();
+      expect(screen.getByLabelText("Toggle tutorial panel")).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByText("The __co__ keyword")).toBeInTheDocument();
+      expect((screen.getByTestId("code-editor") as HTMLTextAreaElement).value).toContain(
+        'println("Hello from Croqtile!")',
+      );
+    });
+
+    it("opens challenge panel and detail from ?challenge= deep link", () => {
+      setUrl("/?challenge=c01");
+      renderPlayground();
+      expect(screen.getByLabelText("Toggle challenge panel")).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByText("Hello Threads")).toBeInTheDocument();
+      expect((screen.getByTestId("code-editor") as HTMLTextAreaElement).value).toContain(
+        "hello_threads",
+      );
+    });
+
+    it("loads example source from ?example= deep link", () => {
+      setUrl("/?example=parallel");
+      renderPlayground();
+      expect(screen.getByTestId("code-editor")).toHaveValue(EXAMPLES[1].code);
+      expect(screen.queryByText("Tutorials")).not.toBeInTheDocument();
+      expect(screen.queryByText("Challenges")).not.toBeInTheDocument();
+    });
+
+    it("auto-saves source after debounced edit with fake timers", () => {
+      jest.useFakeTimers();
+      renderPlayground();
+      const { saveSource } = jest.requireMock("@/lib/sourceStorage");
+      saveSource.mockClear();
+
+      fireEvent.change(screen.getByTestId("code-editor"), {
+        target: { value: "__co__ void integrationSave() {}" },
+      });
+      expect(saveSource).not.toHaveBeenCalled();
+
+      act(() => {
+        jest.advanceTimersByTime(4999);
+      });
+      expect(saveSource).not.toHaveBeenCalled();
+
+      act(() => {
+        jest.advanceTimersByTime(1);
+      });
+      expect(saveSource).toHaveBeenCalledTimes(1);
+      expect(saveSource).toHaveBeenCalledWith("__co__ void integrationSave() {}");
+
+      jest.useRealTimers();
     });
   });
 

@@ -68,6 +68,10 @@ import { challenge51 } from "./51-vector-add";
 import { challenge52 } from "./52-spiral-count";
 import { challenge53 } from "./53-batch-normalize";
 import { challenge54 } from "./54-parallel-sort-check";
+import { challenge55 } from "./55-matrix-identity";
+import { challenge56 } from "./56-array-deduplicate";
+import { challenge57 } from "./57-parallel-clamp";
+import { challenge58 } from "./58-reduction-tree";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -83,5 +87,6 @@ export const CHALLENGES: Challenge[] = [
   challenge41, challenge42, challenge43, challenge44,
   challenge45, challenge46, challenge47, challenge48,
   challenge49, challenge50, challenge51, challenge52,
-  challenge53, challenge54,
+  challenge53, challenge54, challenge55, challenge56,
+  challenge57, challenge58,
 ];
