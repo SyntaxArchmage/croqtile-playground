@@ -4,20 +4,22 @@ import { CHALLENGES } from "@/lib/challenges";
 
 const mockMarkChallengePassed = jest.fn();
 const mockRecordChallengeAttempt = jest.fn();
-let mockIsChallengePassed = false;
+let mockIsChallengePassed: boolean | ((id: string) => boolean) = false;
 let mockChallengeProgress: { status: string; attempts: number; bestCode?: string } = {
   status: "not_started",
   attempts: 0,
 };
 
 jest.mock("@/lib/progress", () => ({
-  isChallengePassed: () => mockIsChallengePassed,
+  isChallengePassed: (id: string) =>
+    typeof mockIsChallengePassed === "function" ? mockIsChallengePassed(id) : mockIsChallengePassed,
   markChallengePassed: (...args: unknown[]) => mockMarkChallengePassed(...args),
   getChallengeProgress: () => mockChallengeProgress,
   recordChallengeAttempt: (...args: unknown[]) => mockRecordChallengeAttempt(...args),
 }));
 
 import { ChallengePanel } from "@/components/ChallengePanel";
+import * as checkTestsModule from "@/lib/checkTests";
 
 describe("ChallengePanel", () => {
   beforeEach(() => {
@@ -395,6 +397,25 @@ describe("ChallengePanel", () => {
     expect(screen.getAllByText("passed").length).toBeGreaterThan(0);
   });
 
+  it("passed filter hides non-passed challenges", () => {
+    mockIsChallengePassed = false;
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    fireEvent.click(screen.getByText("Passed"));
+    expect(screen.getByText("No challenges match")).toBeInTheDocument();
+  });
+
+  it("todo filter hides only passed challenges when progress is mixed", () => {
+    mockIsChallengePassed = (id: string) => id === "c01";
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    fireEvent.click(screen.getByText("To Do"));
+    expect(screen.queryByText("Hello Threads")).not.toBeInTheDocument();
+    expect(screen.getByText("DMA Reverse")).toBeInTheDocument();
+  });
+
   it("filters by todo status hides passed challenges", () => {
     mockIsChallengePassed = true;
     render(
@@ -453,5 +474,30 @@ describe("ChallengePanel", () => {
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
     );
     expect(screen.getByTestId("attempt-count")).toHaveTextContent("1 attempt");
+  });
+
+  it("shows singular attempt in challenge list", () => {
+    mockChallengeProgress = { status: "attempted", attempts: 1 };
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    expect(screen.getAllByText("1 attempt").length).toBeGreaterThan(0);
+  });
+
+  it("shows (no output) when failed test has empty actual", () => {
+    jest.spyOn(checkTestsModule, "checkTests").mockReturnValue([
+      {
+        passed: false,
+        ran: true,
+        description: "Empty actual test",
+        expected: "expected output",
+        actual: "",
+      },
+    ]);
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="ran" initialId="c01" />
+    );
+    expect(screen.getByText("(no output)")).toBeInTheDocument();
+    jest.restoreAllMocks();
   });
 });

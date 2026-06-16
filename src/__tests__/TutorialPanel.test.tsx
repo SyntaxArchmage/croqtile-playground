@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { TUTORIALS } from "@/lib/tutorials";
 
 let mockTutorialProgress = -1;
 
@@ -264,6 +265,29 @@ describe("TutorialPanel", () => {
     const summary = screen.getByTestId("tutorial-progress-summary");
     expect(summary.textContent).toMatch(/^\d+\/\d+ done$/);
     expect(summary.textContent).not.toMatch(/^0\//);
+  });
+
+  it("shows no progress badge when tutorial not started", () => {
+    mockTutorialProgress = -1;
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    expect(screen.queryByText("done")).not.toBeInTheDocument();
+    expect(screen.queryByText("in progress")).not.toBeInTheDocument();
+  });
+
+  it("loads first step code when deep-linked step has no code", () => {
+    const ch01 = TUTORIALS.find((t) => t.id === "ch01")!;
+    const step1Code = ch01.steps[1].code;
+    const fallbackCode = ch01.steps[0].code;
+    // @ts-expect-error simulate missing code on deep-linked step
+    delete ch01.steps[1].code;
+
+    window.history.pushState({}, "", "/?tutorial=ch01&step=2");
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} initialId="ch01" />);
+    expect(onLoadCode).toHaveBeenCalledWith(fallbackCode);
+
+    ch01.steps[1].code = step1Code;
+    window.history.pushState({}, "", "/");
   });
 
   it("falls back to first step code when deep-linked step lacks code", async () => {
