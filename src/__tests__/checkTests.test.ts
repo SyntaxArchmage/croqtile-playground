@@ -60,6 +60,16 @@ describe("checkTests", () => {
     expect(results[0].passed).toBe(true);
   });
 
+  it("uses fallback description for tests with empty description", () => {
+    const c = makeChallenge([
+      { expectedOutput: "hello", description: "" },
+      { expectedOutput: "world", description: "   " },
+    ]);
+    const results = checkTests(c, "hello\nworld\n");
+    expect(results[0].description).toBe("Test 1");
+    expect(results[1].description).toBe("Test 2");
+  });
+
   it("trims whitespace when comparing", () => {
     const c = makeChallenge([
       { expectedOutput: "  hello  ", description: "trimmed" },
