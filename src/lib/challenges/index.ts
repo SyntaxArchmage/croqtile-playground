@@ -110,6 +110,10 @@ import { challenge93 } from "./93-array-shift-left";
 import { challenge94 } from "./94-parallel-fibonacci";
 import { challenge95 } from "./95-row-wise-sort";
 import { challenge96 } from "./96-array-difference";
+import { challenge97 } from "./97-parallel-square-root";
+import { challenge98 } from "./98-matrix-kronecker-product";
+import { challenge99 } from "./99-bitwise-and-reduction";
+import { challenge100 } from "./100-grand-reduction";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -136,4 +140,5 @@ export const CHALLENGES: Challenge[] = [
   challenge85, challenge86, challenge87, challenge88,
   challenge89, challenge90, challenge91, challenge92,
   challenge93, challenge94, challenge95, challenge96,
+  challenge97, challenge98, challenge99, challenge100,
 ];

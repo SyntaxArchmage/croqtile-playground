@@ -39,7 +39,7 @@ describe("CHALLENGES", () => {
 
   it("challenge IDs follow c## pattern", () => {
     for (const c of CHALLENGES) {
-      expect(c.id).toMatch(/^c\d{2}$/);
+      expect(c.id).toMatch(/^c\d{2,3}$/);
     }
   });
 
