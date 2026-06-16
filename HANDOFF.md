@@ -26,8 +26,8 @@
 - Light/dark theme toggle (Catppuccin Latte/Mocha)
 
 ### Content
-- 26 tutorials (ch01–ch26) with "Try it" inline code blocks
-- 80 challenges (c01–c80) with auto-verification, progress badges, and "in progress" status
+- 27 tutorials (ch01–ch27) with "Try it" inline code blocks
+- 84 challenges (c01–c84) with auto-verification, progress badges, and "in progress" status
 - 26 example programs
 
 ### User Experience
