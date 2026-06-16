@@ -755,4 +755,118 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "parallel-copy",
+    name: "Parallel Copy",
+    description: "Copy elements from one global array to another in parallel",
+    code: `__co__ void parallel_copy() {
+  global int src[8];
+  global int dst[8];
+
+  parallel {i} by [8] {
+    src[i] = (i + 1) * 10;
+  }
+
+  parallel {i} by [8] {
+    dst[i] = src[i];
+  }
+
+  parallel {i} by [8] {
+    println("dst[", i, "] =", dst[i]);
+  }
+}
+`,
+  },
+  {
+    id: "array-init",
+    name: "Array Init",
+    description: "Initialize an array with sequential values using parallel",
+    code: `__co__ void array_init() {
+  global float data[8];
+
+  parallel {i} by [8] {
+    data[i] = (float)(i * 10);
+  }
+
+  parallel {i} by [8] {
+    println("data[", i, "] =", data[i]);
+  }
+}
+`,
+  },
+  {
+    id: "signal-wait",
+    name: "Signal Wait",
+    description: "Basic event-driven signal/wait coordination between stages",
+    code: `__co__ void signal_wait() {
+  global float input[4];
+  shared float buf[4];
+  shared event ready;
+
+  parallel {i} by [4] {
+    input[i] = (float)((i + 1) * 3);
+  }
+
+  dma(input[0:4], buf[0:4]);
+  signal ready;
+
+  wait ready;
+
+  parallel {i} by [4] {
+    println("buf[", i, "] =", buf[i]);
+  }
+}
+`,
+  },
+  {
+    id: "double-buffer",
+    name: "Double Buffer",
+    description: "Classic double buffer with alternating DMA tile loads",
+    code: `__co__ void double_buffer() {
+  global float data[8];
+  shared float bufA[4];
+  shared float bufB[4];
+
+  parallel {i} by [8] {
+    data[i] = (float)((i + 1) * 5);
+  }
+
+  dma(data[0:4], bufA[0:4]);
+  println("--- tile 0 from bufA ---");
+  parallel {i} by [4] {
+    println("bufA[", i, "] =", bufA[i]);
+  }
+
+  dma(data[4:8], bufB[0:4]);
+  println("--- tile 1 from bufB ---");
+  parallel {i} by [4] {
+    println("bufB[", i, "] =", bufB[i]);
+  }
+}
+`,
+  },
+  {
+    id: "assert-check",
+    name: "Assert Check",
+    description: "Use assert_true to validate bounds and invariants in parallel",
+    code: `__co__ void assert_check() {
+  global float data[8];
+  int N = 8;
+
+  assert_true(N == 8);
+
+  parallel {i} by [8] {
+    data[i] = (float)(i * 3);
+  }
+
+  parallel {i} by [8] {
+    assert_true(i >= 0);
+    assert_true(i < N);
+    println("data[", i, "] =", data[i]);
+  }
+
+  println("assert checks passed");
+}
+`,
+  },
 ];

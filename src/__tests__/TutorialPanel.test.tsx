@@ -119,7 +119,22 @@ describe("TutorialPanel", () => {
     fireEvent.click(screen.getByText("Next →"));
     fireEvent.click(screen.getByText("Next →"));
     expect(screen.queryByText("Next →")).not.toBeInTheDocument();
-    expect(screen.getByText("Tutorial complete!")).toBeInTheDocument();
+    expect(screen.getByTestId("tutorial-completion-message")).toHaveTextContent(
+      "Tutorial complete! You've learned about Hello Croqtile.",
+    );
+    expect(screen.getByTestId("next-tutorial-button")).toHaveTextContent("Next Tutorial →");
+  });
+
+  it("loads next tutorial when Next Tutorial is clicked", () => {
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    fireEvent.click(screen.getByText("Next →"));
+    fireEvent.click(screen.getByText("Next →"));
+    onLoadCode.mockClear();
+    fireEvent.click(screen.getByTestId("next-tutorial-button"));
+    expect(screen.getByRole("region", { name: "Tutorial: Parallel Execution" })).toBeInTheDocument();
+    expect(onLoadCode).toHaveBeenCalled();
   });
 
   it("respects step parameter from URL", () => {

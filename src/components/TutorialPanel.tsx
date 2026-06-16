@@ -20,6 +20,12 @@ function isTutorialComplete(tutorial: Tutorial): boolean {
   return tutorial.steps.length > 0 && getTutorialProgress(tutorial.id) >= tutorial.steps.length - 1;
 }
 
+function getNextTutorial(currentId: string): Tutorial | null {
+  const index = TUTORIALS.findIndex((t) => t.id === currentId);
+  if (index < 0 || index >= TUTORIALS.length - 1) return null;
+  return TUTORIALS[index + 1];
+}
+
 function updateUrlParam(key: string, value: string | null, step?: number) {
   const url = new URL(window.location.href);
   if (value) {
@@ -203,6 +209,23 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
     );
   }
 
+  const isLastStep = stepIndex === totalSteps - 1;
+  const nextTutorial = getNextTutorial(selectedTutorial.id);
+
+  const beginTutorial = (tutorial: Tutorial) => {
+    setSearchQuery("");
+    setSelectedTutorial(tutorial);
+    const resumeStep = clampStepIndex(getTutorialProgress(tutorial.id) + 1, tutorial.steps.length);
+    setStepIndex(resumeStep);
+    onLoadCode(stepCode(tutorial.steps, resumeStep));
+    if (tutorial.steps.length > 0) {
+      markTutorialStep(tutorial.id, resumeStep);
+      updateUrlParam("tutorial", tutorial.id, resumeStep);
+    } else {
+      updateUrlParam("tutorial", tutorial.id);
+    }
+  };
+
   const step = selectedTutorial.steps[stepIndex];
   if (!step) {
     return (
@@ -285,6 +308,16 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
               </p>
             )}
         </div>
+        {isLastStep && (
+          <div
+            className="mt-6 p-3 rounded border border-green-800 bg-green-950/30"
+            data-testid="tutorial-completion-message"
+          >
+            <p className="text-sm text-green-300">
+              Tutorial complete! You&apos;ve learned about {selectedTutorial.title}.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2 px-4 py-3 border-t border-[var(--border)] bg-[var(--bg-secondary)]">
@@ -336,8 +369,25 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
           Load Code
         </button>
         <div className="flex-1" />
-        {stepIndex === totalSteps - 1 ? (
-          <span className="text-[10px] text-green-400 font-medium">Tutorial complete!</span>
+        {isLastStep ? (
+          nextTutorial ? (
+            <button
+              type="button"
+              onClick={() => beginTutorial(nextTutorial)}
+              className="px-3 py-1 text-xs rounded bg-[var(--accent)] text-[var(--bg-primary)] font-medium hover:opacity-90"
+              aria-label={`Next tutorial: ${nextTutorial.title}`}
+              data-testid="next-tutorial-button"
+            >
+              Next Tutorial →
+            </button>
+          ) : (
+            <span
+              className="text-[10px] text-green-400 font-medium"
+              data-testid="all-tutorials-completed"
+            >
+              All tutorials completed
+            </span>
+          )
         ) : (
           <button
             type="button"

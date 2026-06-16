@@ -590,7 +590,7 @@ export const Toolbar = memo(function Toolbar({
                       <span className="tabular-nums">{tc}/{TUTORIALS.length} completed</span>
                     </div>
                     <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden">
-                      <div className="h-full bg-[var(--success)] transition-all" style={{ width: `${(tc / TUTORIALS.length) * 100}%` }} />
+                      <div className="h-full bg-[var(--success)] transition-all" style={{ width: `${TUTORIALS.length ? (tc / TUTORIALS.length) * 100 : 0}%` }} />
                     </div>
                   </div>
                   <div>
@@ -599,7 +599,7 @@ export const Toolbar = memo(function Toolbar({
                       <span className="tabular-nums">{cp}/{CHALLENGES.length} passed</span>
                     </div>
                     <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden">
-                      <div className="h-full bg-[var(--success)] transition-all" style={{ width: `${(cp / CHALLENGES.length) * 100}%` }} />
+                      <div className="h-full bg-[var(--success)] transition-all" style={{ width: `${CHALLENGES.length ? (cp / CHALLENGES.length) * 100 : 0}%` }} />
                     </div>
                   </div>
                 </div>

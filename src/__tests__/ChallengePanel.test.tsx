@@ -234,13 +234,13 @@ describe("ChallengePanel", () => {
     render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
     );
-    fireEvent.click(screen.getByRole("button", { name: "Easy" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Easy,/ }));
     expect(screen.getByText("Hello Threads")).toBeInTheDocument();
     expect(screen.queryByText("DMA Reverse")).not.toBeInTheDocument();
     expect(screen.queryByText("Matrix Trace")).not.toBeInTheDocument();
 
     const diffGroup = screen.getByRole("group", { name: "Filter by difficulty" });
-    fireEvent.click(within(diffGroup).getByRole("button", { name: "All" }));
+    fireEvent.click(within(diffGroup).getByRole("button", { name: /^All,/ }));
     expect(screen.getByText("Hello Threads")).toBeInTheDocument();
     expect(screen.getByText("DMA Reverse")).toBeInTheDocument();
     expect(screen.getByText("Matrix Trace")).toBeInTheDocument();

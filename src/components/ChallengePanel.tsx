@@ -95,6 +95,25 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount-only deep link init
 
+  const difficultyStats = useMemo(() => {
+    void progressRevision; // recompute when challenge progress updates
+    const stats = {
+      all: { total: CHALLENGES.length, passed: 0 },
+      easy: { total: 0, passed: 0 },
+      medium: { total: 0, passed: 0 },
+      hard: { total: 0, passed: 0 },
+    };
+    for (const c of CHALLENGES) {
+      const passed = isChallengePassed(c.id);
+      stats[c.difficulty].total++;
+      if (passed) {
+        stats.all.passed++;
+        stats[c.difficulty].passed++;
+      }
+    }
+    return stats;
+  }, [progressRevision]);
+
   if (!selectedChallenge) {
     const query = searchQuery.trim().toLowerCase();
     const filteredChallenges = CHALLENGES.filter((c) => {
@@ -163,21 +182,25 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                   { value: "medium", label: "Medium" },
                   { value: "hard", label: "Hard" },
                 ] as const
-              ).map(({ value, label }) => (
+              ).map(({ value, label }) => {
+                const { total, passed } = difficultyStats[value];
+                return (
                 <button
                   key={value}
                   type="button"
                   onClick={() => setDifficultyFilter(value)}
                   aria-pressed={difficultyFilter === value}
-                  className={`text-xs px-2 py-0.5 rounded ${
+                  aria-label={`${label}, ${passed} of ${total} passed`}
+                  className={`text-xs px-2 py-0.5 rounded tabular-nums ${
                     difficultyFilter === value
                       ? "bg-[var(--accent)] text-[var(--bg-primary)]"
                       : "border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                   }`}
                 >
-                  {label}
+                  {label} ({passed}/{total})
                 </button>
-              ))}
+                );
+              })}
             </div>
             <div className="flex gap-1" role="group" aria-label="Filter by status">
               {(
