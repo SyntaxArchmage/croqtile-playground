@@ -15,10 +15,11 @@ describe("settings", () => {
     expect(s.tabSize).toBe(2);
     expect(s.lastTarget).toBe("cc");
     expect(s.theme).toBe("dark");
+    expect(s.outputLineNumbers).toBe(false);
   });
 
   it("saves and loads settings", () => {
-    saveSettings({ fontSize: 18, wordWrap: false, minimap: true, tabSize: 4, lastTarget: "cute", theme: "light" });
+    saveSettings({ fontSize: 18, wordWrap: false, minimap: true, tabSize: 4, lastTarget: "cute", theme: "light", outputLineNumbers: true });
     const s = loadSettings();
     expect(s.fontSize).toBe(18);
     expect(s.wordWrap).toBe(false);
@@ -26,6 +27,7 @@ describe("settings", () => {
     expect(s.tabSize).toBe(4);
     expect(s.lastTarget).toBe("cute");
     expect(s.theme).toBe("light");
+    expect(s.outputLineNumbers).toBe(true);
   });
 
   it("clamps tabSize to valid range", () => {
@@ -68,16 +70,16 @@ describe("settings", () => {
   });
 
   it("persists lastTarget across save/load", () => {
-    saveSettings({ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cute", theme: "dark" });
+    saveSettings({ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cute", theme: "dark", outputLineNumbers: false });
     expect(loadSettings().lastTarget).toBe("cute");
   });
 
   describe("persistence and validation edge cases", () => {
     it("saveSettings persists changes that loadSettings reads back from localStorage", () => {
-      saveSettings({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light" });
+      saveSettings({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false });
       const raw = localStorage.getItem(STORAGE_KEY);
-      expect(raw).toBe(JSON.stringify({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light" }));
-      expect(loadSettings()).toEqual({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light" });
+      expect(raw).toBe(JSON.stringify({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false }));
+      expect(loadSettings()).toEqual({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false });
     });
 
     it("invalid lastTarget in localStorage defaults to cc", () => {
@@ -103,11 +105,16 @@ describe("settings", () => {
       expect(loadSettings().minimap).toBe(false);
     });
 
+    it("handles non-boolean outputLineNumbers gracefully", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 14, outputLineNumbers: "yes" }));
+      expect(loadSettings().outputLineNumbers).toBe(false);
+    });
+
     it("saveSettings catches when localStorage.setItem throws", () => {
       jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
         throw new Error("quota exceeded");
       });
-      expect(() => saveSettings({ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "dark" })).not.toThrow();
+      expect(() => saveSettings({ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "dark", outputLineNumbers: false })).not.toThrow();
       (Storage.prototype.setItem as jest.Mock).mockRestore();
     });
 

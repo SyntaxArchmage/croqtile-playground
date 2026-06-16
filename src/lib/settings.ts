@@ -9,6 +9,7 @@ export interface EditorSettings {
   tabSize: number;
   lastTarget: string;
   theme: Theme;
+  outputLineNumbers: boolean;
 }
 
 const DEFAULT_SETTINGS: EditorSettings = {
@@ -18,6 +19,7 @@ const DEFAULT_SETTINGS: EditorSettings = {
   tabSize: 2,
   lastTarget: "cc",
   theme: "dark",
+  outputLineNumbers: false,
 };
 
 function getDefault(): EditorSettings {
@@ -44,7 +46,10 @@ export function loadSettings(): EditorSettings {
     const lastTarget = typeof parsed.lastTarget === "string" && ["cc", "cute"].includes(parsed.lastTarget)
       ? parsed.lastTarget : def.lastTarget;
     const theme = parsed.theme === "light" || parsed.theme === "dark" ? parsed.theme : def.theme;
-    return { fontSize, wordWrap, minimap, tabSize, lastTarget, theme };
+    const outputLineNumbers = typeof parsed.outputLineNumbers === "boolean"
+      ? parsed.outputLineNumbers
+      : def.outputLineNumbers;
+    return { fontSize, wordWrap, minimap, tabSize, lastTarget, theme, outputLineNumbers };
   } catch {
     return getDefault();
   }

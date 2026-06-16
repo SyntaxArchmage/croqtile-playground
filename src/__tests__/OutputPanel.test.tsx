@@ -7,6 +7,7 @@ describe("OutputPanel", () => {
 
   beforeEach(() => {
     writeText.mockClear();
+    localStorage.clear();
     Object.assign(navigator, {
       clipboard: { writeText },
     });
@@ -247,6 +248,48 @@ describe("OutputPanel", () => {
 
     fireEvent.click(screen.getByLabelText("Toggle word wrap"));
     expect(pre).toHaveClass("whitespace-pre-wrap");
+  });
+
+  it("toggles line numbers in output", () => {
+    render(<OutputPanel output={"Hello\nWorld"} errors="" />);
+    const pre = screen.getByRole("tabpanel").querySelector("pre");
+    expect(pre?.textContent).toBe("Hello\nWorld");
+
+    fireEvent.click(screen.getByLabelText("Toggle line numbers"));
+    expect(pre?.textContent).toBe("1: Hello\n2: World");
+    expect(screen.getByLabelText("Toggle line numbers")).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(screen.getByLabelText("Toggle line numbers"));
+    expect(pre?.textContent).toBe("Hello\nWorld");
+    expect(screen.getByLabelText("Toggle line numbers")).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("persists line numbers setting in localStorage", () => {
+    render(<OutputPanel output="data" errors="" />);
+    fireEvent.click(screen.getByLabelText("Toggle line numbers"));
+    expect(JSON.parse(localStorage.getItem("croqtile-playground-settings")!).outputLineNumbers).toBe(true);
+  });
+
+  it("loads line numbers setting from localStorage", () => {
+    localStorage.setItem(
+      "croqtile-playground-settings",
+      JSON.stringify({ fontSize: 14, wordWrap: false, outputLineNumbers: true }),
+    );
+    render(<OutputPanel output={"A\nB"} errors="" />);
+    const pre = screen.getByRole("tabpanel").querySelector("pre");
+    expect(pre?.textContent).toBe("1: A\n2: B");
+    expect(screen.getByLabelText("Toggle line numbers")).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("shows line numbers on errors tab when enabled", () => {
+    localStorage.setItem(
+      "croqtile-playground-settings",
+      JSON.stringify({ outputLineNumbers: true }),
+    );
+    render(<OutputPanel output="" errors={"Error at line 1\nsecond line"} />);
+    fireEvent.click(screen.getByRole("tab", { name: /Errors/ }));
+    expect(screen.getByRole("tabpanel")).toHaveTextContent("1: Error at line 1");
+    expect(screen.getByRole("tabpanel")).toHaveTextContent("2: second line");
   });
 
   it("navigates tabs with ArrowRight keyboard", () => {

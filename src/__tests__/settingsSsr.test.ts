@@ -13,12 +13,13 @@ describe("settings SSR / no-window guards", () => {
       tabSize: 2,
       lastTarget: "cc",
       theme: "dark",
+      outputLineNumbers: false,
     });
   });
 
   it("saveSettings is a no-op when window is undefined", () => {
     expect(() =>
-      saveSettings({ fontSize: 16, wordWrap: false, tabSize: 2, lastTarget: "cute", theme: "light" }),
+      saveSettings({ fontSize: 16, wordWrap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false }),
     ).not.toThrow();
   });
 });

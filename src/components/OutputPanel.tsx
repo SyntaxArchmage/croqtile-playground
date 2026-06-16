@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, memo, type ReactNode } from "react";
+import { loadSettings, saveSettings } from "@/lib/settings";
 
 function isErrorLine(line: string): boolean {
   return (
@@ -10,20 +11,27 @@ function isErrorLine(line: string): boolean {
   );
 }
 
-function highlightErrorLines(text: string): ReactNode {
+function formatWithLineNumbers(text: string): string {
+  return text.split("\n").map((line, i) => `${i + 1}: ${line}`).join("\n");
+}
+
+function highlightErrorLines(text: string, withLineNumbers: boolean): ReactNode {
   const lines = text.split("\n");
-  return lines.map((line, i) => (
-    <div
-      key={i}
-      className={
-        isErrorLine(line)
-          ? "error-line-highlight border-l-2 border-red-500 bg-red-950/20 pl-2"
-          : undefined
-      }
-    >
-      {line || "\u00A0"}
-    </div>
-  ));
+  return lines.map((line, i) => {
+    const displayLine = withLineNumbers ? `${i + 1}: ${line}` : line;
+    return (
+      <div
+        key={i}
+        className={
+          isErrorLine(line)
+            ? "error-line-highlight border-l-2 border-red-500 bg-red-950/20 pl-2"
+            : undefined
+        }
+      >
+        {displayLine || "\u00A0"}
+      </div>
+    );
+  });
 }
 
 type Tab = "output" | "errors" | "ast";
@@ -46,6 +54,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
   const [prevAst, setPrevAst] = useState(ast);
   const [copied, setCopied] = useState(false);
   const [wordWrap, setWordWrap] = useState(true);
+  const [lineNumbers, setLineNumbers] = useState(() => loadSettings().outputLineNumbers);
   const [heightPct, setHeightPct] = useState(DEFAULT_HEIGHT_PCT);
 
   if (errors !== prevErrors) {
@@ -62,6 +71,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
   }
 
   const content = activeTab === "ast" ? ast : activeTab === "output" ? output : errors;
+  const displayContent = content && lineNumbers ? formatWithLineNumbers(content) : content;
   const scrollRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -77,6 +87,14 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
     return () => {
       if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
     };
+  }, []);
+
+  const toggleLineNumbers = useCallback(() => {
+    setLineNumbers((prev) => {
+      const next = !prev;
+      saveSettings({ ...loadSettings(), outputLineNumbers: next });
+      return next;
+    });
   }, []);
 
   const handleCopy = useCallback(() => {
@@ -245,6 +263,15 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
                 >
                   {wordWrap ? "Wrap" : "No Wrap"}
                 </button>
+                <button
+                  type="button"
+                  onClick={toggleLineNumbers}
+                  className="px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  aria-label="Toggle line numbers"
+                  aria-pressed={lineNumbers}
+                >
+                  {lineNumbers ? "#" : "Lines"}
+                </button>
               </>
             )}
             {(output || errors || ast) && onClear && (
@@ -269,11 +296,11 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
       >
         {activeTab === "errors" && errors ? (
           <div className="text-xs font-mono text-[var(--text-primary)]">
-            {highlightErrorLines(errors)}
+            {highlightErrorLines(errors, lineNumbers)}
           </div>
         ) : (
           <pre className={`text-xs font-mono text-[var(--text-primary)] ${wordWrap ? "whitespace-pre-wrap" : "whitespace-pre"}`}>
-            {content || (
+            {displayContent || (
               <span className="text-[var(--text-muted)]">
                 Click &ldquo;Run&rdquo; or &ldquo;Compile&rdquo; to see output.
               </span>
