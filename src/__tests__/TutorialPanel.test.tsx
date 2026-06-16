@@ -137,6 +137,31 @@ describe("TutorialPanel", () => {
     expect(onLoadCode).toHaveBeenCalled();
   });
 
+  it("beginTutorial omits step param when next tutorial has no steps", () => {
+    const emptyNext: Tutorial = {
+      id: "empty-next-after-ch01",
+      title: "Empty Next Tutorial",
+      description: "Inserted after ch01 with no steps",
+      steps: [],
+    };
+    const ch01Index = TUTORIALS.findIndex((t) => t.id === "ch01");
+    TUTORIALS.splice(ch01Index + 1, 0, emptyNext);
+    try {
+      render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+      fireEvent.click(screen.getByText("Hello Croqtile"));
+      fireEvent.click(screen.getByText("Next →"));
+      fireEvent.click(screen.getByText("Next →"));
+      fireEvent.click(screen.getByTestId("next-tutorial-button"));
+      expect(screen.getByTestId("no-steps-message")).toBeInTheDocument();
+      const params = new URLSearchParams(window.location.search);
+      expect(params.get("tutorial")).toBe("empty-next-after-ch01");
+      expect(params.has("step")).toBe(false);
+      window.history.pushState({}, "", "/");
+    } finally {
+      TUTORIALS.splice(ch01Index + 1, 1);
+    }
+  });
+
   it("respects step parameter from URL", () => {
     window.history.pushState({}, "", "?tutorial=ch01&step=2");
     render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="ch01" />);

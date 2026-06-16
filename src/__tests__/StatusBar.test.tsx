@@ -1,3 +1,4 @@
+import React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { StatusBar } from "@/components/StatusBar";
@@ -157,5 +158,20 @@ describe("StatusBar", () => {
     render(<StatusBar status="ready" panelMode="closed" />);
     expect(screen.queryByText(/challenges passed/)).not.toBeInTheDocument();
     expect(screen.queryByText(/tutorials completed/)).not.toBeInTheDocument();
+  });
+
+  it("uses zero server snapshot for progress subscription", () => {
+    const serverSnapshots: Array<() => unknown> = [];
+    const spy = jest.spyOn(React, "useSyncExternalStore").mockImplementation(
+      (subscribe, getSnapshot, getServerSnapshot) => {
+        if (getServerSnapshot) serverSnapshots.push(getServerSnapshot);
+        return getSnapshot();
+      },
+    );
+
+    render(<StatusBar status="ready" />);
+    expect(serverSnapshots.some((fn) => fn() === 0)).toBe(true);
+
+    spy.mockRestore();
   });
 });

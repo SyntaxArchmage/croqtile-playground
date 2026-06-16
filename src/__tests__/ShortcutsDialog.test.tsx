@@ -181,6 +181,74 @@ describe("ShortcutsDialog", () => {
     }
   });
 
+  it("wraps Tab focus when only one focusable element exists", () => {
+    const originalQuerySelectorAll = Element.prototype.querySelectorAll;
+    Element.prototype.querySelectorAll = function (this: Element, selector: string) {
+      if (this.getAttribute?.("role") === "dialog" && selector.includes("tabindex")) {
+        const closeBtn = this.querySelector('button[aria-label="Close keyboard shortcuts"]');
+        return (closeBtn ? [closeBtn] : []) as unknown as NodeListOf<Element>;
+      }
+      return originalQuerySelectorAll.call(this, selector);
+    };
+
+    try {
+      render(<ShortcutsDialog onClose={jest.fn()} />);
+      const dialog = screen.getByRole("dialog");
+      const focusable = dialog.querySelectorAll<HTMLElement>(FOCUSABLE);
+      expect(focusable).toHaveLength(1);
+
+      const only = focusable[0];
+      act(() => {
+        only.focus();
+      });
+      act(() => {
+        dialog.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }),
+        );
+      });
+      expect(document.activeElement).toBe(only);
+    } finally {
+      Element.prototype.querySelectorAll = originalQuerySelectorAll;
+    }
+  });
+
+  it("calls preventDefault when wrapping Tab from the last focusable element", () => {
+    render(<ShortcutsDialog onClose={jest.fn()} />);
+    const dialog = screen.getByRole("dialog");
+    const focusable = dialog.querySelectorAll<HTMLElement>(FOCUSABLE);
+    const last = focusable[focusable.length - 1];
+
+    act(() => {
+      last.focus();
+    });
+    const event = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    act(() => {
+      dialog.dispatchEvent(event);
+    });
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("calls preventDefault when wrapping Shift+Tab from the first focusable element", () => {
+    render(<ShortcutsDialog onClose={jest.fn()} />);
+    const dialog = screen.getByRole("dialog");
+    const focusable = dialog.querySelectorAll<HTMLElement>(FOCUSABLE);
+    const first = focusable[0];
+
+    act(() => {
+      first.focus();
+    });
+    const event = new KeyboardEvent("keydown", {
+      key: "Tab",
+      shiftKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    act(() => {
+      dialog.dispatchEvent(event);
+    });
+    expect(event.defaultPrevented).toBe(true);
+  });
+
   it("unmounts without restoring focus when activeElement was null on open", () => {
     const activeElementDescriptor = Object.getOwnPropertyDescriptor(document, "activeElement");
     Object.defineProperty(document, "activeElement", {

@@ -3,6 +3,8 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { Toolbar } from "@/components/Toolbar";
 import * as progress from "@/lib/progress";
+import { TUTORIALS } from "@/lib/tutorials";
+import { CHALLENGES } from "@/lib/challenges";
 
 const defaultProps = {
   target: "cc",
@@ -346,6 +348,24 @@ describe("Toolbar", () => {
     fireEvent.click(screen.getByLabelText("Settings menu"));
     expect(screen.getByText("Tutorials")).toBeInTheDocument();
     expect(screen.getByText("Challenges")).toBeInTheDocument();
+  });
+
+  it("renders zero-width progress bars when tutorial and challenge catalogs are empty", () => {
+    const tutBackup = TUTORIALS.splice(0, TUTORIALS.length);
+    const chalBackup = CHALLENGES.splice(0, CHALLENGES.length);
+    try {
+      render(<Toolbar {...defaultProps} />);
+      fireEvent.click(screen.getByLabelText("Settings menu"));
+      const progressBars = screen
+        .getByRole("group", { name: "Progress" })
+        .querySelectorAll<HTMLElement>("[class*='bg-[var(--success)]']");
+      expect(progressBars).toHaveLength(2);
+      expect(progressBars[0].style.width).toBe("0%");
+      expect(progressBars[1].style.width).toBe("0%");
+    } finally {
+      TUTORIALS.push(...tutBackup);
+      CHALLENGES.push(...chalBackup);
+    }
   });
 
   it("requires two clicks before resetting progress", () => {

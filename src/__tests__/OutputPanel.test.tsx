@@ -352,6 +352,26 @@ describe("OutputPanel", () => {
     expect(screen.queryByText("Copy")).not.toBeInTheDocument();
   });
 
+  it("handleCopy returns early when active tab content is empty", () => {
+    let latestHandleCopy: (() => void) | undefined;
+    const realUseCallback = React.useCallback;
+    const useCallbackSpy = jest.spyOn(React, "useCallback").mockImplementation((fn, deps) => {
+      const cb = realUseCallback(fn, deps);
+      if (Array.isArray(deps) && deps.length === 1 && typeof deps[0] === "string") {
+        latestHandleCopy = cb as () => void;
+      }
+      return cb;
+    });
+
+    try {
+      render(<OutputPanel output="" errors="" ast="" />);
+      latestHandleCopy?.();
+      expect(writeText).not.toHaveBeenCalled();
+    } finally {
+      useCallbackSpy.mockRestore();
+    }
+  });
+
   it("ignores mouse move after mouse up on separator", () => {
     const { container } = render(
       <div style={{ height: 600 }}>
