@@ -365,7 +365,7 @@ export function Playground() {
   const skipLink = (
     <a
       href="#main-content"
-      className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded focus:bg-[var(--accent)] focus:text-[var(--bg-primary)] focus:text-sm focus:font-medium focus:outline-none"
+      className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded focus:bg-[var(--accent)] focus:text-[var(--bg-primary)] focus:text-sm focus:font-medium"
     >
       Skip to editor
     </a>
@@ -422,7 +422,7 @@ export function Playground() {
         openFileRef={openFileRef}
       />
       <div className="flex-1 min-h-0 flex flex-col">
-        <div id="main-content" className="flex-1 min-h-0 relative" tabIndex={-1}>
+        <main id="main-content" className="flex-1 min-h-0 relative" tabIndex={-1}>
           <Editor
             ref={editorRef}
             value={source}
@@ -444,10 +444,10 @@ export function Playground() {
               aria-label="Run code"
               title="Run (Ctrl+Enter)"
             >
-              ▶
+              <span aria-hidden="true">▶</span>
             </button>
           )}
-        </div>
+        </main>
         <OutputPanel output={output} errors={errors} ast={ast} onClear={clearOutput} />
       </div>
       <StatusBar

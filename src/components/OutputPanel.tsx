@@ -185,7 +185,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
           if (e.key === "ArrowUp") { e.preventDefault(); setHeightPct((h) => Math.min(MAX_HEIGHT_PCT, h + step)); }
           if (e.key === "ArrowDown") { e.preventDefault(); setHeightPct((h) => Math.max(MIN_HEIGHT_PCT, h - step)); }
         }}
-        className="resize-handle-y h-1 cursor-row-resize bg-[var(--border)] hover:bg-[var(--accent)] focus:bg-[var(--accent)] focus:outline-none transition-colors flex-shrink-0"
+        className="resize-handle-y h-1 cursor-row-resize bg-[var(--border)] hover:bg-[var(--accent)] focus-visible:bg-[var(--accent)] transition-colors flex-shrink-0"
       />
       <div
         className="flex items-center gap-1 px-3 py-1 border-b border-[var(--border)] bg-[var(--bg-secondary)]"
@@ -291,6 +291,8 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
         id="output-tabpanel"
         role="tabpanel"
         aria-labelledby={`${activeTab}-tab`}
+        aria-live="polite"
+        aria-relevant="additions text"
         className="flex-1 overflow-auto p-3"
       >
         {activeTab === "errors" && errors ? (

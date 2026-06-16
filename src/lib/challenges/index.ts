@@ -185,6 +185,21 @@ import { challenge157 } from "./157-matrix-submatrix-sum";
 import { challenge158 } from "./158-array-longest-run";
 import { challenge159 } from "./159-parallel-distance";
 import { challenge160 } from "./160-grand-matrix-lu";
+import { challenge161 } from "./161-parallel-floor";
+import { challenge162 } from "./162-matrix-norm";
+import { challenge163 } from "./163-array-rotate-copy";
+import { challenge164 } from "./164-parallel-lerp";
+import { challenge165 } from "./165-matrix-block-sum";
+import { challenge166 } from "./166-array-has-duplicate";
+import { challenge167 } from "./167-parallel-rounding";
+import { challenge168 } from "./168-matrix-horizontal-flip";
+import { challenge169 } from "./169-array-pairwise-min";
+import { challenge170 } from "./170-grand-fft-butterfly";
+import { challenge171 } from "./171-parallel-normalize";
+import { challenge172 } from "./172-matrix-vertical-flip";
+import { challenge173 } from "./173-array-pack";
+import { challenge174 } from "./174-parallel-threshold-zero";
+import { challenge175 } from "./175-grand-spmv";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -230,4 +245,8 @@ export const CHALLENGES: Challenge[] = [
   challenge151, challenge152, challenge153, challenge154,
   challenge155, challenge156, challenge157, challenge158,
   challenge159, challenge160,
+  challenge161, challenge162, challenge163, challenge164,
+  challenge165, challenge166, challenge167, challenge168,
+  challenge169, challenge170, challenge171, challenge172,
+  challenge173, challenge174, challenge175,
 ];

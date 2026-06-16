@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, act, within } from "@testing-library/react";
 import React from "react";
 import "@testing-library/jest-dom";
 import { Toolbar } from "@/components/Toolbar";
@@ -6,6 +6,12 @@ import * as progress from "@/lib/progress";
 import * as progressExport from "@/lib/progressExport";
 import { TUTORIALS } from "@/lib/tutorials";
 import { CHALLENGES } from "@/lib/challenges";
+
+function lastFileMenuItem() {
+  const fileMenu = screen.getByRole("menu", { name: "File" });
+  const items = within(fileMenu).getAllByRole("menuitem");
+  return items[items.length - 1];
+}
 
 const defaultProps = {
   target: "cc",
@@ -434,9 +440,9 @@ describe("Toolbar", () => {
     fireEvent.click(screen.getByLabelText("File menu"));
     const fileMenu = screen.getByRole("menu", { name: "File" });
     const openItem = screen.getByText("Open file...");
-    const formatItem = screen.getByText("Format code");
+    const lastItem = lastFileMenuItem();
     fireEvent.keyDown(fileMenu, { key: "End" });
-    expect(formatItem).toHaveFocus();
+    expect(lastItem).toHaveFocus();
     fireEvent.keyDown(fileMenu, { key: "Home" });
     expect(openItem).toHaveFocus();
   });
@@ -446,10 +452,10 @@ describe("Toolbar", () => {
     fireEvent.click(screen.getByLabelText("File menu"));
     const fileMenu = screen.getByRole("menu", { name: "File" });
     const openItem = screen.getByText("Open file...");
-    const formatItem = screen.getByText("Format code");
+    const lastItem = lastFileMenuItem();
     expect(openItem).toHaveFocus();
     fireEvent.keyDown(fileMenu, { key: "End" });
-    expect(formatItem).toHaveFocus();
+    expect(lastItem).toHaveFocus();
   });
 
   it("resets share copied timeout on rapid Share clicks", () => {
@@ -655,10 +661,10 @@ describe("Toolbar", () => {
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("File menu"));
     const fileMenu = screen.getByRole("menu", { name: "File" });
-    const formatItem = screen.getByText("Format code");
+    const lastItem = lastFileMenuItem();
     (document.activeElement as HTMLElement)?.blur();
     fireEvent.keyDown(fileMenu, { key: "ArrowUp" });
-    expect(formatItem).toHaveFocus();
+    expect(lastItem).toHaveFocus();
   });
 
   it("does not reset progress when confirmation expires", () => {

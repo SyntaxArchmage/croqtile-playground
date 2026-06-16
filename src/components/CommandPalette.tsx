@@ -13,11 +13,21 @@ interface Props {
   onClose: () => void;
 }
 
+const FOCUSABLE =
+  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+const LISTBOX_ID = "command-listbox";
+
+function optionId(index: number): string {
+  return `command-option-${index}`;
+}
+
 export function CommandPalette({ commands, onClose }: Props) {
   const [search, setSearch] = useState("");
   const [highlight, setHighlight] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -55,7 +65,32 @@ export function CommandPalette({ commands, onClose }: Props) {
   );
 
   useEffect(() => {
+    previousFocusRef.current = document.activeElement as HTMLElement;
     inputRef.current?.focus();
+
+    const dialog = dialogRef.current;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const focusable = dialog?.querySelectorAll<HTMLElement>(FOCUSABLE);
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        }
+      } else if (document.activeElement === last) {
+        e.preventDefault();
+        first?.focus();
+      }
+    };
+
+    dialog?.addEventListener("keydown", handleKeyDown);
+    return () => {
+      dialog?.removeEventListener("keydown", handleKeyDown);
+      previousFocusRef.current?.focus();
+    };
   }, []);
 
   useEffect(() => {
@@ -89,6 +124,7 @@ export function CommandPalette({ commands, onClose }: Props) {
         <input
           ref={inputRef}
           type="text"
+          role="combobox"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -97,25 +133,30 @@ export function CommandPalette({ commands, onClose }: Props) {
           onKeyDown={handleKeyDown}
           placeholder="Type a command..."
           aria-label="Search commands"
-          className="w-full min-h-11 px-3 py-2 bg-[var(--bg-primary)] border-b border-[var(--border)] text-base text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
+          aria-controls={LISTBOX_ID}
+          aria-expanded="true"
+          aria-autocomplete="list"
+          aria-activedescendant={filtered.length > 0 ? optionId(clamped) : undefined}
+          className="w-full min-h-11 px-3 py-2 bg-[var(--bg-primary)] border-b border-[var(--border)] text-base text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
         />
-        <ul className="flex-1 min-h-0 overflow-y-auto py-1" role="listbox">
+        <ul id={LISTBOX_ID} className="flex-1 min-h-0 overflow-y-auto py-1" role="listbox" aria-label="Commands">
           {filtered.length === 0 ? (
-            <li className="px-3 py-2 text-xs text-[var(--text-muted)]">No matching commands</li>
+            <li className="px-3 py-2 text-xs text-[var(--text-muted)]" role="presentation">No matching commands</li>
           ) : (
             filtered.map((cmd, index) => (
-              <li key={cmd.label} role="option" aria-selected={index === clamped}>
+              <li key={cmd.label} id={optionId(index)} role="option" aria-selected={index === clamped}>
                 <button
                   type="button"
                   onClick={() => execute(cmd)}
                   onMouseEnter={() => setHighlight(index)}
+                  aria-label={cmd.shortcut ? `${cmd.label}, ${cmd.shortcut}` : cmd.label}
                   className={`w-full flex items-center justify-between px-3 py-3 min-h-11 text-left text-sm ${
                     index === clamped
                       ? "bg-[var(--bg-primary)] text-[var(--text-primary)]"
                       : "text-[var(--text-secondary)] hover:bg-[var(--bg-primary)]"
                   }`}
                 >
-                  <span>{cmd.label}</span>
+                  <span aria-hidden="true">{cmd.label}</span>
                   {cmd.shortcut && (
                     <kbd className="hidden sm:inline ml-2 px-1.5 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-muted)] font-mono text-[10px] shrink-0">
                       {cmd.shortcut}

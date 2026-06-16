@@ -57,5 +57,10 @@ import { ch42 } from "./ch42-memory-access-patterns";
 import { ch43 } from "./ch43-parallel-sorting";
 import { ch44 } from "./ch44-image-processing-basics";
 import { ch45 } from "./ch45-real-world-patterns";
+import { ch46 } from "./ch46-atomic-operations";
+import { ch47 } from "./ch47-work-distribution";
+import { ch48 } from "./ch48-numerical-computing";
+import { ch49 } from "./ch49-communication-patterns";
+import { ch50 } from "./ch50-mini-project";
 
-export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14, ch15, ch16, ch17, ch18, ch19, ch20, ch21, ch22, ch23, ch24, ch25, ch26, ch27, ch28, ch29, ch30, ch31, ch32, ch33, ch34, ch35, ch36, ch37, ch38, ch39, ch40, ch41, ch42, ch43, ch44, ch45];
+export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14, ch15, ch16, ch17, ch18, ch19, ch20, ch21, ch22, ch23, ch24, ch25, ch26, ch27, ch28, ch29, ch30, ch31, ch32, ch33, ch34, ch35, ch36, ch37, ch38, ch39, ch40, ch41, ch42, ch43, ch44, ch45, ch46, ch47, ch48, ch49, ch50];

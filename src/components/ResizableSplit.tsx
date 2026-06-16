@@ -82,7 +82,7 @@ export function ResizableSplit({ left, right, initialRatio = 0.35 }: Props) {
           if (e.key === "ArrowLeft") { e.preventDefault(); setRatio((r) => Math.max(0.2, r - step)); }
           if (e.key === "ArrowRight") { e.preventDefault(); setRatio((r) => Math.min(0.6, r + step)); }
         }}
-        className="resize-handle-x w-1 cursor-col-resize bg-[var(--border)] hover:bg-[var(--accent)] focus:bg-[var(--accent)] focus:outline-none transition-colors flex-shrink-0"
+        className="resize-handle-x w-1 cursor-col-resize bg-[var(--border)] hover:bg-[var(--accent)] focus-visible:bg-[var(--accent)] transition-colors flex-shrink-0"
       />
       <div style={{ width: `${(1 - ratio) * 100}%` }} className="min-w-0 overflow-hidden">
         {right}
