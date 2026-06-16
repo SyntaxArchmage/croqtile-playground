@@ -129,8 +129,8 @@ describe("ChallengePanel", () => {
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="wrong output" />
     );
     fireEvent.click(screen.getByText("Hello Threads"));
-    expect(screen.getByTestId("test-expected")).toBeInTheDocument();
-    expect(screen.getByTestId("test-actual")).toBeInTheDocument();
+    expect(screen.getAllByTestId("test-expected").length).toBeGreaterThan(0);
+    expect(screen.getAllByTestId("test-actual").length).toBeGreaterThan(0);
   });
 
   it("shows hint button when challenge has hint", () => {
@@ -305,7 +305,7 @@ describe("ChallengePanel", () => {
     rerender(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={longOutput} initialId="c01" />
     );
-    expect(screen.getByText(longOutput)).toBeInTheDocument();
+    expect(screen.getAllByText(longOutput).length).toBeGreaterThan(0);
   });
 
   it("does not show Next button on last challenge", () => {

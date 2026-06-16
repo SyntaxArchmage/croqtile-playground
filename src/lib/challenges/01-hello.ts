@@ -23,9 +23,11 @@ Use \`parallel {i} by [4]\` and \`println()\`.`,
 }
 `,
   tests: [
+    { expectedOutput: "Hello from thread 0", description: "Thread 0 prints its greeting" },
+    { expectedOutput: "Hello from thread 3", description: "Thread 3 prints its greeting" },
     {
       expectedOutput: "Hello from thread 0\nHello from thread 1\nHello from thread 2\nHello from thread 3",
-      description: "Should print hello from 4 threads",
+      description: "All 4 threads print in order",
     },
   ],
   hint: "Each thread gets its own index i. Use println() inside the parallel block to print a message that includes i.",

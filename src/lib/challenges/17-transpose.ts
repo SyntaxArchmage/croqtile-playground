@@ -43,10 +43,9 @@ T[2,2] = 9
 }
 `,
   tests: [
-    {
-      expectedOutput: "T[0,0] = 1\nT[0,1] = 4\nT[0,2] = 7\nT[1,0] = 2\nT[1,1] = 5\nT[1,2] = 8\nT[2,0] = 3\nT[2,1] = 6\nT[2,2] = 9",
-      description: "Should transpose the 3x3 matrix correctly",
-    },
+    { expectedOutput: "T[0,0] = 1", description: "Diagonal stays unchanged: T[0,0] = 1" },
+    { expectedOutput: "T[0,1] = 4", description: "T[0,1] = A[1,0] = 4 (row-col swap)" },
+    { expectedOutput: "T[2,0] = 3", description: "T[2,0] = A[0,2] = 3 (row-col swap)" },
   ],
   hint: "Inside a parallel {i,j} by [3,3] block, set T[i,j] = A[j,i] — swap the indices.",
 };

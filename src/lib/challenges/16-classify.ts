@@ -36,9 +36,12 @@ data[7] = 8 -> high
 }
 `,
   tests: [
+    { expectedOutput: "data[0] = 3 -> low", description: "3 should be classified as low" },
+    { expectedOutput: "data[4] = 4 -> mid", description: "4 should be classified as mid (boundary)" },
+    { expectedOutput: "data[1] = 7 -> high", description: "7 should be classified as high (boundary)" },
     {
       expectedOutput: "data[0] = 3 -> low\ndata[1] = 7 -> high\ndata[2] = 1 -> low\ndata[3] = 9 -> high\ndata[4] = 4 -> mid\ndata[5] = 6 -> mid\ndata[6] = 2 -> low\ndata[7] = 8 -> high",
-      description: "Should classify all values correctly",
+      description: "All values classified correctly",
     },
   ],
   hint: "Use if/else if/else inside the parallel block. Compare data[i] against the threshold values 4 and 7.",

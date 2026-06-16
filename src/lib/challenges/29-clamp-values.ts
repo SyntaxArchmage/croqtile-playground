@@ -36,9 +36,12 @@ result[7] = 9
 }
 `,
   tests: [
+    { expectedOutput: "result[0] = 5", description: "5 is within range, kept as-is" },
+    { expectedOutput: "result[1] = 10", description: "12 clamped down to max (10)" },
+    { expectedOutput: "result[2] = 4", description: "3 clamped up to min (4)" },
     {
       expectedOutput: "result[0] = 5\nresult[1] = 10\nresult[2] = 4\nresult[3] = 10\nresult[4] = 7\nresult[5] = 4\nresult[6] = 10\nresult[7] = 9",
-      description: "Should clamp all values to [4, 10]",
+      description: "All values clamped correctly",
     },
   ],
   hint: "Use if/else inside the parallel block: if data[i] < lo, result[i] = lo; else if data[i] > hi, result[i] = hi; else result[i] = data[i].",

@@ -46,6 +46,10 @@ import { challenge29 } from "./29-clamp-values";
 import { challenge30 } from "./30-stencil-average";
 import { challenge31 } from "./31-all-positive";
 import { challenge32 } from "./32-matrix-multiply";
+import { challenge33 } from "./33-interleave-arrays";
+import { challenge34 } from "./34-matrix-row-swap";
+import { challenge35 } from "./35-count-evens";
+import { challenge36 } from "./36-parallel-max-index";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -56,4 +60,5 @@ export const CHALLENGES: Challenge[] = [
   challenge21, challenge22, challenge23, challenge24,
   challenge25, challenge26, challenge27, challenge28,
   challenge29, challenge30, challenge31, challenge32,
+  challenge33, challenge34, challenge35, challenge36,
 ];
