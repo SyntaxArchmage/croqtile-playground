@@ -250,6 +250,31 @@ import { challenge222 } from "./222-matrix-reshape";
 import { challenge223 } from "./223-parallel-sum-of-digits";
 import { challenge224 } from "./224-array-mean";
 import { challenge225 } from "./225-grand-kmeans-step";
+import { challenge226 } from "./226-array-median";
+import { challenge227 } from "./227-matrix-scale-row";
+import { challenge228 } from "./228-parallel-floor-division";
+import { challenge229 } from "./229-array-range-check";
+import { challenge230 } from "./230-matrix-add";
+import { challenge231 } from "./231-parallel-truncate";
+import { challenge232 } from "./232-array-standard-deviation";
+import { challenge233 } from "./233-matrix-subtract";
+import { challenge234 } from "./234-parallel-wrap";
+import { challenge235 } from "./235-array-variance";
+import { challenge236 } from "./236-matrix-diagonal-set";
+import { challenge237 } from "./237-parallel-bitwise-not";
+import { challenge238 } from "./238-array-inner-product";
+import { challenge239 } from "./239-matrix-set-row";
+import { challenge240 } from "./240-grand-strassen";
+import { challenge241 } from "./241-array-outer-sum";
+import { challenge242 } from "./242-matrix-set-column";
+import { challenge243 } from "./243-parallel-negate";
+import { challenge244 } from "./244-array-double";
+import { challenge245 } from "./245-matrix-eye";
+import { challenge246 } from "./246-parallel-square-root-approx";
+import { challenge247 } from "./247-array-triple";
+import { challenge248 } from "./248-matrix-ones";
+import { challenge249 } from "./249-array-increment";
+import { challenge250 } from "./250-grand-pagerank-step";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -312,4 +337,11 @@ export const CHALLENGES: Challenge[] = [
   challenge215, challenge216, challenge217, challenge218,
   challenge219, challenge220, challenge221, challenge222,
   challenge223, challenge224, challenge225,
+  challenge226, challenge227, challenge228, challenge229,
+  challenge230, challenge231, challenge232, challenge233,
+  challenge234, challenge235, challenge236, challenge237,
+  challenge238, challenge239, challenge240,
+  challenge241, challenge242, challenge243, challenge244,
+  challenge245, challenge246, challenge247, challenge248,
+  challenge249, challenge250,
 ];
