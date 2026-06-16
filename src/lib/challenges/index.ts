@@ -38,6 +38,8 @@ import { challenge21 } from "./21-running-maximum";
 import { challenge22 } from "./22-matrix-column-sum";
 import { challenge23 } from "./23-pipeline-sum";
 import { challenge24 } from "./24-pack-unpack";
+import { challenge25 } from "./25-rotate-left";
+import { challenge26 } from "./26-diagonal-sum";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -46,4 +48,5 @@ export const CHALLENGES: Challenge[] = [
   challenge13, challenge14, challenge15, challenge16,
   challenge17, challenge18, challenge19, challenge20,
   challenge21, challenge22, challenge23, challenge24,
+  challenge25, challenge26,
 ];

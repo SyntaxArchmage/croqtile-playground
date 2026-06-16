@@ -1,12 +1,12 @@
 # Croqtile Playground — Session Handoff
 
-**Date**: 2026-06-15
-**Sessions**: auto-dev (multiple invocations, 130+ total commits)
+**Date**: 2026-06-16
+**Sessions**: auto-dev (multiple invocations, 190+ total commits)
 
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (545 tests, 29 suites)
+- `npm test` ✅ (566 tests, 30 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -19,14 +19,14 @@
 - Output panel (tabbed: Output / Errors / AST) with auto-tab-switch, error line highlighting
 - Status bar: worker status, compiler version, cursor position (Ln/Col), line count, target, execution time
 - Resizable split layout with keyboard and touch support
-- Keyboard shortcuts: Ctrl+Enter (Run), Ctrl+Shift+Enter (Compile), Ctrl+Shift+D (AST), Ctrl+S (Share), Ctrl+L (Clear), Ctrl+P (Command Palette), ? (Help)
+- Keyboard shortcuts: Ctrl+Enter (Run), Ctrl+Shift+Enter (Compile), Ctrl+Alt+D (AST), Ctrl+S (Share), Ctrl+L (Clear), Ctrl+P (Command Palette), ? (Help)
 - Command palette (Ctrl+P) with fuzzy search
 - Error boundary with graceful crash recovery
 
 ### Content
-- 12 tutorials (ch01–ch12) with "Try it" inline code blocks
-- 24 challenges (c01–c24) with auto-verification, progress badges, and "in progress" status
-- 14 example programs
+- 13 tutorials (ch01–ch13) with "Try it" inline code blocks
+- 26 challenges (c01–c26) with auto-verification, progress badges, and "in progress" status
+- 17 example programs
 
 ### User Experience
 - URL sharing with base64url encoding (backward-compatible with legacy percent-encoding)
@@ -51,7 +51,7 @@
 - GitHub Actions CI: type check, lint, test, build
 - `.npmrc` with `legacy-peer-deps=true` for CI compatibility
 - WASM build script with version tracking (build-manifest.json)
-- 479 unit/component tests across 27 suites
+- 562 unit/component tests across 30 suites
 - Coverage: ~97% statements, ~92% branches, ~97% functions, ~99% lines
 - prefers-reduced-motion media query for accessibility
 - Coverage thresholds: 95% statements, 85% branches, 95% functions, 95% lines

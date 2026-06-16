@@ -247,7 +247,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (24):
+**Current challenges** (26):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -275,6 +275,8 @@ interface Challenge {
 | c22 | Matrix Column Sum | Medium | 2D indexing, column-wise reduction |
 | c23 | Pipeline Sum | Hard | `pipeline`, `stage`, `dma`, `foreach` accumulation |
 | c24 | Pack & Unpack | Easy | Array interleaving, index arithmetic |
+| c25 | Array Rotate Left | Medium | `parallel`, modular indexing, circular shift |
+| c26 | Diagonal Sum | Medium | `parallel`, `foreach`, 2D diagonal access |
 
 ### 5.6 Example Programs
 
