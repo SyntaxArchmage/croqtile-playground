@@ -52,7 +52,10 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
   const allPassed = hasTests && testResults.every((r) => r.passed);
 
   const testContainerRef = useRef<HTMLDivElement>(null);
+  const listHeadingRef = useRef<HTMLSpanElement>(null);
+  const detailBackRef = useRef<HTMLButtonElement>(null);
   const prevOutputRef = useRef(lastOutput);
+  const prevSelectedIdRef = useRef<string | null>(selectedChallenge?.id ?? null);
 
   const testAnnouncement = useMemo(() => {
     if (!selectedChallenge || !lastOutput) return "";
@@ -80,6 +83,17 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
   useEffect(() => {
     prevOutputRef.current = lastOutput;
   }, [selectedChallenge?.id]); // eslint-disable-line react-hooks/exhaustive-deps -- reset ref on challenge switch only
+
+  useEffect(() => {
+    const currentId = selectedChallenge?.id ?? null;
+    if (prevSelectedIdRef.current === currentId) return;
+    prevSelectedIdRef.current = currentId;
+    if (currentId) {
+      detailBackRef.current?.focus();
+    } else {
+      listHeadingRef.current?.focus();
+    }
+  }, [selectedChallenge?.id]);
 
   useEffect(() => {
     if (!selectedChallenge || !lastOutput || !hasTests) return;
@@ -142,7 +156,13 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
     return (
       <div className="h-full flex flex-col" role="region" aria-label="Challenges">
         <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
-          <span className="text-sm font-medium text-[var(--text-primary)]">Challenges</span>
+          <span
+            ref={listHeadingRef}
+            tabIndex={-1}
+            className="text-sm font-medium text-[var(--text-primary)] outline-none"
+          >
+            Challenges
+          </span>
           <button
             type="button"
             onClick={onClose}
@@ -154,18 +174,26 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
         </div>
         <div className="flex-1 overflow-auto p-4 space-y-3">
           {(() => {
+            const total = CHALLENGES.length;
             const passed = CHALLENGES.filter((c) => isChallengePassed(c.id)).length;
-            const pct = Math.round((passed / CHALLENGES.length) * 100);
+            const pct = total > 0 ? Math.round((passed / total) * 100) : 0;
             return (
               <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
-                <div className="flex-1 h-1.5 rounded bg-[var(--bg-surface)]">
+                <div
+                  className="flex-1 h-1.5 rounded bg-[var(--bg-surface)]"
+                  role="progressbar"
+                  aria-valuenow={pct}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`${passed} of ${total} challenges passed`}
+                >
                   <div
                     className="h-full rounded bg-green-500 transition-all"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
                 <span data-testid="challenge-progress-summary">
-                  {passed}/{CHALLENGES.length} passed
+                  {passed}/{total} passed
                 </span>
               </div>
             );
@@ -226,6 +254,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                     resetPagination();
                   }}
                   aria-pressed={statusFilter === value}
+                  aria-label={`${label} status`}
                   className={`text-xs px-2 py-0.5 rounded ${
                     statusFilter === value
                       ? "bg-[var(--accent)] text-[var(--bg-primary)]"
@@ -301,6 +330,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
       </div>
       <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
         <button
+          ref={detailBackRef}
           type="button"
           onClick={() => { setSelectedChallenge(null); updateUrlParam("challenge", null); }}
           className="text-xs text-[var(--accent)] hover:underline"
@@ -435,6 +465,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                   <div
                     className="p-2 rounded border border-[var(--border)] bg-[var(--bg-surface)] text-xs text-[var(--text-secondary)]"
                     data-testid="hint-content"
+                    aria-live="polite"
                   >
                     {currentHint}
                   </div>

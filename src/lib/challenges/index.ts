@@ -165,6 +165,16 @@ import { challenge137 } from "./137-parallel-square-check";
 import { challenge138 } from "./138-matrix-saddle-point";
 import { challenge139 } from "./139-array-prefix-product";
 import { challenge140 } from "./140-parallel-gcd";
+import { challenge141 } from "./141-element-wise-multiply";
+import { challenge142 } from "./142-matrix-row-max";
+import { challenge143 } from "./143-array-binary-search";
+import { challenge144 } from "./144-parallel-swap-adjacent";
+import { challenge145 } from "./145-matrix-column-norm";
+import { challenge146 } from "./146-array-count-if";
+import { challenge147 } from "./147-parallel-xor";
+import { challenge148 } from "./148-matrix-checkerboard";
+import { challenge149 } from "./149-array-second-largest";
+import { challenge150 } from "./150-grand-stencil";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -204,4 +214,7 @@ export const CHALLENGES: Challenge[] = [
   challenge131, challenge132, challenge133, challenge134,
   challenge135, challenge136, challenge137, challenge138,
   challenge139, challenge140,
+  challenge141, challenge142, challenge143, challenge144,
+  challenge145, challenge146, challenge147, challenge148,
+  challenge149, challenge150,
 ];

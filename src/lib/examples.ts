@@ -1088,4 +1088,177 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "bitwise-ops",
+    name: "Bitwise Operations",
+    description: "Bit manipulation with AND, OR, shift, and XOR in parallel",
+    code: `__co__ void bitwise_ops() {
+  global int data[8];
+  global int masked[8];
+  global int shifted[8];
+
+  parallel {i} by [8] {
+    data[i] = (i + 1) * 5;
+  }
+
+  parallel {i} by [8] {
+    masked[i] = data[i] & 7;
+    shifted[i] = data[i] >> 1;
+  }
+
+  parallel {i} by [8] {
+    println("data[", i, "] =", data[i], " &7 =", masked[i], " >>1 =", shifted[i]);
+  }
+}
+`,
+  },
+  {
+    id: "multi-dimensional",
+    name: "Multi-Dimensional",
+    description: "Extract and process a 2D submatrix from a larger matrix",
+    code: `__co__ void multi_dimensional() {
+  global float M[4, 4];
+  global float sub[2, 2];
+
+  parallel {i, j} by [4, 4] {
+    M[i, j] = (float)(i * 4 + j);
+  }
+
+  parallel {i, j} by [2, 2] {
+    sub[i, j] = M[i + 1, j + 1];
+  }
+
+  parallel {i, j} by [2, 2] {
+    println("sub[", i, ",", j, "] =", sub[i, j]);
+  }
+}
+`,
+  },
+  {
+    id: "reduction-pattern",
+    name: "Reduction Pattern",
+    description: "Combined min/max reduction over an array with foreach",
+    code: `__co__ void reduction_pattern() {
+  global float data[8];
+
+  parallel {i} by [8] {
+    data[i] = (float)((i * 7 + 3) % 20);
+  }
+
+  float minVal = data[0];
+  float maxVal = data[0];
+  foreach i in [1:8] {
+    if (data[i] < minVal) {
+      minVal = data[i];
+    }
+    if (data[i] > maxVal) {
+      maxVal = data[i];
+    }
+  }
+
+  println("min =", minVal, " max =", maxVal);
+}
+`,
+  },
+  {
+    id: "sync-barrier",
+    name: "Barrier Sync",
+    description: "Synchronize pipeline phases with shared events and arrive/wait",
+    code: `__co__ void sync_barrier() {
+  global float a[4];
+  global float b[4];
+  shared event phase_done;
+
+  parallel {i} by [4] {
+    a[i] = (float)(i + 1);
+  }
+
+  arrive phase_done;
+
+  wait phase_done;
+  parallel {i} by [4] {
+    b[i] = a[i] * 2.0f;
+  }
+
+  parallel {i} by [4] {
+    println("b[", i, "] =", b[i]);
+  }
+}
+`,
+  },
+  {
+    id: "type-casting",
+    name: "Type Casting",
+    description: "Explicit int/float conversions with (type) cast syntax",
+    code: `__co__ void type_casting() {
+  global int integers[8];
+  global float floats[8];
+  global int truncated[8];
+
+  parallel {i} by [8] {
+    integers[i] = i * 3 + 2;
+  }
+
+  parallel {i} by [8] {
+    floats[i] = (float)integers[i] / 2.0f;
+    truncated[i] = (int)floats[i];
+  }
+
+  parallel {i} by [8] {
+    println("int=", integers[i], " float=", floats[i], " trunc=", truncated[i]);
+  }
+}
+`,
+  },
+  {
+    id: "thread-id-math",
+    name: "Thread ID Math",
+    description: "Compute 2D row/col indices from a linear thread ID",
+    code: `__co__ void thread_id_math() {
+  global int row[8];
+  global int col[8];
+  int WIDTH = 4;
+
+  parallel {tid} by [8] {
+    row[tid] = tid / WIDTH;
+    col[tid] = tid % WIDTH;
+  }
+
+  parallel {tid} by [8] {
+    println("tid", tid, "-> (", row[tid], ",", col[tid], ")");
+  }
+}
+`,
+  },
+  {
+    id: "conditional-dma",
+    name: "Conditional DMA",
+    description: "Select DMA source slices with conditional execution",
+    code: `__co__ void conditional_dma() {
+  global float src[8];
+  shared float tile[4];
+  global float dst[8];
+
+  parallel {i} by [8] {
+    src[i] = (float)(i + 1);
+  }
+
+  foreach t in [0:2] {
+    if (t == 0) {
+      dma(src[0:4], tile[0:4]);
+    } else {
+      dma(src[4:8], tile[0:4]);
+    }
+
+    parallel {i} by [4] {
+      dst[t * 4 + i] = tile[i] * 2.0f;
+    }
+  }
+
+  parallel {i} by [8] {
+    println("dst[", i, "] =", dst[i]);
+  }
+}
+`,
+  },
 ];

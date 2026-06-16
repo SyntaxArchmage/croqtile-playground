@@ -62,6 +62,19 @@ describe("ChallengePanel", () => {
     expect(screen.getByText("Running Maximum")).toBeInTheDocument();
   });
 
+  it("resets pagination when search changes after loading more", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    fireEvent.click(screen.getByTestId("show-more-challenges"));
+    expect(screen.getByText("Running Maximum")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Search challenges"), { target: { value: "DMA" } });
+    expect(screen.getByText("DMA Reverse")).toBeInTheDocument();
+    expect(screen.queryByText("Running Maximum")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("show-more-challenges")).not.toBeInTheDocument();
+  });
+
   it("shows difficulty badges", () => {
     render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
@@ -129,6 +142,23 @@ describe("ChallengePanel", () => {
     expect(screen.getByText("Challenges")).toBeInTheDocument();
   });
 
+  it("moves focus to back button when opening a challenge", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    fireEvent.click(screen.getByText("Hello Threads"));
+    expect(screen.getByLabelText("Back to challenges list")).toHaveFocus();
+  });
+
+  it("moves focus to list heading when returning from detail view", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    fireEvent.click(screen.getByText("Hello Threads"));
+    fireEvent.click(screen.getByText("← Back"));
+    expect(screen.getByText("Challenges")).toHaveFocus();
+  });
+
   it("shows test results as not-ran when no output", () => {
     render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
@@ -166,6 +196,39 @@ describe("ChallengePanel", () => {
     expect(screen.getByTestId("hint-content")).toHaveTextContent(
       CHALLENGES[0].hint!
     );
+  });
+
+  it("does not show hint section when challenge has no hints", () => {
+    const originalHint = CHALLENGES[0].hint;
+    const originalHints = CHALLENGES[0].hints;
+    CHALLENGES[0].hint = undefined;
+    CHALLENGES[0].hints = [];
+    try {
+      render(
+        <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+      );
+      expect(screen.queryByTestId("hint-section")).not.toBeInTheDocument();
+      expect(screen.queryByText("Show hint")).not.toBeInTheDocument();
+    } finally {
+      CHALLENGES[0].hint = originalHint;
+      CHALLENGES[0].hints = originalHints;
+    }
+  });
+
+  it("does not show hint section when hints are whitespace-only", () => {
+    const originalHint = CHALLENGES[0].hint;
+    const originalHints = CHALLENGES[0].hints;
+    CHALLENGES[0].hint = undefined;
+    CHALLENGES[0].hints = ["  ", ""];
+    try {
+      render(
+        <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+      );
+      expect(screen.queryByTestId("hint-section")).not.toBeInTheDocument();
+    } finally {
+      CHALLENGES[0].hint = originalHint;
+      CHALLENGES[0].hints = originalHints;
+    }
   });
 
   it("reveals progressive hints one at a time", () => {
