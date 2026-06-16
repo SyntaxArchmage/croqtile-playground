@@ -276,4 +276,128 @@ println(x);`;
     expect(formatChoreoCode(input)).toBe(`int x = 0;
 println(x);`);
   });
+
+  it("handles else if chains inside parallel blocks", () => {
+    const input = `__co__ void f() {
+parallel {i} by [6] {
+if (labels[i] == 'A') {
+println("A");
+} else if (labels[i] == 'B') {
+println("B");
+} else {
+println("C");
+}
+}
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  parallel {i} by [6] {
+    if (labels[i] == 'A') {
+      println("A");
+    } else if (labels[i] == 'B') {
+      println("B");
+    } else {
+      println("C");
+    }
+  }
+}`);
+  });
+
+  it("formats pipeline stage exec nesting", () => {
+    const input = `__co__ void f() {
+pipeline {
+stage {
+exec {
+println(1);
+}
+}
+}
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  pipeline {
+    stage {
+      exec {
+        println(1);
+      }
+    }
+  }
+}`);
+  });
+
+  it("handles code after block comment on the same line", () => {
+    const input = `__co__ void f() {
+/* end */ if (x) {
+y();
+}
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  /* end */ if (x) {
+    y();
+  }
+}`);
+  });
+
+  it("ignores fake block comments inside strings", () => {
+    const input = `__co__ void f() {
+println("/* not a comment */ {");
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  println("/* not a comment */ {");
+}`);
+  });
+
+  it("ignores block-comment-like text in line comments", () => {
+    const input = `__co__ void f() {
+// /* not a block comment { }
+x();
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  // /* not a block comment { }
+  x();
+}`);
+  });
+
+  it("splits multiple closing braces on the same line", () => {
+    const input = `a {
+b {
+} }`;
+    expect(formatChoreoCode(input)).toBe(`a {
+  b {
+  }
+}`);
+  });
+
+  it("splits three closing braces on the same line", () => {
+    const input = `a {
+b {
+c {
+} } }`;
+    expect(formatChoreoCode(input)).toBe(`a {
+  b {
+    c {
+    }
+  }
+}`);
+  });
+
+  it("does not split } else { onto separate lines", () => {
+    const input = `if (x) {
+a();
+} else {
+b();
+}`;
+    expect(formatChoreoCode(input)).toBe(`if (x) {
+  a();
+} else {
+  b();
+}`);
+  });
+
+  it("formats inline foreach with braces on one line", () => {
+    const input = `__co__ void f() {
+foreach i in [0:8] { total = total + data[i]; }
+}`;
+    expect(formatChoreoCode(input)).toBe(`__co__ void f() {
+  foreach i in [0:8] { total = total + data[i]; }
+}`);
+  });
 });
