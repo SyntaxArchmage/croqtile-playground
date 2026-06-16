@@ -843,4 +843,26 @@ describe("OutputPanel", () => {
     fireEvent.click(screen.getByText("Clear"));
     expect(onClear).toHaveBeenCalledTimes(1);
   });
+
+  it("copy button is not rendered when output is empty", () => {
+    render(<OutputPanel output="" errors="" />);
+    expect(screen.queryByLabelText("Copy output to clipboard")).not.toBeInTheDocument();
+  });
+
+  it("auto-scrolls to bottom when output updates", () => {
+    const { rerender } = render(<OutputPanel output="" errors="" />);
+    const tabpanel = screen.getByRole("tabpanel");
+    let scrollTop = 0;
+    Object.defineProperty(tabpanel, "scrollTop", {
+      get: () => scrollTop,
+      set: (v: number) => { scrollTop = v; },
+      configurable: true,
+    });
+    Object.defineProperty(tabpanel, "scrollHeight", {
+      get: () => 999,
+      configurable: true,
+    });
+    rerender(<OutputPanel output="new output" errors="" />);
+    expect(scrollTop).toBe(999);
+  });
 });

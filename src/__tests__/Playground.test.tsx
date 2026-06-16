@@ -315,6 +315,34 @@ describe("Playground", () => {
       expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
     });
 
+    it("traps Tab focus within shortcuts dialog", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "?" });
+      const dialog = screen.getByRole("dialog");
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      expect(focusable.length).toBeGreaterThan(0);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      (last as HTMLElement).focus();
+      fireEvent.keyDown(dialog, { key: "Tab" });
+      expect(document.activeElement).toBe(first);
+
+      (first as HTMLElement).focus();
+      fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
+      expect(document.activeElement).toBe(last);
+    });
+
+    it("ignores non-Tab keys in shortcuts dialog trap", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "?" });
+      const dialog = screen.getByRole("dialog");
+      fireEvent.keyDown(dialog, { key: "ArrowDown" });
+      expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
+    });
+
     it("does not toggle shortcuts when ? is typed in an input", () => {
       renderPlayground();
       const input = document.createElement("input");

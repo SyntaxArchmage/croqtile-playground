@@ -499,4 +499,10 @@ ends */ } }`;
 ends */ }
 }`);
   });
+
+  it("handles close brace followed by only whitespace and another close brace", () => {
+    const input = `__co__ void f() { if (x) { a(); }  } }`;
+    const formatted = formatChoreoCode(input);
+    expect(formatted.split("\n").every(l => l === "" || l.trim().length > 0)).toBe(true);
+  });
 });
