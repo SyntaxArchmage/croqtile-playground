@@ -245,4 +245,56 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "find-max",
+    name: "Find Maximum",
+    code: `__co__ void find_max() {
+  global float data[8];
+
+  parallel {i} by [8] {
+    data[i] = (float)((i * 7 + 3) % 20);
+  }
+
+  parallel {i} by [8] {
+    println("data[", i, "] =", data[i]);
+  }
+
+  float maxVal = data[0];
+  foreach i in [1:8] {
+    if (data[i] > maxVal) {
+      maxVal = data[i];
+    }
+  }
+
+  println("max =", maxVal);
+}
+`,
+  },
+  {
+    id: "pipeline",
+    name: "Two-Stage Pipeline",
+    code: `__co__ void pipeline_demo() {
+  global float raw[4];
+  global float processed[4];
+  shared float buf[4];
+
+  // Stage 1: generate raw data
+  parallel {i} by [4] {
+    raw[i] = (float)((i + 1) * 10);
+  }
+
+  // DMA to shared buffer
+  dma(raw[0:4], buf[0:4]);
+
+  // Stage 2: process in shared memory
+  parallel {i} by [4] {
+    processed[i] = buf[i] * 2.0f + 1.0f;
+  }
+
+  parallel {i} by [4] {
+    println("processed[", i, "] =", processed[i]);
+  }
+}
+`,
+  },
 ];
