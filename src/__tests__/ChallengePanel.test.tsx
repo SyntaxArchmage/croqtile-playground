@@ -500,4 +500,21 @@ describe("ChallengePanel", () => {
     expect(screen.getByText("(no output)")).toBeInTheDocument();
     jest.restoreAllMocks();
   });
+
+  it("shows no-tests message when challenge has empty tests array", () => {
+    jest.spyOn(checkTestsModule, "checkTests").mockReturnValue([]);
+    const original = CHALLENGES[0].tests;
+    CHALLENGES[0].tests = [];
+    try {
+      render(
+        <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+      );
+      expect(screen.getByTestId("no-tests-message")).toHaveTextContent(
+        "No tests configured for this challenge."
+      );
+    } finally {
+      CHALLENGES[0].tests = original;
+      jest.restoreAllMocks();
+    }
+  });
 });
