@@ -8,9 +8,9 @@ Browser-based IDE for writing, compiling, and running Croqtile code. No installa
 - **Mock Interpreter** — instant in-browser execution via WASM
 - **Compiler Output** — view generated C++ or CUDA source
 - **AST Dump** — inspect the abstract syntax tree
-- **Tutorials** — 45 guided lessons with inline "Try it" code blocks
-- **Challenges** — 160 coding problems with auto-verification and progress badges
-- **Examples** — 50 built-in example programs
+- **Tutorials** — 50 guided lessons with inline "Try it" code blocks
+- **Challenges** — 210+ coding problems with auto-verification and progress badges
+- **Examples** — 59 built-in example programs
 - **URL Sharing** — share code via URL hash (Ctrl+S)
 - **Deep Linking** — `?tutorial=ch01&step=2` or `?challenge=c04`
 - **Progress Tracking** — localStorage-based tutorial/challenge progress with export/import
@@ -59,9 +59,9 @@ src/
   app/              # Next.js pages and layout
   components/       # React components (Playground, Editor, Toolbar, etc.)
   lib/              # Hooks, utilities, content data
-    challenges/     # 160 coding challenges
-    tutorials/      # 45 tutorial chapters
-    examples.ts     # 50 example programs
+    challenges/     # 210+ coding challenges
+    tutorials/      # 50 tutorial chapters
+    examples.ts     # 59 example programs
     types.ts        # Shared TypeScript types
     parseContent.ts # Tutorial content parser (Try-it blocks)
     progress.ts     # localStorage progress tracking
