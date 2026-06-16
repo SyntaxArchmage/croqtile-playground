@@ -55,6 +55,31 @@ describe("StatusBar", () => {
     expect(screen.getByText("42 lines")).toBeInTheDocument();
   });
 
+  it("displays single-line selection count", () => {
+    render(
+      <StatusBar
+        status="ready"
+        selection={{ characters: 12, lines: 1 }}
+      />
+    );
+    expect(screen.getByText("12 chars selected")).toBeInTheDocument();
+  });
+
+  it("displays multi-line selection count", () => {
+    render(
+      <StatusBar
+        status="ready"
+        selection={{ characters: 42, lines: 3 }}
+      />
+    );
+    expect(screen.getByText("3 lines, 42 chars selected")).toBeInTheDocument();
+  });
+
+  it("hides selection when empty", () => {
+    render(<StatusBar status="ready" selection={{ characters: 0, lines: 1 }} />);
+    expect(screen.queryByText(/selected/)).not.toBeInTheDocument();
+  });
+
   it("displays compilation target", () => {
     render(<StatusBar status="ready" target="cute" />);
     expect(screen.getByText("Target: cute")).toBeInTheDocument();

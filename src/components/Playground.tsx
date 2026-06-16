@@ -13,7 +13,7 @@ import { EXAMPLES } from "@/lib/examples";
 import type { PanelMode } from "@/lib/types";
 import { saveLastSource, loadLastSource } from "@/lib/progress";
 import { loadSettings, saveSettings, type EditorSettings } from "@/lib/settings";
-import type { CursorPosition } from "./Editor";
+import type { CursorPosition, SelectionInfo } from "./Editor";
 import { decodeCode, encodeCode } from "@/lib/urlCodec";
 import { formatChoreoCode } from "@/lib/formatCode";
 import { downloadCoSource } from "@/lib/fileIO";
@@ -77,6 +77,7 @@ export function Playground() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [cursorPos, setCursorPos] = useState<CursorPosition>({ line: 1, column: 1 });
+  const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [settings, setSettings] = useState(() => loadSettings());
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", settings.theme);
@@ -459,6 +460,7 @@ export function Playground() {
             value={source}
             onChange={setSource}
             onCursorChange={setCursorPos}
+            onSelectionChange={setSelection}
             fontSize={settings.fontSize}
             wordWrap={settings.wordWrap}
           />
@@ -483,6 +485,7 @@ export function Playground() {
         target={target}
         cursorPosition={cursorPos}
         lineCount={lineCount}
+        selection={selection}
         elapsedMs={elapsedMs}
       />
     </div>

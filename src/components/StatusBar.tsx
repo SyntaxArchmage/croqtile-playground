@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import type { WorkerStatus, BuildManifest } from "@/lib/useChoreoWorker";
-import type { CursorPosition } from "./Editor";
+import type { CursorPosition, SelectionInfo } from "./Editor";
 
 interface Props {
   status: WorkerStatus;
@@ -11,6 +11,7 @@ interface Props {
   target?: string;
   cursorPosition?: CursorPosition;
   lineCount?: number;
+  selection?: SelectionInfo | null;
   elapsedMs?: number | null;
 }
 
@@ -26,7 +27,7 @@ const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
   error: { label: "Error", color: "text-[var(--error)]" },
 };
 
-export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount, elapsedMs }: Props) {
+export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount, selection, elapsedMs }: Props) {
   const { label, color } = statusConfig[status];
   const statusLabel = status === "ready" && elapsedMs != null ? `${label} • ${formatElapsedMs(elapsedMs)}` : label;
   const version = compilerVersion ?? buildManifest?.version ?? null;
@@ -59,6 +60,16 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
         <>
           <span className="text-[var(--border)]">|</span>
           <span>{lineCount} lines</span>
+        </>
+      )}
+      {selection && selection.characters > 0 && (
+        <>
+          <span className="text-[var(--border)]">|</span>
+          <span>
+            {selection.lines > 1
+              ? `${selection.lines} lines, ${selection.characters} chars selected`
+              : `${selection.characters} chars selected`}
+          </span>
         </>
       )}
       <div className="flex-1" />
