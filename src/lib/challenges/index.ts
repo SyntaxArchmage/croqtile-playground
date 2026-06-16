@@ -98,6 +98,12 @@ import { challenge81 } from "./81-vector-negate";
 import { challenge82 } from "./82-matrix-trace-sum";
 import { challenge83 } from "./83-batch-max";
 import { challenge84 } from "./84-producer-consumer";
+import { challenge85 } from "./85-array-reverse-in-place";
+import { challenge86 } from "./86-matrix-scale";
+import { challenge87 } from "./87-count-negatives";
+import { challenge88 } from "./88-parallel-bitwise-or";
+import { challenge89 } from "./89-staircase-pattern";
+import { challenge90 } from "./90-three-way-partition";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -121,4 +127,6 @@ export const CHALLENGES: Challenge[] = [
   challenge73, challenge74, challenge75, challenge76,
   challenge77, challenge78, challenge79, challenge80,
   challenge81, challenge82, challenge83, challenge84,
+  challenge85, challenge86, challenge87, challenge88,
+  challenge89, challenge90,
 ];
