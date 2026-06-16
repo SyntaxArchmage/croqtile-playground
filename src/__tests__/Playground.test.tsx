@@ -7,7 +7,7 @@ const mockCompile = jest.fn();
 const mockDumpAST = jest.fn();
 const mockClearOutput = jest.fn();
 const mockLoadLastSource = jest.fn(() => null);
-const mockLoadSettings = jest.fn(() => ({ fontSize: 14, wordWrap: true, lastTarget: "cc" }));
+const mockLoadSettings = jest.fn(() => ({ fontSize: 14, wordWrap: true, lastTarget: "cc", theme: "dark" as const }));
 const mockSaveSettings = jest.fn();
 let mockStatus: "ready" | "running" | "loading" | "error" = "ready";
 let mockOutput = "";
@@ -103,7 +103,7 @@ beforeEach(() => {
   mockErrors = "";
   mockAst = "";
   mockLoadLastSource.mockReturnValue(null);
-  mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, lastTarget: "cc" });
+  mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, lastTarget: "cc", theme: "dark" });
   mockMatchMedia(false);
   setUrl("/");
   window.history.replaceState = jest.fn();

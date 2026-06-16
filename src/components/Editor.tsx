@@ -1,8 +1,9 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import dynamic from "next/dynamic";
 import type { Monaco } from "@monaco-editor/react";
+import type { Theme } from "@/lib/settings";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
@@ -24,6 +25,7 @@ interface Props {
   onCursorChange?: (pos: CursorPosition) => void;
   fontSize?: number;
   wordWrap?: boolean;
+  theme?: Theme;
 }
 
 function registerChoreoLanguage(monaco: Monaco) {
@@ -99,6 +101,54 @@ function registerChoreoLanguage(monaco: Monaco) {
     },
   });
 
+  monaco.languages.setLanguageConfiguration("choreo", {
+    comments: {
+      lineComment: "//",
+      blockComment: ["/*", "*/"],
+    },
+    brackets: [
+      ["{", "}"],
+      ["[", "]"],
+      ["(", ")"],
+    ],
+    autoClosingPairs: [
+      { open: "{", close: "}" },
+      { open: "[", close: "]" },
+      { open: "(", close: ")" },
+      { open: '"', close: '"', notIn: ["string", "comment"] },
+      { open: "'", close: "'", notIn: ["string", "comment"] },
+    ],
+    surroundingPairs: [
+      { open: "{", close: "}" },
+      { open: "[", close: "]" },
+      { open: "(", close: ")" },
+      { open: '"', close: '"' },
+      { open: "'", close: "'" },
+    ],
+    indentationRules: {
+      // Indent after `{` on constructs like `parallel {i} by [N] {`, `foreach ... {`, `pipeline {`
+      increaseIndentPattern: /^((?!\/\/).)*(\{[^}"']*|\([^)"']*|\[[^\]"']*)$/,
+      decreaseIndentPattern: /^((?!.*?\/\*).*\*)?\s*(\}|])[^}\]"']*[\)"']*;?\s*$/,
+    },
+    onEnterRules: [
+      {
+        beforeText: /^\s*(?:\/\*.*\*\/)?\s*$/,
+        afterText: /^\s*\*/,
+        oneLineAboveText: /(?:\/\*)/,
+        action: { indentAction: monaco.languages.IndentAction.None, appendText: " * " },
+      },
+      {
+        beforeText: /^\s*(?:\/\*.*\*\/)?\s*\w+/,
+        afterText: /^\s*\*\//,
+        action: { indentAction: monaco.languages.IndentAction.None, appendText: " " },
+      },
+      {
+        beforeText: /^\s*\*\//,
+        action: { indentAction: monaco.languages.IndentAction.None, removeText: /^\s*/ },
+      },
+    ],
+  });
+
   monaco.editor.defineTheme("choreo-dark", {
     base: "vs-dark",
     inherit: true,
@@ -119,6 +169,29 @@ function registerChoreoLanguage(monaco: Monaco) {
       "editorLineNumber.activeForeground": "#cdd6f4",
       "editor.selectionBackground": "#45475a",
       "editor.lineHighlightBackground": "#252537",
+    },
+  });
+
+  monaco.editor.defineTheme("choreo-light", {
+    base: "vs",
+    inherit: true,
+    rules: [
+      { token: "keyword.choreo", foreground: "d20f39", fontStyle: "bold" },
+      { token: "type", foreground: "fe640b" },
+      { token: "type.identifier", foreground: "40a02b" },
+      { token: "keyword", foreground: "1e66f5" },
+      { token: "comment", foreground: "9ca0b0", fontStyle: "italic" },
+      { token: "string", foreground: "40a02b" },
+      { token: "number", foreground: "fe640b" },
+      { token: "operator", foreground: "179299" },
+    ],
+    colors: {
+      "editor.background": "#eff1f5",
+      "editor.foreground": "#4c4f69",
+      "editorLineNumber.foreground": "#9ca0b0",
+      "editorLineNumber.activeForeground": "#4c4f69",
+      "editor.selectionBackground": "#bcc0cc",
+      "editor.lineHighlightBackground": "#e6e9ef",
     },
   });
 
@@ -262,8 +335,10 @@ function registerChoreoLanguage(monaco: Monaco) {
 }
 
 export const Editor = forwardRef<{ getValue: () => string }, Props>(
-  function Editor({ value, onChange, onCursorChange, fontSize = 14, wordWrap = true }, ref) {
+  function Editor({ value, onChange, onCursorChange, fontSize = 14, wordWrap = true, theme = "dark" }, ref) {
     const editorRef = useRef<unknown>(null);
+    const monacoRef = useRef<Monaco | null>(null);
+    const monacoTheme = theme === "light" ? "choreo-light" : "choreo-dark";
 
     useImperativeHandle(ref, () => ({
       getValue: () => {
@@ -272,17 +347,24 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
       },
     }));
 
+    useEffect(() => {
+      if (monacoRef.current) {
+        monacoRef.current.editor.setTheme(monacoTheme);
+      }
+    }, [monacoTheme]);
+
     return (
       <MonacoEditor
         height="100%"
         defaultLanguage="choreo"
-        theme="choreo-dark"
+        theme={monacoTheme}
         value={value}
         onChange={(v) => onChange(v ?? "")}
         onMount={(editor, monaco) => {
           editorRef.current = editor;
+          monacoRef.current = monaco;
           registerChoreoLanguage(monaco);
-          monaco.editor.setTheme("choreo-dark");
+          monaco.editor.setTheme(monacoTheme);
           if (onCursorChange) {
             const pos = editor.getPosition();
             if (pos) onCursorChange({ line: pos.lineNumber, column: pos.column });
@@ -308,6 +390,9 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
           tabSize: 2,
           insertSpaces: true,
           autoIndent: "full",
+          autoClosingBrackets: "languageDefined",
+          autoClosingQuotes: "languageDefined",
+          autoSurround: "languageDefined",
           formatOnPaste: true,
           matchBrackets: "always",
           automaticLayout: true,

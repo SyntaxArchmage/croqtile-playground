@@ -41,6 +41,15 @@ describe("Editor", () => {
     expect(capturedOptions?.wordWrap).toBe("on");
   });
 
+  it("passes editor indentation and auto-close options", () => {
+    render(<Editor value="" onChange={jest.fn()} />);
+    expect(capturedOptions?.autoIndent).toBe("full");
+    expect(capturedOptions?.autoClosingBrackets).toBe("languageDefined");
+    expect(capturedOptions?.autoClosingQuotes).toBe("languageDefined");
+    expect(capturedOptions?.autoSurround).toBe("languageDefined");
+    expect(capturedOptions?.tabSize).toBe(2);
+  });
+
   it("calls onChange with empty string when Monaco sends undefined", () => {
     const onChange = jest.fn();
     render(<Editor value="" onChange={onChange} />);
@@ -87,6 +96,19 @@ describe("Editor", () => {
       "choreo",
       expect.any(Object),
     );
+    expect(mockMonaco.languages.setLanguageConfiguration).toHaveBeenCalledWith(
+      "choreo",
+      expect.objectContaining({
+        comments: { lineComment: "//", blockComment: ["/*", "*/"] },
+        brackets: [["{", "}"], ["[", "]"], ["(", ")"]],
+        autoClosingPairs: expect.any(Array),
+        surroundingPairs: expect.any(Array),
+        indentationRules: expect.objectContaining({
+          increaseIndentPattern: expect.any(RegExp),
+          decreaseIndentPattern: expect.any(RegExp),
+        }),
+      }),
+    );
   });
 
   it("skips re-registering Choreo if already registered", () => {
@@ -109,6 +131,19 @@ describe("Editor", () => {
       "choreo-dark",
       expect.objectContaining({ base: "vs-dark" }),
     );
+    expect(mockMonaco.editor.defineTheme).toHaveBeenCalledWith(
+      "choreo-light",
+      expect.objectContaining({ base: "vs" }),
+    );
+  });
+
+  it("sets choreo-light theme when theme prop is light", () => {
+    render(<Editor value="" onChange={jest.fn()} theme="light" />);
+    const mockMonaco = createMockMonaco();
+    const mockEditor = createMockEditor();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    expect(mockMonaco.editor.setTheme).toHaveBeenCalledWith("choreo-light");
   });
 
   it("reports initial cursor position on mount", () => {
@@ -231,8 +266,10 @@ function createMockMonaco(alreadyRegistered = false) {
       ),
       register: jest.fn(),
       setMonarchTokensProvider: jest.fn(),
+      setLanguageConfiguration: jest.fn(),
       registerCompletionItemProvider: jest.fn(),
       registerHoverProvider: jest.fn(),
+      IndentAction: { None: 0, Indent: 1, IndentOutdent: 2, Outdent: 3 },
       CompletionItemKind: { Keyword: 14, TypeParameter: 15, Snippet: 27 },
       CompletionItemInsertTextRule: { InsertAsSnippet: 4 },
     },

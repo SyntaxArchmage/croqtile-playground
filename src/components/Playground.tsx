@@ -78,6 +78,9 @@ export function Playground() {
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [cursorPos, setCursorPos] = useState<CursorPosition>({ line: 1, column: 1 });
   const [settings, setSettings] = useState(() => loadSettings());
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", settings.theme);
+  }, [settings.theme]);
   const editorRef = useRef<{ getValue: () => string }>(null);
   const shortcutsDialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -97,7 +100,7 @@ export function Playground() {
     setPanelMode(initialPanelMode);
   }
 
-  const { status, output, errors, ast, compilerVersion, buildManifest, lastElapsedMs, run, compile, dumpAST, clearOutput } =
+  const { status, output, errors, ast, compilerVersion, buildManifest, elapsedMs, run, compile, dumpAST, clearOutput } =
     useChoreoWorker();
 
   const prevStatusRef = useRef(status);
@@ -259,6 +262,10 @@ export function Playground() {
   const handleFormatCode = useCallback(() => {
     setSource(formatChoreoCode(getCode()));
   }, [getCode]);
+
+  const openCommandPalette = useCallback(() => {
+    setShowCommandPalette(true);
+  }, []);
 
   const closeCommandPalette = useCallback(() => {
     setShowCommandPalette(false);
@@ -425,7 +432,7 @@ export function Playground() {
         status={status}
         settings={settings}
         onSettingsChange={handleSettingsChange}
-        onOpenCommandPalette={() => setShowCommandPalette(true)}
+        onOpenCommandPalette={openCommandPalette}
       />
       <div className="flex-1 min-h-0 flex flex-col">
         <div id="main-content" className="flex-1 min-h-0 relative" tabIndex={-1}>
@@ -458,7 +465,7 @@ export function Playground() {
         target={target}
         cursorPosition={cursorPos}
         lineCount={lineCount}
-        lastElapsedMs={lastElapsedMs}
+        elapsedMs={elapsedMs}
       />
     </div>
   );

@@ -4,7 +4,8 @@
   --breakpoint-xs: 30rem;
 }
 
-:root {
+:root,
+[data-theme="dark"] {
   --bg-primary: #1e1e2e;
   --bg-secondary: #181825;
   --bg-surface: #252537;
@@ -16,6 +17,20 @@
   --success: #a6e3a1;
   --error: #f38ba8;
   --warning: #fab387;
+}
+
+[data-theme="light"] {
+  --bg-primary: #eff1f5;
+  --bg-secondary: #e6e9ef;
+  --bg-surface: #ccd0da;
+  --text-primary: #4c4f69;
+  --text-secondary: #6c6f85;
+  --text-muted: #9ca0b0;
+  --border: #bcc0cc;
+  --accent: #1e66f5;
+  --success: #40a02b;
+  --error: #d20f39;
+  --warning: #fe640b;
 }
 
 html, body {

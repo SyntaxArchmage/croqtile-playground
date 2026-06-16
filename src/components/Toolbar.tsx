@@ -450,6 +450,17 @@ export const Toolbar = memo(function Toolbar({
                 tabIndex={-1}
               />
             </label>
+            <label role="menuitemcheckbox" aria-checked={settings.theme === "light"} className="flex items-center justify-between px-3 py-2 hover:bg-[var(--bg-primary)] cursor-pointer transition-colors">
+              <span className="text-xs text-[var(--text-secondary)]">Light theme</span>
+              <input
+                type="checkbox"
+                checked={settings.theme === "light"}
+                onChange={(e) => onSettingsChange({ ...settings, theme: e.target.checked ? "light" : "dark" })}
+                className="accent-[var(--accent)]"
+                aria-label="Toggle light theme"
+                tabIndex={-1}
+              />
+            </label>
             <div role="separator" className="border-t border-[var(--border)] my-1" />
             <div role="group" aria-label="Progress" className="px-3 py-2 space-y-2">
               <div>

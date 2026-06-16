@@ -1,15 +1,19 @@
 const STORAGE_KEY = "croqtile-playground-settings";
 
+export type Theme = "dark" | "light";
+
 export interface EditorSettings {
   fontSize: number;
   wordWrap: boolean;
   lastTarget: string;
+  theme: Theme;
 }
 
 const DEFAULT_SETTINGS: EditorSettings = {
   fontSize: 14,
   wordWrap: true,
   lastTarget: "cc",
+  theme: "dark",
 };
 
 function getDefault(): EditorSettings {
@@ -30,7 +34,8 @@ export function loadSettings(): EditorSettings {
     const wordWrap = typeof parsed.wordWrap === "boolean" ? parsed.wordWrap : def.wordWrap;
     const lastTarget = typeof parsed.lastTarget === "string" && ["cc", "cute"].includes(parsed.lastTarget)
       ? parsed.lastTarget : def.lastTarget;
-    return { fontSize, wordWrap, lastTarget };
+    const theme = parsed.theme === "light" || parsed.theme === "dark" ? parsed.theme : def.theme;
+    return { fontSize, wordWrap, lastTarget, theme };
   } catch {
     return getDefault();
   }
