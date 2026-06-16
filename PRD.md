@@ -273,7 +273,7 @@ interface Challenge {
 | c20 | Moving Average | Hard | `shared`, `dma`, boundary handling, stencil computation |
 | c21 | Running Maximum | Medium | `foreach`, sequential max tracking |
 | c22 | Matrix Column Sum | Medium | 2D indexing, column-wise reduction |
-| c23 | 1D Convolution | Hard | `dma`, `shared`, kernel convolution, boundary handling |
+| c23 | Pipeline Sum | Hard | `pipeline`, `stage`, `dma`, `foreach` accumulation |
 | c24 | Pack & Unpack | Easy | Array interleaving, index arithmetic |
 
 ### 5.6 Example Programs
@@ -466,7 +466,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (545 tests across 29 suites)
+- [x] Unit tests (562 tests across 30 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
