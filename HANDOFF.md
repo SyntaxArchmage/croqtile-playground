@@ -6,11 +6,11 @@
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (994 tests, 44 suites)
+- `npm test` ✅ (991 tests, 44 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
-- Coverage: 99.91% stmts, 98.74% branches, 100% functions, 100% lines
+- Coverage: 99.91% stmts, 98.67% branches, 100% functions, 100% lines
 
 ## Features Implemented
 
@@ -27,8 +27,8 @@
 
 ### Content
 - 50 tutorials (ch01–ch50) with "Try it" inline code blocks
-- 210 challenges (c01–c210) with auto-verification, progress badges, and "in progress" status
-- 59 example programs
+- 250 challenges (c01–c250) with auto-verification, progress badges, and "in progress" status
+- 60 example programs
 
 ### User Experience
 - URL sharing with base64url encoding (backward-compatible with legacy percent-encoding)
@@ -75,8 +75,8 @@
 - `.npmrc` with `legacy-peer-deps=true` for CI compatibility
 - WASM build script with version tracking (build-manifest.json)
 - Platform detection (`src/lib/platform.ts`) for macOS vs Windows/Linux shortcut display
-- 994 unit/component tests across 44 suites
-- Coverage: 99.91% statements, 98.74% branches, 100% functions, 100% lines
+- 991 unit/component tests across 44 suites
+- Coverage: 99.91% statements, 98.67% branches, 100% functions, 100% lines
 - Coverage thresholds: 95% statements, 85% branches, 95% functions, 95% lines
 - Worker execution timeout (30s) with elapsed time reporting
 

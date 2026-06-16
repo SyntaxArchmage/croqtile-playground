@@ -261,7 +261,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (210):
+**Current challenges** (250):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -348,7 +348,7 @@ interface Challenge {
 
 ### 5.6 Example Programs
 
-Built-in code snippets loadable from toolbar dropdown (59 examples):
+Built-in code snippets loadable from toolbar dropdown (60 examples):
 
 | Name | Demonstrates |
 |------|-------------|
@@ -547,7 +547,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (994 tests across 44 suites)
+- [x] Unit tests (991 tests across 44 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
@@ -568,8 +568,8 @@ src/
 - [ ] L2 execution: Remote GPU Server integration
 - [ ] Extend MockInterpreter to support mma (CPU simulation)
 - [x] ~~Additional tutorials (ch04–ch09)~~ — Done (50 tutorials)
-- [x] ~~Additional challenges (9–15 total)~~ — Done (210 challenges)
-- [x] ~~Additional examples~~ — Done (59 examples)
+- [x] ~~Additional challenges (9–15 total)~~ — Done (250 challenges)
+- [x] ~~Additional examples~~ — Done (60 examples)
 - [x] ~~Code sharing via short links~~ — Done (base64url encoding)
 - [x] ~~Progressive hint reveal for challenges~~ — Done (multi-hint, one-at-a-time UI)
 - [ ] WebGPU exploration (L3)
