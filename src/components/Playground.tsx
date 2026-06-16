@@ -108,11 +108,13 @@ export function Playground() {
     return () => clearTimeout(timer);
   }, [source]);
 
+  const sourceRef = useRef(source);
+  sourceRef.current = source;
   useEffect(() => {
-    const flush = () => saveSource(source);
+    const flush = () => saveSource(sourceRef.current);
     window.addEventListener("beforeunload", flush);
     return () => window.removeEventListener("beforeunload", flush);
-  }, [source]);
+  }, []);
 
   useEffect(() => {
     if (status === "running" && prevStatusRef.current !== "running") {
@@ -283,6 +285,14 @@ export function Playground() {
     editorRef.current?.replace();
   }, []);
 
+  const handleGoToLine = useCallback(() => {
+    const input = window.prompt("Go to line:");
+    if (input === null) return;
+    const line = parseInt(input, 10);
+    if (!Number.isFinite(line) || line < 1) return;
+    editorRef.current?.goToLine(line);
+  }, []);
+
   const openCommandPalette = useCallback(() => {
     setShowCommandPalette(true);
   }, []);
@@ -306,13 +316,14 @@ export function Playground() {
     { label: "Redo", action: handleRedo, shortcut: "Ctrl+Shift+Z" },
     { label: "Find", action: handleFind, shortcut: "Ctrl+F" },
     { label: "Replace", action: handleReplace, shortcut: "Ctrl+H" },
+    { label: "Go to Line", action: handleGoToLine, shortcut: "Ctrl+G" },
     { label: "Open File", action: () => openFileRef.current?.() },
     { label: "Download Code", action: handleDownload },
     { label: "Format Code", action: handleFormatCode },
     { label: "Open Tutorial", action: () => handleTogglePanel("tutorial") },
     { label: "Open Challenges", action: () => handleTogglePanel("challenge") },
     { label: "Keyboard Shortcuts", action: () => setShowShortcuts(true), shortcut: "?" },
-  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme, handleUndo, handleRedo, handleFind, handleReplace, handleDownload, handleTogglePanel, handleFormatCode]);
+  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme, handleUndo, handleRedo, handleFind, handleReplace, handleGoToLine, handleDownload, handleTogglePanel, handleFormatCode]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -344,6 +355,10 @@ export function Playground() {
         e.preventDefault();
         setShowCommandPalette(true);
       }
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === "g" || e.key === "G")) {
+        e.preventDefault();
+        handleGoToLine();
+      }
       if (e.key === "?" && !e.ctrlKey && !e.metaKey && !isTypingContext(e.target)) {
         setShowShortcuts((v) => !v);
       }
@@ -354,7 +369,7 @@ export function Playground() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme]);
+  }, [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme, handleGoToLine]);
 
   const lineCount = useMemo(() => {
     let count = 1;
@@ -399,6 +414,7 @@ export function Playground() {
             ["Ctrl+Shift+Z", "Redo"],
             ["Ctrl+F", "Find in editor"],
             ["Ctrl+H", "Find and replace"],
+            ["Ctrl+G", "Go to line"],
             ["Ctrl+P", "Command palette"],
             ["?", "Toggle this help"],
             ["Esc", "Close dialog"],

@@ -76,6 +76,10 @@ import { challenge59 } from "./59-array-fill";
 import { challenge60 } from "./60-matrix-row-norm";
 import { challenge61 } from "./61-parallel-guard";
 import { challenge62 } from "./62-two-pass-filter";
+import { challenge63 } from "./63-parallel-min-max";
+import { challenge64 } from "./64-matrix-column-swap";
+import { challenge65 } from "./65-exclusive-prefix-sum";
+import { challenge66 } from "./66-array-compress";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -93,5 +97,6 @@ export const CHALLENGES: Challenge[] = [
   challenge49, challenge50, challenge51, challenge52,
   challenge53, challenge54, challenge55, challenge56,
   challenge57, challenge58, challenge59, challenge60,
-  challenge61, challenge62,
+  challenge61, challenge62, challenge63, challenge64,
+  challenge65, challenge66,
 ];

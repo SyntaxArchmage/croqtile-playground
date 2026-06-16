@@ -30,6 +30,7 @@ export interface EditorHandle {
   redo: () => void;
   find: () => void;
   replace: () => void;
+  goToLine: (line: number) => void;
 }
 
 interface Props {
@@ -438,7 +439,12 @@ function registerChoreoLanguage(monaco: Monaco) {
 
 export const Editor = forwardRef<EditorHandle, Props>(
   function Editor({ value, onChange, onCursorChange, onSelectionChange, fontSize = 14, fontFamily = "JetBrains Mono, monospace", wordWrap = false, minimap = false, tabSize = 2, theme = "dark" }, ref) {
-    const editorRef = useRef<{ getValue?: () => string; trigger?: (source: string, handlerId: string, payload: unknown) => void } | null>(null);
+    const editorRef = useRef<{
+      getValue?: () => string;
+      trigger?: (source: string, handlerId: string, payload: unknown) => void;
+      revealLineInCenter?: (lineNumber: number) => void;
+      setPosition?: (position: { lineNumber: number; column: number }) => void;
+    } | null>(null);
     const monacoRef = useRef<Monaco | null>(null);
     const monacoTheme = theme === "light" ? "choreo-light" : "choreo-dark";
 
@@ -448,6 +454,10 @@ export const Editor = forwardRef<EditorHandle, Props>(
       redo: () => editorRef.current?.trigger?.("keyboard", "redo", null),
       find: () => editorRef.current?.trigger?.("keyboard", "actions.find", null),
       replace: () => editorRef.current?.trigger?.("keyboard", "editor.action.startFindReplaceAction", null),
+      goToLine: (line: number) => {
+        editorRef.current?.revealLineInCenter?.(line);
+        editorRef.current?.setPosition?.({ lineNumber: line, column: 1 });
+      },
     }));
 
     useEffect(() => {

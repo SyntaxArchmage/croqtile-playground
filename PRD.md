@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (23 tutorials):
+**Current content** (24 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -229,6 +229,7 @@ interface Tutorial {
 | ch21 | Pipeline Stages & Events | 3 | `pipeline`, `stage`, signal/wait, producer-consumer |
 | ch22 | Debugging Strategies | 3 | `println` tracing, state inspection, common pitfalls |
 | ch23 | Working with Strings | 3 | Character arrays, string construction, iteration |
+| ch24 | Optimization Techniques | 3 | Memory coalescing, foreach unrolling, sync overhead |
 
 All tutorials include interactive "Try it" inline code blocks.
 
@@ -258,7 +259,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (62):
+**Current challenges** (66):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -324,6 +325,10 @@ interface Challenge {
 | c60 | Matrix Row Norm | Medium | 2D indexing, absolute value row sum |
 | c61 | Parallel Guard | Easy | `if/else`, `parallel`, conditional compute |
 | c62 | Two-Pass Filter | Hard | `foreach`, count + pack filtered elements |
+| c63 | Parallel Min-Max | Medium | `foreach`, dual min/max reduction |
+| c64 | Matrix Column Swap | Medium | `foreach`, 2D column swap |
+| c65 | Exclusive Prefix Sum | Hard | `foreach`, exclusive scan |
+| c66 | Array Compress | Easy | `foreach`, zero removal / compact |
 
 ### 5.6 Example Programs
 
@@ -523,7 +528,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (728 tests across 36 suites)
+- [x] Unit tests (758 tests across 36 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
@@ -535,7 +540,7 @@ src/
 - [ ] L2 execution: Remote GPU Server integration
 - [ ] Extend MockInterpreter to support mma (CPU simulation)
 - [x] ~~Additional tutorials (ch04–ch09)~~ — Done
-- [x] ~~Additional challenges (9–15 total)~~ — Done (62 total)
+- [x] ~~Additional challenges (9–15 total)~~ — Done (66 total)
 - [x] ~~Code sharing via short links~~ — Done (base64url encoding)
 - [ ] WebGPU exploration (L3)
 

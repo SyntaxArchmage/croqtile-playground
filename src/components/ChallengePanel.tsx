@@ -44,7 +44,8 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
     () => selectedChallenge ? checkTests(selectedChallenge, lastOutput) : [],
     [selectedChallenge, lastOutput],
   );
-  const allPassed = testResults.length > 0 && testResults.every((r) => r.passed);
+  const hasTests = (selectedChallenge?.tests.length ?? 0) > 0;
+  const allPassed = hasTests && testResults.every((r) => r.passed);
 
   const testContainerRef = useRef<HTMLDivElement>(null);
   const prevOutputRef = useRef(lastOutput);
@@ -291,6 +292,11 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
           <h3 className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">
             Tests
           </h3>
+          {testResults.length === 0 ? (
+            <p className="text-xs text-[var(--text-muted)]" data-testid="no-tests-message">
+              No tests configured for this challenge.
+            </p>
+          ) : null}
           {testResults.map((t, i) => (
             <div
               key={i}

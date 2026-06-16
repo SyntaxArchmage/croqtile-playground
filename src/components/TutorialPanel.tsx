@@ -5,6 +5,21 @@ import { TUTORIALS, type Tutorial, type TutorialStep } from "@/lib/tutorials";
 import { getTutorialProgress, markTutorialStep } from "@/lib/progress";
 import { renderTutorialContent } from "@/lib/renderTutorialContent";
 
+function clampStepIndex(index: number, stepCount: number): number {
+  if (stepCount <= 0) return 0;
+  return Math.max(0, Math.min(index, stepCount - 1));
+}
+
+function stepCode(steps: Tutorial["steps"], index: number): string {
+  if (steps.length === 0) return "";
+  const step = steps[clampStepIndex(index, steps.length)];
+  return step?.code ?? steps[0]?.code ?? "";
+}
+
+function isTutorialComplete(tutorial: Tutorial): boolean {
+  return tutorial.steps.length > 0 && getTutorialProgress(tutorial.id) >= tutorial.steps.length - 1;
+}
+
 function updateUrlParam(key: string, value: string | null, step?: number) {
   const url = new URL(window.location.href);
   if (value) {
@@ -43,7 +58,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
         const parsed = parseInt(stepParam, 10);
         const tut = TUTORIALS.find((t) => t.id === initialId);
         if (!isNaN(parsed) && tut) {
-          return Math.max(0, Math.min(parsed - 1, tut.steps.length - 1));
+          return clampStepIndex(parsed - 1, tut.steps.length);
         }
       }
     }
@@ -52,7 +67,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
 
   useEffect(() => {
     if (initialId && selectedTutorial) {
-      onLoadCode(selectedTutorial.steps[stepIndex]?.code ?? selectedTutorial.steps[0].code);
+      onLoadCode(stepCode(selectedTutorial.steps, stepIndex));
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount-only deep link init
 
@@ -81,9 +96,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
         </div>
         <div className="flex-1 overflow-auto p-4 space-y-3">
           {(() => {
-            const completed = TUTORIALS.filter(
-              (t) => getTutorialProgress(t.id) >= t.steps.length - 1,
-            ).length;
+            const completed = TUTORIALS.filter((t) => isTutorialComplete(t)).length;
             const pct = Math.round((completed / TUTORIALS.length) * 100);
             return (
               <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
@@ -119,26 +132,32 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
               onClick={() => {
                 setSearchQuery("");
                 setSelectedTutorial(t);
-                const resumeStep = Math.min(getTutorialProgress(t.id) + 1, t.steps.length - 1);
+                const resumeStep = clampStepIndex(getTutorialProgress(t.id) + 1, t.steps.length);
                 setStepIndex(resumeStep);
-                onLoadCode(t.steps[resumeStep].code);
-                markTutorialStep(t.id, resumeStep);
-                updateUrlParam("tutorial", t.id, resumeStep);
+                onLoadCode(stepCode(t.steps, resumeStep));
+                if (t.steps.length > 0) {
+                  markTutorialStep(t.id, resumeStep);
+                  updateUrlParam("tutorial", t.id, resumeStep);
+                } else {
+                  updateUrlParam("tutorial", t.id);
+                }
               }}
               aria-label={`${t.title}: ${t.description}`}
               className="w-full text-left p-3 rounded border border-[var(--border)] hover:border-[var(--accent)] bg-[var(--bg-surface)] transition-colors"
             >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[var(--text-primary)]">{t.title}</span>
-                {getTutorialProgress(t.id) >= t.steps.length - 1 ? (
+                {isTutorialComplete(t) ? (
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900 text-green-300 border border-green-800">done</span>
-                ) : getTutorialProgress(t.id) >= 0 ? (
+                ) : t.steps.length > 0 && getTutorialProgress(t.id) >= 0 ? (
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-950/50 text-blue-300 border border-blue-800">in progress</span>
                 ) : null}
               </div>
               <div className="text-xs text-[var(--text-muted)] mt-1">{t.description}</div>
               <div className="text-xs text-[var(--text-muted)] mt-1">
-                {Math.min(getTutorialProgress(t.id) + 1, t.steps.length)}/{t.steps.length} steps
+                {t.steps.length === 0
+                  ? "No steps"
+                  : `${Math.min(getTutorialProgress(t.id) + 1, t.steps.length)}/${t.steps.length} steps`}
               </div>
             </button>
             ))
@@ -148,9 +167,43 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
     );
   }
 
-  const step: TutorialStep = selectedTutorial.steps[stepIndex];
   const totalSteps = selectedTutorial.steps.length;
   const progress = getTutorialProgress(selectedTutorial.id);
+
+  if (totalSteps === 0) {
+    return (
+      <div className="h-full flex flex-col" role="region" aria-label={`Tutorial: ${selectedTutorial.title}`}>
+        <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
+          <button
+            type="button"
+            onClick={() => { setSelectedTutorial(null); updateUrlParam("tutorial", null); }}
+            className="text-xs text-[var(--accent)] hover:underline"
+            aria-label="Back to tutorials list"
+          >
+            ← Back
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg"
+            aria-label="Close tutorials panel"
+          >
+            ×
+          </button>
+        </div>
+        <div className="flex-1 overflow-auto p-4">
+          <h2 className="text-base font-semibold text-[var(--text-primary)] mb-3">
+            {selectedTutorial.title}
+          </h2>
+          <p className="text-sm text-[var(--text-muted)]" data-testid="no-steps-message">
+            This tutorial has no steps yet.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const step: TutorialStep = selectedTutorial.steps[stepIndex];
 
   return (
     <div className="h-full flex flex-col" role="region" aria-label={`Tutorial: ${selectedTutorial.title}`}>
@@ -195,7 +248,13 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
           {step.title}
         </h2>
         <div className="text-sm text-[var(--text-secondary)] leading-relaxed">
-          {renderTutorialContent(step.content, onLoadCode)}
+          {step.content?.trim()
+            ? renderTutorialContent(step.content, onLoadCode)
+            : (
+              <p className="text-[var(--text-muted)]" data-testid="empty-step-content">
+                No content for this step.
+              </p>
+            )}
         </div>
       </div>
 
@@ -205,7 +264,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
           onClick={() => {
             const prev = Math.max(0, stepIndex - 1);
             setStepIndex(prev);
-            onLoadCode(selectedTutorial.steps[prev].code);
+            onLoadCode(stepCode(selectedTutorial.steps, prev));
             markTutorialStep(selectedTutorial.id, prev);
             updateUrlParam("tutorial", selectedTutorial.id, prev);
           }}
@@ -228,7 +287,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
                 aria-current={isCurrent ? "step" : undefined}
                 onClick={() => {
                   setStepIndex(i);
-                  onLoadCode(selectedTutorial.steps[i].code);
+                  onLoadCode(stepCode(selectedTutorial.steps, i));
                   markTutorialStep(selectedTutorial.id, i);
                   updateUrlParam("tutorial", selectedTutorial.id, i);
                 }}
@@ -241,7 +300,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
         </div>
         <button
           type="button"
-          onClick={() => onLoadCode(step.code)}
+          onClick={() => onLoadCode(stepCode(selectedTutorial.steps, stepIndex))}
           className="px-3 py-1 text-xs rounded bg-[var(--accent)] text-[var(--bg-primary)] font-medium hover:opacity-90"
           aria-label="Load step code into editor"
         >
@@ -256,7 +315,7 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
             onClick={() => {
               const next = Math.min(totalSteps - 1, stepIndex + 1);
               setStepIndex(next);
-              onLoadCode(selectedTutorial.steps[next].code);
+              onLoadCode(stepCode(selectedTutorial.steps, next));
               markTutorialStep(selectedTutorial.id, next);
               updateUrlParam("tutorial", selectedTutorial.id, next);
             }}

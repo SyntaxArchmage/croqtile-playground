@@ -176,6 +176,22 @@ describe("Editor", () => {
     expect(mockEditor.trigger).toHaveBeenCalledWith("keyboard", "editor.action.startFindReplaceAction", null);
   });
 
+  it("exposes goToLine via ref and scrolls to the line", () => {
+    const ref = React.createRef<EditorHandle>();
+    render(<Editor ref={ref} value="" onChange={jest.fn()} />);
+    const mockEditor = {
+      ...createMockEditor(),
+      revealLineInCenter: jest.fn(),
+      setPosition: jest.fn(),
+    };
+    const mockMonaco = createMockMonaco();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    act(() => ref.current?.goToLine(42));
+    expect(mockEditor.revealLineInCenter).toHaveBeenCalledWith(42);
+    expect(mockEditor.setPosition).toHaveBeenCalledWith({ lineNumber: 42, column: 1 });
+  });
+
   it("undo and redo are no-ops before Monaco editor mounts", () => {
     const ref = React.createRef<EditorHandle>();
     render(<Editor ref={ref} value="" onChange={jest.fn()} />);
@@ -195,6 +211,14 @@ describe("Editor", () => {
         ref.current?.find();
         ref.current?.replace();
       });
+    }).not.toThrow();
+  });
+
+  it("goToLine is a no-op before Monaco editor mounts", () => {
+    const ref = React.createRef<EditorHandle>();
+    render(<Editor ref={ref} value="" onChange={jest.fn()} />);
+    expect(() => {
+      act(() => ref.current?.goToLine(1));
     }).not.toThrow();
   });
 
