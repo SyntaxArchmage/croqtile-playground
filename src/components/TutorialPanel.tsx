@@ -231,10 +231,18 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
             const visited = i <= progress;
             const isCurrent = i === stepIndex;
             return (
-              <span
+              <button
                 key={i}
                 data-testid="tutorial-step-dot"
-                className={`w-2 h-2 rounded-full ${
+                aria-label={`Step ${i + 1}`}
+                aria-current={isCurrent ? "step" : undefined}
+                onClick={() => {
+                  setStepIndex(i);
+                  onLoadCode(selectedTutorial.steps[i].code);
+                  markTutorialStep(selectedTutorial.id, i);
+                  updateUrlParam("tutorial", selectedTutorial.id, i);
+                }}
+                className={`w-2 h-2 rounded-full cursor-pointer transition-colors hover:bg-[var(--accent)] ${
                   visited ? "bg-[var(--accent)]" : "bg-[var(--border)]"
                 }${isCurrent ? " ring-1 ring-[var(--accent)]" : ""}`}
               />

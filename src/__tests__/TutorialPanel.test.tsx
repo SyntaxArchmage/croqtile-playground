@@ -240,6 +240,17 @@ describe("TutorialPanel", () => {
     expect(screen.getByTestId("tutorial-progress-summary")).toHaveTextContent(/0\/\d+ done/);
   });
 
+  it("navigates to a step when clicking a step dot", () => {
+    const onLoadCode = jest.fn();
+    render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} />);
+    fireEvent.click(screen.getByText("Hello Croqtile"));
+    expect(screen.getByText("1 / 3")).toBeInTheDocument();
+    const dots = screen.getAllByTestId("tutorial-step-dot");
+    fireEvent.click(dots[2]);
+    expect(screen.getByText("3 / 3")).toBeInTheDocument();
+    expect(onLoadCode).toHaveBeenCalled();
+  });
+
   it("shows nonzero progress in summary when tutorials completed", () => {
     mockTutorialProgress = 99;
     render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
