@@ -320,7 +320,7 @@ export function Playground() {
         e.preventDefault();
         handleToggleTheme();
       }
-      if ((e.ctrlKey || e.metaKey) && (e.key === "p" || e.key === "P")) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "p" || e.key === "P" || e.key === "k" || e.key === "K")) {
         e.preventDefault();
         setShowCommandPalette(true);
       }
