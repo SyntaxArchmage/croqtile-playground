@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (14 tutorials):
+**Current content** (16 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -220,6 +220,8 @@ interface Tutorial {
 | ch12 | Array Slicing & DMA Patterns | 3 | Slice notation, computed offsets, double buffering |
 | ch13 | Synchronization | 3 | Signal/wait events, pipeline barriers, double-buffer sync |
 | ch14 | Performance Optimization | 3 | Minimizing global reads, tiled processing, parallelism trade-offs |
+| ch15 | Common Pitfalls | 3 | Race conditions, memory aliasing, off-by-one in DMA |
+| ch16 | Real-World Patterns | 3 | GEMM tiling, reduction tree, producer-consumer pipeline |
 
 All tutorials include interactive "Try it" inline code blocks.
 
@@ -249,7 +251,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (28):
+**Current challenges** (32):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -281,6 +283,10 @@ interface Challenge {
 | c26 | Diagonal Sum | Medium | `parallel`, `foreach`, 2D diagonal access |
 | c27 | Vector Normalize | Hard | Two-pass: sequential sum, parallel divide |
 | c28 | Checkerboard Pattern | Easy | Nested `parallel`, conditional pattern fill |
+| c29 | Clamp Values | Easy | `parallel`, conditional min/max clamping |
+| c30 | Stencil Average | Hard | `dma`, `shared`, neighbor averaging, boundary handling |
+| c31 | All Positive | Easy | `foreach`, boolean flag accumulation |
+| c32 | Matrix Multiply | Hard | `parallel`, `foreach`, multiply-accumulate |
 
 ### 5.6 Example Programs
 
@@ -475,7 +481,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (562 tests across 30 suites)
+- [x] Unit tests (583 tests across 30 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
