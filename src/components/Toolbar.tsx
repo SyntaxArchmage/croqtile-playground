@@ -530,6 +530,7 @@ export const Toolbar = memo(function Toolbar({
                   {settings.tabSize}
                 </span>
                 <button
+                  type="button"
                   role="menuitem"
                   onClick={() => {
                     if (settings.tabSize < 8) {
@@ -606,6 +607,7 @@ export const Toolbar = memo(function Toolbar({
             })()}
             <div role="separator" className="border-t border-[var(--border)] my-1" />
             <button
+              type="button"
               role="menuitem"
               onClick={handleResetProgressClick}
               className={`w-full text-left px-3 py-2 text-xs transition-colors ${
