@@ -22,5 +22,6 @@ import { ch07 } from "./ch07-functions";
 import { ch08 } from "./ch08-conditionals";
 import { ch09 } from "./ch09-patterns";
 import { ch10 } from "./ch10-debugging";
+import { ch11 } from "./ch11-types";
 
-export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10];
+export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11];
