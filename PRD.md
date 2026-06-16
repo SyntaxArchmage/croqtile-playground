@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (25 tutorials):
+**Current content** (26 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -231,6 +231,7 @@ interface Tutorial {
 | ch23 | Working with Strings | 3 | Character arrays, string construction, iteration |
 | ch24 | Optimization Techniques | 3 | Memory coalescing, foreach unrolling, sync overhead |
 | ch25 | Pattern Matching & Conditionals | 3 | Conditional patterns, predicate guards, branch logic |
+| ch26 | Best Practices | 3 | Modular functions, clear naming, assert_true testing |
 
 All tutorials include interactive "Try it" inline code blocks.
 
@@ -260,7 +261,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (70):
+**Current challenges** (80):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -334,10 +335,20 @@ interface Challenge {
 | c68 | Matrix Diagonal Fill | Medium | `parallel`, conditional diagonal assignment |
 | c69 | Running Minimum | Medium | `foreach`, sequential min tracking |
 | c70 | Double Buffer Copy | Hard | `pipeline`, `dma`, double-buffer pattern |
+| c71 | Sum of Squares | Easy | `foreach`, accumulation |
+| c72 | Matrix Add | Easy | `parallel`, 2D element-wise add |
+| c73 | Array Search | Easy | `foreach`, linear search |
+| c74 | Outer Product | Hard | `parallel`, vector outer product |
+| c75 | Parallel Threshold | Easy | `parallel`, conditional binarize |
+| c76 | Sliding Window Max | Hard | `foreach`, nested window scan |
+| c77 | Parallel Double | Easy | `parallel`, element-wise multiply by 2 |
+| c78 | Matrix Row Reverse | Medium | `dma`, `parallel`, per-row reversal |
+| c79 | Two-Way Merge | Hard | `foreach`, sorted merge |
+| c80 | Array Rotate Right | Medium | `parallel`, modular rotate right |
 
 ### 5.6 Example Programs
 
-Built-in code snippets loadable from toolbar dropdown (22 examples):
+Built-in code snippets loadable from toolbar dropdown (25 examples):
 
 | Name | Demonstrates |
 |------|-------------|
@@ -363,6 +374,9 @@ Built-in code snippets loadable from toolbar dropdown (22 examples):
 | Histogram | Histogram counting with sequential accumulation |
 | Array Reduction | Multi-stage parallel array reduction |
 | Pipeline Processing | Multi-stage pipeline with DMA and compute |
+| Assert Validation | `assert_true` runtime precondition checks |
+| Multi-Stage Reduction | Hierarchical sum with parallel + foreach |
+| Pattern Fill | Conditional parallel pattern generation |
 
 ---
 
@@ -545,7 +559,7 @@ src/
 - [ ] L2 execution: Remote GPU Server integration
 - [ ] Extend MockInterpreter to support mma (CPU simulation)
 - [x] ~~Additional tutorials (ch04–ch09)~~ — Done
-- [x] ~~Additional challenges (9–15 total)~~ — Done (70 total)
+- [x] ~~Additional challenges (9–15 total)~~ — Done (80 total)
 - [x] ~~Code sharing via short links~~ — Done (base64url encoding)
 - [ ] WebGPU exploration (L3)
 

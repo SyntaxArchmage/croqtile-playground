@@ -90,6 +90,10 @@ import { challenge73 } from "./73-array-search";
 import { challenge74 } from "./74-outer-product";
 import { challenge75 } from "./75-parallel-threshold";
 import { challenge76 } from "./76-sliding-window-max";
+import { challenge77 } from "./77-parallel-double";
+import { challenge78 } from "./78-matrix-row-reverse";
+import { challenge79 } from "./79-two-way-merge";
+import { challenge80 } from "./80-array-rotate-right";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -111,4 +115,5 @@ export const CHALLENGES: Challenge[] = [
   challenge65, challenge66, challenge67, challenge68,
   challenge69, challenge70, challenge71, challenge72,
   challenge73, challenge74, challenge75, challenge76,
+  challenge77, challenge78, challenge79, challenge80,
 ];
