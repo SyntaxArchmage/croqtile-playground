@@ -162,9 +162,7 @@ export function Playground() {
     };
   }, [showShortcuts]);
 
-  const sourceRef = useRef(source);
-  sourceRef.current = source;
-  const getCode = useCallback(() => editorRef.current?.getValue() ?? sourceRef.current, []);
+  const getCode = useCallback(() => editorRef.current?.getValue() ?? source, [source]);
 
   const skipLoadConfirmRef = useRef(true);
   useEffect(() => {
@@ -176,7 +174,7 @@ export function Playground() {
 
   const confirmAndLoad = useCallback(
     (code: string): boolean => {
-      const currentSource = editorRef.current?.getValue() ?? sourceRef.current;
+      const currentSource = editorRef.current?.getValue() ?? source;
       const isModified = currentSource !== lastLoadedCodeRef.current;
       const isDifferent = currentSource !== code;
       if (
@@ -191,7 +189,7 @@ export function Playground() {
       setSource(code);
       return true;
     },
-    [],
+    [source],
   );
 
   const handleLoadCode = useCallback(
