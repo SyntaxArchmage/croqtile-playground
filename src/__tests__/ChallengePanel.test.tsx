@@ -297,7 +297,7 @@ describe("ChallengePanel", () => {
     expect(screen.getByText("Solved in 1 attempt")).toBeInTheDocument();
   });
 
-  it("truncates long expected/actual output in test failure diff", () => {
+  it("shows full expected/actual output in test failure diff", () => {
     const longOutput = "x".repeat(100);
     const { rerender } = render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
@@ -305,8 +305,7 @@ describe("ChallengePanel", () => {
     rerender(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput={longOutput} initialId="c01" />
     );
-    const gotText = screen.getByText(/^x{80}\.\.\.$/);
-    expect(gotText).toBeInTheDocument();
+    expect(screen.getByText(longOutput)).toBeInTheDocument();
   });
 
   it("does not show Next button on last challenge", () => {
