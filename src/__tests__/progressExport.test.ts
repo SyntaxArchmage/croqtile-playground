@@ -74,6 +74,16 @@ describe("progressExport", () => {
       expect(validateProgressExport(payload)).toBeNull();
     });
 
+    it("rejects null progress", () => {
+      const payload = { ...buildProgressExport(), progress: null };
+      expect(validateProgressExport(payload)).toBeNull();
+    });
+
+    it("rejects null settings", () => {
+      const payload = { ...buildProgressExport(), settings: null };
+      expect(validateProgressExport(payload)).toBeNull();
+    });
+
     it("rejects invalid lastSource type", () => {
       const payload = { ...buildProgressExport(), lastSource: 42 };
       expect(validateProgressExport(payload)).toBeNull();
@@ -95,6 +105,19 @@ describe("progressExport", () => {
       expect(validated).not.toBeNull();
       expect(validated!.progress.tutorialSteps).toEqual({});
       expect(validated!.progress.challengesPassed).toEqual([]);
+    });
+
+    it("restores previous localStorage values after validation", () => {
+      localStorage.setItem("croqtile-playground-progress", JSON.stringify({ tutorialSteps: { ch99: 9 } }));
+      localStorage.setItem("croqtile-playground-settings", JSON.stringify({ fontSize: 22 }));
+
+      const payload = buildProgressExport();
+      validateProgressExport(payload);
+
+      const restoredProgress = JSON.parse(localStorage.getItem("croqtile-playground-progress")!);
+      expect(restoredProgress.tutorialSteps.ch99).toBe(9);
+      const restoredSettings = JSON.parse(localStorage.getItem("croqtile-playground-settings")!);
+      expect(restoredSettings.fontSize).toBe(22);
     });
 
     it("normalizes invalid settings fields", () => {
@@ -159,6 +182,21 @@ describe("progressExport", () => {
         ok: false,
         error: "Invalid progress export file.",
       });
+    });
+
+    it("returns error when save throws", () => {
+      const payload = buildProgressExport();
+      const origSetItem = Storage.prototype.setItem;
+      let callCount = 0;
+      jest.spyOn(Storage.prototype, "setItem").mockImplementation(function (this: Storage, key: string, value: string) {
+        callCount++;
+        // normalizeViaStorage uses 2 setItem calls during validation; throw on 3rd to hit the import catch
+        if (callCount > 2) throw new Error("QuotaExceeded");
+        return origSetItem.call(this, key, value);
+      });
+      const result = importProgress(payload);
+      jest.restoreAllMocks();
+      expect(result).toEqual({ ok: false, error: "Failed to save imported progress." });
     });
 
     it("round-trips export then import", () => {

@@ -1,5 +1,5 @@
-import { loadProgress, saveProgress, loadLastSource, saveLastSource } from "./progress";
-import { loadSettings, saveSettings } from "./settings";
+import { loadProgress, loadLastSource } from "./progress";
+import { loadSettings } from "./settings";
 import { SOURCE_STORAGE_KEY } from "./sourceStorage";
 
 export const PROGRESS_EXPORT_VERSION = 1;
@@ -75,20 +75,20 @@ export function validateProgressExport(raw: unknown): ProgressExportPayload | nu
 }
 
 export function importProgress(raw: unknown): ImportProgressResult {
+  if (typeof window === "undefined") {
+    return { ok: false, error: "Import is only available in the browser." };
+  }
+
   const validated = validateProgressExport(raw);
   if (!validated) {
     return { ok: false, error: "Invalid progress export file." };
   }
 
-  if (typeof window === "undefined") {
-    return { ok: false, error: "Import is only available in the browser." };
-  }
-
   try {
-    saveProgress(validated.progress);
-    saveSettings(validated.settings);
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(validated.progress));
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(validated.settings));
     if (validated.lastSource !== null) {
-      saveLastSource(validated.lastSource);
+      localStorage.setItem(SOURCE_STORAGE_KEY, validated.lastSource);
     } else {
       localStorage.removeItem(SOURCE_STORAGE_KEY);
     }

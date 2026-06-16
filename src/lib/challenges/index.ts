@@ -124,6 +124,16 @@ import { challenge107 } from "./107-matrix-row-swap";
 import { challenge108 } from "./108-array-unique-count";
 import { challenge109 } from "./109-parallel-modulo";
 import { challenge110 } from "./110-matrix-lower-triangle";
+import { challenge111 } from "./111-array-histogram";
+import { challenge112 } from "./112-matrix-upper-triangle";
+import { challenge113 } from "./113-parallel-absolute-value";
+import { challenge114 } from "./114-string-length-counter";
+import { challenge115 } from "./115-sliding-window-maximum";
+import { challenge116 } from "./116-array-interleave";
+import { challenge117 } from "./117-matrix-identity-check";
+import { challenge118 } from "./118-parallel-power-of-two";
+import { challenge119 } from "./119-array-dedup-adjacent";
+import { challenge120 } from "./120-matrix-border-sum";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -154,4 +164,7 @@ export const CHALLENGES: Challenge[] = [
   challenge101, challenge102, challenge103, challenge104,
   challenge105, challenge106, challenge107, challenge108,
   challenge109, challenge110,
+  challenge111, challenge112, challenge113, challenge114,
+  challenge115, challenge116, challenge117, challenge118,
+  challenge119, challenge120,
 ];
