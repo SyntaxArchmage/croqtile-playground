@@ -1,32 +1,34 @@
 # Croqtile Playground — Session Handoff
 
 **Date**: 2026-06-16
-**Sessions**: auto-dev (multiple invocations, 190+ total commits)
+**Sessions**: auto-dev (multiple invocations, 260+ total commits)
 
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (772 tests, 37 suites)
+- `npm test` ✅ (778 tests, 37 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
+- Coverage: 98.51% stmts, 97.14% branches, 99.15% funcs, 99.32% lines
 
 ## Features Implemented
 
 ### Core IDE
-- Monaco editor with Choreo syntax highlighting (Catppuccin Mocha theme)
+- Monaco editor with Choreo syntax highlighting (Catppuccin Mocha + Latte themes)
 - Toolbar: Run / Compile / AST / Target selector / Examples / Share / Download / Format / Open
-- Output panel (tabbed: Output / Errors / AST) with auto-tab-switch, error line highlighting
-- Status bar: worker status, compiler version, cursor position (Ln/Col), line count, target, execution time
+- Output panel (tabbed: Output / Errors / AST) with auto-tab-switch, error line highlighting, copy-to-clipboard, line numbers toggle
+- Status bar: worker status, compiler version, cursor position (Ln/Col), selection info, line count, target, execution time, unsaved indicator
 - Resizable split layout with keyboard and touch support
-- Keyboard shortcuts: Ctrl+Enter (Run), Ctrl+Shift+Enter (Compile), Ctrl+Alt+D (AST), Ctrl+S (Share), Ctrl+L (Clear), Ctrl+P (Command Palette), ? (Help)
-- Command palette (Ctrl+P) with fuzzy search
+- Keyboard shortcuts: Ctrl+Enter (Run), Ctrl+Shift+Enter (Compile), Ctrl+Alt+D (AST), Ctrl+S (Share), Ctrl+L (Clear), Ctrl+P (Command Palette), Ctrl+G (Go to Line), Ctrl+F (Find), Ctrl+H (Replace), Ctrl+Z (Undo), Ctrl+Shift+Z (Redo), Ctrl+Shift+T (Toggle Theme), ? (Help)
+- Command palette (Ctrl+P) with fuzzy search — 13 commands
 - Error boundary with graceful crash recovery
+- Light/dark theme toggle (Catppuccin Latte/Mocha)
 
 ### Content
-- 24 tutorials (ch01–ch24) with "Try it" inline code blocks
-- 66 challenges (c01–c66) with auto-verification, progress badges, and "in progress" status
-- 22 example programs
+- 25 tutorials (ch01–ch25) with "Try it" inline code blocks
+- 70 challenges (c01–c70) with auto-verification, progress badges, and "in progress" status
+- 23 example programs
 
 ### User Experience
 - URL sharing with base64url encoding (backward-compatible with legacy percent-encoding)

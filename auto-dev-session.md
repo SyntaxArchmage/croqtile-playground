@@ -445,3 +445,46 @@ This session performed 54 development cycles on `croqtile-playground`, a browser
 - **Commits**: ~10 commits this session
 - **PRD progress**: 70 challenges, 25 tutorials, 22 examples, 774 tests across 37 suites
 - **Next priority**: Performance profiling, additional edge case testing, visual inspection
+
+### Auto-Dev Session 2026-06-16 11:49 (3h)
+- **Duration**: 180 minutes
+- **Defects found**: 5 (P2: 3, P3: 2)
+- **Defects fixed**: 5
+  - P2: react-hooks/immutability lint error from sourceRef mutation during render
+  - P2: ChallengePanel zero-test challenge recorded bogus attempts
+  - P2: ChallengePanel "0 test" pluralization error
+  - P3: TutorialPanel crash on missing step at stepIndex (sparse array)
+  - P3: formatCode multiple closing braces on same line incorrect indentation
+- **Tests added**: ~195 new tests (583 → 778)
+- **Features implemented**:
+  - Code folding support in Monaco editor
+  - Selection info in status bar (char/line count)
+  - Configurable tab size (2-8) in settings
+  - Minimap toggle and word wrap settings
+  - Font family selector (JetBrains Mono, Fira Code, Source Code Pro, monospace)
+  - Debounced auto-save with "Unsaved" status indicator
+  - Output panel copy-to-clipboard button
+  - Output panel line numbers toggle
+  - Undo/Redo in command palette and shortcuts dialog
+  - Find/Replace in command palette and shortcuts dialog
+  - Go to Line (Ctrl+G) in command palette
+  - URL deep-linking for example programs (?example=slug)
+  - Inline reset progress confirmation (replaces window.confirm)
+  - Extracted renderTutorialContent for testability
+  - 100% coverage on Editor.tsx, Toolbar.tsx, ChallengePanel.tsx
+  - Playground.tsx branch coverage improved to 96%
+- **Content added**:
+  - Tutorials: ch16-ch25 (10 new tutorials, 25 total)
+  - Challenges: c33-c70 (38 new challenges, 70 total)
+  - Examples: 6 new programs (23 total)
+  - Formatter edge case tests (block comments, escapes, char literals)
+  - parseContent/renderTutorialContent edge case tests (27 tests)
+  - Playground integration tests (7 tests)
+- **Coverage**:
+  - Statements: 98.51%
+  - Branches: 97.14%
+  - Functions: 99.15%
+  - Lines: 99.32%
+- **Commits**: ~40 commits this session (324 total)
+- **PRD progress**: 25 tutorials, 70 challenges, 23 examples, 778 tests across 37 suites
+- **Next priority**: Visual inspection, Playwright E2E expansion, performance profiling, remaining branch coverage in OutputPanel/Playground
