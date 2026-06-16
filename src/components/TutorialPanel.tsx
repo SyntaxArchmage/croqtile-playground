@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { TUTORIALS, type Tutorial, type TutorialStep } from "@/lib/tutorials";
 import { getTutorialProgress, markTutorialStep } from "@/lib/progress";
 import { renderTutorialContent } from "@/lib/renderTutorialContent";
+import { ListSearchInput, matchesTitleSearch } from "@/components/ListSearchInput";
 
 function clampStepIndex(index: number, stepCount: number): number {
   if (stepCount <= 0) return 0;
@@ -78,14 +79,9 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- mount-only deep link init
 
   if (!selectedTutorial) {
-    const query = searchQuery.trim().toLowerCase();
-    const filteredTutorials = query
-      ? TUTORIALS.filter(
-          (t) =>
-            t.title.toLowerCase().includes(query) ||
-            t.description.toLowerCase().includes(query),
-        )
-      : TUTORIALS;
+    const filteredTutorials = TUTORIALS.filter((t) =>
+      matchesTitleSearch(t.title, searchQuery),
+    );
 
     return (
       <div className="h-full flex flex-col" role="region" aria-label="Tutorials">
@@ -118,13 +114,10 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
               </div>
             );
           })()}
-          <input
-            type="text"
-            placeholder="Search tutorials..."
-            aria-label="Search tutorials"
+          <ListSearchInput
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-1.5 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+            onChange={setSearchQuery}
+            ariaLabel="Search tutorials"
           />
           {filteredTutorials.length === 0 ? (
             <div className="text-xs text-[var(--text-muted)] text-center py-4">

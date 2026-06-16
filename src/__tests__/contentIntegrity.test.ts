@@ -166,4 +166,39 @@ describe("Content integrity", () => {
       }
     }
   });
+
+  it("all challenges have non-empty hints", () => {
+    for (const c of CHALLENGES) {
+      expect(c.hint.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("all example IDs use only lowercase alphanumeric and hyphens", () => {
+    for (const ex of EXAMPLES) {
+      expect(ex.id).toMatch(/^[a-z0-9-]+$/);
+    }
+  });
+
+  it("all challenge test descriptions are non-empty", () => {
+    for (const c of CHALLENGES) {
+      for (const t of c.tests) {
+        expect(t.description.trim().length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("tutorial step titles are non-empty", () => {
+    for (const t of TUTORIALS) {
+      for (const step of t.steps) {
+        expect(step.title.trim().length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("no duplicate tutorial step titles within a tutorial", () => {
+    for (const t of TUTORIALS) {
+      const titles = t.steps.map((s) => s.title);
+      expect(new Set(titles).size).toBe(titles.length);
+    }
+  });
 });

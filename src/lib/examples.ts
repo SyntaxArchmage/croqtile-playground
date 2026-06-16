@@ -919,4 +919,173 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "matrix-diagonal",
+    name: "Matrix Diagonal",
+    description: "Extract main diagonal elements from a 2D matrix",
+    code: `__co__ void matrix_diagonal() {
+  global float M[4, 4];
+  global float diag[4];
+
+  parallel {i, j} by [4, 4] {
+    M[i, j] = (float)(i * 4 + j + 1);
+  }
+
+  parallel {i} by [4] {
+    diag[i] = M[i, i];
+  }
+
+  parallel {i} by [4] {
+    println("diag[", i, "] =", diag[i]);
+  }
+}
+`,
+  },
+  {
+    id: "prefix-sum",
+    name: "Prefix Sum",
+    description: "Classic inclusive prefix sum (scan) with foreach",
+    code: `__co__ void prefix_sum() {
+  global float data[8];
+  global float prefix[8];
+
+  parallel {i} by [8] {
+    data[i] = (float)(i + 1);
+  }
+
+  prefix[0] = data[0];
+  foreach i in [1:8] {
+    prefix[i] = prefix[i - 1] + data[i];
+  }
+
+  parallel {i} by [8] {
+    println("prefix[", i, "] =", prefix[i]);
+  }
+}
+`,
+  },
+  {
+    id: "conditional-print",
+    name: "Conditional Print",
+    description: "if/else branching with println inside parallel threads",
+    code: `__co__ void conditional_print() {
+  global int values[8];
+
+  parallel {i} by [8] {
+    values[i] = i + 1;
+  }
+
+  parallel {i} by [8] {
+    if (values[i] % 2 == 0) {
+      println("values[", i, "] =", values[i], " is even");
+    } else {
+      println("values[", i, "] =", values[i], " is odd");
+    }
+  }
+}
+`,
+  },
+  {
+    id: "nested-loops",
+    name: "Nested Loops",
+    description: "Nested foreach loops for sequential 2D iteration",
+    code: `__co__ void nested_loops() {
+  global float grid[3, 3];
+
+  foreach i in [0:3] {
+    foreach j in [0:3] {
+      grid[i, j] = (float)(i * 3 + j);
+    }
+  }
+
+  parallel {i, j} by [3, 3] {
+    println("grid[", i, ",", j, "] =", grid[i, j]);
+  }
+}
+`,
+  },
+  {
+    id: "multi-array",
+    name: "Multi-Array",
+    description: "Element-wise operations across multiple arrays in parallel",
+    code: `__co__ void multi_array() {
+  global float a[8];
+  global float b[8];
+  global float c[8];
+
+  parallel {i} by [8] {
+    a[i] = (float)(i + 1);
+    b[i] = (float)((i + 1) * 10);
+  }
+
+  parallel {i} by [8] {
+    c[i] = a[i] + b[i];
+  }
+
+  parallel {i} by [8] {
+    println("c[", i, "] =", c[i]);
+  }
+}
+`,
+  },
+  {
+    id: "constant-memory",
+    name: "Constant Memory",
+    description: "const qualifiers for read-only scalars and loop bounds",
+    code: `__co__ void constant_memory() {
+  global float data[8];
+  global float scaled[8];
+
+  const float SCALE = 2.5f;
+  const int N = 8;
+
+  parallel {i} by [N] {
+    data[i] = (float)(i + 1);
+  }
+
+  parallel {i} by [N] {
+    scaled[i] = data[i] * SCALE;
+  }
+
+  parallel {i} by [N] {
+    println("scaled[", i, "] =", scaled[i]);
+  }
+}
+`,
+  },
+  {
+    id: "pipeline-stage",
+    name: "Pipeline Stage",
+    description: "Multi-stage computation with pipeline and stage blocks",
+    code: `__co__ void pipeline_stage() {
+  global float raw[4];
+  global float cooked[4];
+
+  parallel {i} by [4] {
+    raw[i] = (float)(i + 1);
+  }
+
+  pipeline {
+    stage {
+      exec {
+        parallel {i} by [4] {
+          cooked[i] = raw[i] * 3.0f;
+        }
+      }
+    }
+    stage {
+      exec {
+        parallel {i} by [4] {
+          cooked[i] = cooked[i] + 1.0f;
+        }
+      }
+    }
+  }
+
+  parallel {i} by [4] {
+    println("cooked[", i, "] =", cooked[i]);
+  }
+}
+`,
+  },
 ];

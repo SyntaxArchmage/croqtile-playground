@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import { checkTests } from "@/lib/checkTests";
 import { isChallengePassed, markChallengePassed, getChallengeProgress, recordChallengeAttempt } from "@/lib/progress";
+import { ListSearchInput, matchesTitleSearch } from "@/components/ListSearchInput";
 
 function updateUrlParam(key: string, value: string | null) {
   const url = new URL(window.location.href);
@@ -115,7 +116,6 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
   }, [progressRevision]);
 
   if (!selectedChallenge) {
-    const query = searchQuery.trim().toLowerCase();
     const filteredChallenges = CHALLENGES.filter((c) => {
       if (difficultyFilter !== "all" && c.difficulty !== difficultyFilter) {
         return false;
@@ -125,13 +125,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
         if (statusFilter === "passed" && !passed) return false;
         if (statusFilter === "todo" && passed) return false;
       }
-      if (!query) {
-        return true;
-      }
-      return (
-        c.title.toLowerCase().includes(query) ||
-        c.description.toLowerCase().includes(query)
-      );
+      return matchesTitleSearch(c.title, searchQuery);
     });
 
     return (
@@ -165,13 +159,10 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
               </div>
             );
           })()}
-          <input
-            type="text"
-            placeholder="Search challenges..."
-            aria-label="Search challenges"
+          <ListSearchInput
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-1.5 text-xs rounded border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+            onChange={setSearchQuery}
+            ariaLabel="Search challenges"
           />
           <div className="flex gap-3 flex-wrap">
             <div className="flex gap-1" role="group" aria-label="Filter by difficulty">

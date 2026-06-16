@@ -185,6 +185,31 @@ describe("TutorialPanel", () => {
     expect(screen.queryByText("Hello Croqtile")).not.toBeInTheDocument();
   });
 
+  it("filters tutorials case-insensitively by title", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    const search = screen.getByLabelText("Search tutorials");
+    fireEvent.change(search, { target: { value: "hello croqtile" } });
+    expect(screen.getByText("Hello Croqtile")).toBeInTheDocument();
+    expect(screen.queryByText("Parallel Execution")).not.toBeInTheDocument();
+  });
+
+  it("does not filter tutorials by description text", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    const search = screen.getByLabelText("Search tutorials");
+    fireEvent.change(search, { target: { value: "maps work to" } });
+    expect(screen.getByText("No tutorials match")).toBeInTheDocument();
+  });
+
+  it("clears tutorial search and restores full list", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    const search = screen.getByLabelText("Search tutorials");
+    fireEvent.change(search, { target: { value: "Parallel" } });
+    expect(screen.queryByText("Hello Croqtile")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("Clear search"));
+    expect(screen.getByText("Hello Croqtile")).toBeInTheDocument();
+    expect(screen.getByText("Parallel Execution")).toBeInTheDocument();
+  });
+
   it("shows no-results message for unmatched search", () => {
     render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
     const search = screen.getByLabelText("Search tutorials");

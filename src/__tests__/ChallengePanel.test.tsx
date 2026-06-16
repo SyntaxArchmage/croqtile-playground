@@ -221,6 +221,37 @@ describe("ChallengePanel", () => {
     expect(screen.queryByText("Hello Threads")).not.toBeInTheDocument();
   });
 
+  it("filters challenges case-insensitively by title", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    const search = screen.getByLabelText("Search challenges");
+    fireEvent.change(search, { target: { value: "hello threads" } });
+    expect(screen.getByText("Hello Threads")).toBeInTheDocument();
+    expect(screen.queryByText("DMA Reverse")).not.toBeInTheDocument();
+  });
+
+  it("does not filter challenges by description text", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    const search = screen.getByLabelText("Search challenges");
+    fireEvent.change(search, { target: { value: "global memory" } });
+    expect(screen.getByText("No challenges match")).toBeInTheDocument();
+  });
+
+  it("clears challenge search and restores full list", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    const search = screen.getByLabelText("Search challenges");
+    fireEvent.change(search, { target: { value: "DMA" } });
+    expect(screen.queryByText("Hello Threads")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("Clear search"));
+    expect(screen.getByText("Hello Threads")).toBeInTheDocument();
+    expect(screen.getByText("DMA Reverse")).toBeInTheDocument();
+  });
+
   it("shows no-results message for unmatched search", () => {
     render(
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
