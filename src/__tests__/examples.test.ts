@@ -1,4 +1,5 @@
 import { EXAMPLES } from "@/lib/examples";
+import { formatChoreoCode } from "@/lib/formatCode";
 
 describe("EXAMPLES", () => {
   it("has at least one example", () => {
@@ -31,6 +32,19 @@ describe("EXAMPLES", () => {
   it("every example contains __co__ kernel definition", () => {
     for (const ex of EXAMPLES) {
       expect(ex.code).toContain("__co__");
+    }
+  });
+
+  it("every example can be formatted without error", () => {
+    for (const ex of EXAMPLES) {
+      expect(() => formatChoreoCode(ex.code)).not.toThrow();
+      expect(formatChoreoCode(ex.code).length).toBeGreaterThan(0);
+    }
+  });
+
+  it("ids use only lowercase alphanumeric and hyphens", () => {
+    for (const ex of EXAMPLES) {
+      expect(ex.id).toMatch(/^[a-z0-9-]+$/);
     }
   });
 });
