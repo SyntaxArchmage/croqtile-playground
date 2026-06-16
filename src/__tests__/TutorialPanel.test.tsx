@@ -223,6 +223,12 @@ describe("TutorialPanel", () => {
     expect(screen.queryByText("done")).not.toBeInTheDocument();
   });
 
+  it("shows in progress badge for started but not completed tutorials", () => {
+    mockTutorialProgress = 0;
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    expect(screen.getAllByText("in progress").length).toBeGreaterThan(0);
+  });
+
   it("calls onLoadCode when Try it button is clicked", () => {
     const onLoadCode = jest.fn();
     render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} />);

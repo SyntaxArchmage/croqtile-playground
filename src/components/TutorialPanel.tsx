@@ -155,9 +155,11 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
             >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[var(--text-primary)]">{t.title}</span>
-                {getTutorialProgress(t.id) >= t.steps.length - 1 && (
+                {getTutorialProgress(t.id) >= t.steps.length - 1 ? (
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-900 text-green-300 border border-green-800">done</span>
-                )}
+                ) : getTutorialProgress(t.id) >= 0 ? (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-950/50 text-blue-300 border border-blue-800">in progress</span>
+                ) : null}
               </div>
               <div className="text-xs text-[var(--text-muted)] mt-1">{t.description}</div>
               <div className="text-xs text-[var(--text-muted)] mt-1">
