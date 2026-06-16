@@ -335,3 +335,35 @@ This session performed 54 development cycles on `croqtile-playground`, a browser
   - `window.location.reload()` in ErrorBoundary (jsdom limitation)
   - FileReader/DataTransfer file input testing (jsdom limitation)
 - **Next priority**: E2E test setup (Playwright), visual regression testing
+
+### Auto-Dev Session 2026-06-16 11:49 (ongoing)
+- **Duration**: 180 minutes (ongoing, ~36 min elapsed)
+- **Cycle**: 11+ cycles
+- **Defects found**: 1 (P1: ErrorBoundary flaky test)
+- **Defects fixed**: 1 (ErrorBoundary reload mock fixed with Object.defineProperty)
+- **Tests added**: ~65 new tests (from 483 → 550+)
+- **Features implemented**:
+  - "In progress" badge for attempted challenges
+  - "In progress" badge for started tutorials
+  - Full expected/actual output display in test failure diff (replaced 80-char truncation)
+  - Download Code command in command palette
+  - Clickable tutorial step dots (committed from previous session)
+- **Content added**:
+  - Tutorials: ch11 (Data Types & Casting), ch12 (Array Slicing & DMA Patterns)
+  - Challenges: c23 (1D Convolution), c24 (Pack & Unpack)
+  - Granular test cases for c03, c08, c09, c21, c22
+  - Examples: Find Maximum, Two-Stage Pipeline (14 total)
+- **Test improvements**:
+  - Formatter idempotency tests for all content
+  - Challenge ID pattern/sequential/hint validation
+  - Tutorial ID pattern/sequential/3-step enforcement
+  - ErrorBoundary reload mock fix
+  - Content integrity: __co__ presence, difficulty distribution
+- **Coverage**:
+  - Statements: 98.3% (from 97.35%)
+  - Branches: 95.96% (from 92.34%)
+  - Functions: 97.57% (from 97.09%)
+  - Lines: 99.07% (from 99.31%)
+- **Commits**: 14+ commits this session
+- **PRD progress**: 12 tutorials, 24 challenges, 14 examples, 550+ tests
+- **Next priority**: More challenges, visual polish, E2E tests
