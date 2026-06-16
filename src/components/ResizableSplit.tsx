@@ -54,10 +54,12 @@ export function ResizableSplit({ left, right, initialRatio = 0.35 }: Props) {
       dragging.current = false;
       document.removeEventListener("touchmove", onTouchMove);
       document.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener("touchcancel", onTouchEnd);
     };
 
     document.addEventListener("touchmove", onTouchMove, { passive: true });
     document.addEventListener("touchend", onTouchEnd);
+    document.addEventListener("touchcancel", onTouchEnd);
   }, [updateRatio]);
 
   return (
