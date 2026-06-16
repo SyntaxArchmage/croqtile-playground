@@ -34,14 +34,19 @@
 - localStorage persistence: progress, last source, editor settings
 - Editor settings: font size (10–24px), word wrap toggle
 - Challenge progress tracking: attempts, best code, pass/fail status, confetti animation
+- Challenge test failure diff with color-coded expected (green) vs actual (red)
 - Challenge status filter (All/To Do/Passed) in challenge list
 - Progress summary bars in tutorial list, challenge list, and settings menu
 - Unsaved changes warning dialog
 - Running indicator in document title
 - Clickable tutorial step dots for direct navigation
 - "In progress" badges on tutorials and challenges
-- Responsive layout (stacked on mobile with touch-resizable panels)
+- Smart file download with function-name-based filenames
+- File open with extension validation (.co/.txt) and size limits (1MB)
+- Responsive layout with 44px touch targets on mobile
+- Mobile command palette button (visible below 640px)
 - ARIA accessibility labels, keyboard-navigable menus, focus trapping in modals
+- Skip-to-editor link for screen readers
 - Floating Run button (FAB) for mobile users
 - Custom scrollbar styling
 
