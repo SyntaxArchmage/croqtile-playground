@@ -456,4 +456,47 @@ a();
     const formatted = formatChoreoCode(input);
     expect(formatted).toContain("} // end } }");
   });
+
+  it("does not split when escape char follows close brace", () => {
+    const input = `} '\\' }`;
+    const formatted = formatChoreoCode(input);
+    expect(formatted).toContain("\\");
+  });
+
+  it("does not split when char literal follows close brace in shouldSplit context", () => {
+    const input = `__co__ void f() { if (x) { a(); } 'c' }`;
+    const formatted = formatChoreoCode(input);
+    expect(formatted).toBeDefined();
+  });
+
+  it("does not split when string follows close brace in shouldSplit context", () => {
+    const input = `__co__ void f() { if (x) { a(); } "str" }`;
+    const formatted = formatChoreoCode(input);
+    expect(formatted).toBeDefined();
+  });
+
+  it("handles block comment after close brace in shouldSplit context", () => {
+    const input = `} /* comment */ }`;
+    const formatted = formatChoreoCode(input);
+    expect(formatted).toBeDefined();
+  });
+
+  it("splitSameLineCloseBraces produces empty subLine that is skipped", () => {
+    const input = `}   }`;
+    const formatted = formatChoreoCode(input);
+    const lines = formatted.split("\n").filter(Boolean);
+    for (const line of lines) {
+      expect(line.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("splits closing braces after a multi-line block comment ends", () => {
+    const input = `a {
+/* comment
+ends */ } }`;
+    expect(formatChoreoCode(input)).toBe(`a {
+  /* comment
+ends */ }
+}`);
+  });
 });

@@ -69,6 +69,7 @@ const mockEditorUndo = jest.fn();
 const mockEditorRedo = jest.fn();
 const mockEditorFind = jest.fn();
 const mockEditorReplace = jest.fn();
+const mockEditorGoToLine = jest.fn();
 jest.mock("@/components/Toolbar", () => {
   const React = require("react") as typeof import("react");
   const actual = jest.requireActual<typeof import("@/components/Toolbar")>("@/components/Toolbar");
@@ -85,17 +86,18 @@ jest.mock("@/components/Toolbar", () => {
 });
 jest.mock("@/components/Editor", () => ({
   Editor: React.forwardRef<
-    { getValue: () => string; undo: () => void; redo: () => void; find: () => void; replace: () => void },
+    { getValue: () => string; undo: () => void; redo: () => void; find: () => void; replace: () => void; goToLine: (line: number) => void },
     { value: string; onChange: (value: string) => void; fontSize?: number; wordWrap?: boolean; tabSize?: number; theme?: string }
   >(function MockEditor({ value, onChange, fontSize, wordWrap, tabSize, theme }, ref) {
     React.useImperativeHandle(ref, () => {
-      if (!mockEditorProvidesRef) return null as unknown as { getValue: () => string; undo: () => void; redo: () => void; find: () => void; replace: () => void };
+      if (!mockEditorProvidesRef) return null as unknown as { getValue: () => string; undo: () => void; redo: () => void; find: () => void; replace: () => void; goToLine: (line: number) => void };
       return {
         getValue: () => value,
         undo: mockEditorUndo,
         redo: mockEditorRedo,
         find: mockEditorFind,
         replace: mockEditorReplace,
+        goToLine: mockEditorGoToLine,
       };
     });
     return (
@@ -352,6 +354,49 @@ describe("Playground", () => {
       expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
 
       document.body.removeChild(monacoHost);
+    });
+
+    it("opens go to line prompt on Ctrl+G", () => {
+      window.prompt = jest.fn(() => "10");
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "g", ctrlKey: true });
+      expect(window.prompt).toHaveBeenCalledWith("Go to line:");
+      expect(mockEditorGoToLine).toHaveBeenCalledWith(10);
+    });
+
+    it("opens go to line prompt on Meta+G (macOS)", () => {
+      window.prompt = jest.fn(() => "7");
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "G", metaKey: true });
+      expect(window.prompt).toHaveBeenCalledWith("Go to line:");
+      expect(mockEditorGoToLine).toHaveBeenCalledWith(7);
+    });
+
+    it("does nothing when prompt is cancelled (null)", () => {
+      window.prompt = jest.fn(() => null);
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "g", ctrlKey: true });
+      expect(window.prompt).toHaveBeenCalled();
+      expect(mockEditorGoToLine).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when prompt input is not a valid number", () => {
+      window.prompt = jest.fn(() => "abc");
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "g", ctrlKey: true });
+      expect(window.prompt).toHaveBeenCalled();
+      expect(mockEditorGoToLine).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when prompt input is zero or negative", () => {
+      window.prompt = jest.fn(() => "0");
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "g", ctrlKey: true });
+      expect(mockEditorGoToLine).not.toHaveBeenCalled();
+
+      window.prompt = jest.fn(() => "-5");
+      fireEvent.keyDown(window, { key: "g", ctrlKey: true });
+      expect(mockEditorGoToLine).not.toHaveBeenCalled();
     });
   });
 
@@ -973,6 +1018,41 @@ describe("Playground", () => {
       renderPlayground();
       runPaletteCommand("Replace");
       expect(mockEditorReplace).toHaveBeenCalledTimes(1);
+    });
+
+    it("goes to line via palette command with valid input", () => {
+      window.prompt = jest.fn(() => "5");
+      renderPlayground();
+      runPaletteCommand("Go to Line");
+      expect(window.prompt).toHaveBeenCalledWith("Go to line:");
+      expect(mockEditorGoToLine).toHaveBeenCalledWith(5);
+    });
+
+    it("does nothing when go to line prompt is cancelled", () => {
+      window.prompt = jest.fn(() => null);
+      renderPlayground();
+      runPaletteCommand("Go to Line");
+      expect(window.prompt).toHaveBeenCalledWith("Go to line:");
+      expect(mockEditorGoToLine).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when go to line prompt has invalid input", () => {
+      window.prompt = jest.fn(() => "abc");
+      renderPlayground();
+      runPaletteCommand("Go to Line");
+      expect(mockEditorGoToLine).not.toHaveBeenCalled();
+
+      (window.prompt as jest.Mock).mockReturnValue("0");
+      runPaletteCommand("Go to Line");
+      expect(mockEditorGoToLine).not.toHaveBeenCalled();
+    });
+
+    it("go to line palette command tolerates missing editor ref", () => {
+      window.prompt = jest.fn(() => "3");
+      mockEditorProvidesRef = false;
+      renderPlayground();
+      expect(() => runPaletteCommand("Go to Line")).not.toThrow();
+      expect(mockEditorGoToLine).not.toHaveBeenCalled();
     });
 
     it("undo and redo palette commands tolerate missing editor ref", () => {

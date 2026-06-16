@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { TUTORIALS } from "@/lib/tutorials";
+import { TUTORIALS, type Tutorial, type TutorialStep } from "@/lib/tutorials";
 
 let mockTutorialProgress = -1;
 
@@ -302,6 +302,131 @@ describe("TutorialPanel", () => {
 
     ch01.steps[1].code = step1Code;
     window.history.pushState({}, "", "/");
+  });
+
+  const emptyStepsTutorial: Tutorial = {
+    id: "test-empty-steps",
+    title: "Test Empty Tutorial",
+    description: "Tutorial with no steps",
+    steps: [],
+  };
+
+  const sparseStepsTutorial: Tutorial = {
+    id: "test-sparse-steps",
+    title: "Test Sparse Steps Tutorial",
+    description: "Has undefined step entry",
+    steps: [
+      { title: "First step", content: "ok", code: "x" },
+      undefined as unknown as TutorialStep,
+    ],
+  };
+
+  function withExtraTutorials(run: () => void) {
+    TUTORIALS.push(emptyStepsTutorial, sparseStepsTutorial);
+    try {
+      run();
+    } finally {
+      TUTORIALS.splice(TUTORIALS.length - 2, 2);
+    }
+  }
+
+  it("shows no-steps message when tutorial has empty steps array", () => {
+    withExtraTutorials(() => {
+      render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+      fireEvent.click(screen.getByText("Test Empty Tutorial"));
+      expect(screen.getByTestId("no-steps-message")).toHaveTextContent(
+        "This tutorial has no steps yet.",
+      );
+    });
+  });
+
+  it("clears tutorial URL param when selecting zero-step tutorial", () => {
+    withExtraTutorials(() => {
+      window.history.pushState({}, "", "/?step=2&challenge=foo");
+      render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+      fireEvent.click(screen.getByText("Test Empty Tutorial"));
+      const params = new URLSearchParams(window.location.search);
+      expect(params.get("tutorial")).toBe("test-empty-steps");
+      expect(params.has("step")).toBe(false);
+      expect(params.has("challenge")).toBe(false);
+      window.history.pushState({}, "", "/");
+    });
+  });
+
+  it("returns to tutorial list from no-steps view via Back", () => {
+    withExtraTutorials(() => {
+      render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+      fireEvent.click(screen.getByText("Test Empty Tutorial"));
+      fireEvent.click(screen.getByText("← Back"));
+      expect(screen.getByText("Tutorials")).toBeInTheDocument();
+      expect(screen.queryByTestId("no-steps-message")).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows missing-step message when step index points to invalid data", () => {
+    withExtraTutorials(() => {
+      window.history.pushState({}, "", "/?tutorial=test-sparse-steps&step=2");
+      render(
+        <TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="test-sparse-steps" />,
+      );
+      expect(screen.getByTestId("missing-step-message")).toHaveTextContent(
+        "Step 2 is missing or invalid.",
+      );
+      window.history.pushState({}, "", "/");
+    });
+  });
+
+  it("returns to tutorial list from missing-step view via Back", () => {
+    withExtraTutorials(() => {
+      window.history.pushState({}, "", "/?tutorial=test-sparse-steps&step=2");
+      render(
+        <TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="test-sparse-steps" />,
+      );
+      fireEvent.click(screen.getByText("← Back"));
+      expect(screen.getByText("Tutorials")).toBeInTheDocument();
+      expect(screen.queryByTestId("missing-step-message")).not.toBeInTheDocument();
+      window.history.pushState({}, "", "/");
+    });
+  });
+
+  it("shows empty content placeholder when step has no content", async () => {
+    await jest.isolateModulesAsync(async () => {
+      jest.doMock("@/lib/tutorials", () => ({
+        TUTORIALS: [
+          {
+            id: "empty-content",
+            title: "Empty Content Step",
+            description: "A tutorial with a step that has no content",
+            steps: [
+              { title: "Step One", content: "", code: "some-code" },
+            ],
+          },
+        ],
+      }));
+      jest.doMock("@/lib/progress", () => ({
+        getTutorialProgress: () => -1,
+        markTutorialStep: () => {},
+      }));
+
+      const React = require("react");
+      const { act } = require("react");
+      const { createRoot } = require("react-dom/client");
+      const { TutorialPanel: IsolatedPanel } = require("@/components/TutorialPanel");
+      window.history.pushState({}, "", "/?tutorial=empty-content");
+      const container = document.createElement("div");
+      const root = createRoot(container);
+      await act(async () => {
+        root.render(
+          React.createElement(IsolatedPanel, {
+            onLoadCode: () => {},
+            onClose: () => {},
+            initialId: "empty-content",
+          }),
+        );
+      });
+      expect(container.querySelector('[data-testid="empty-step-content"]')).toBeTruthy();
+      window.history.pushState({}, "", "/");
+    });
   });
 
   it("falls back to first step code when deep-linked step lacks code", async () => {
