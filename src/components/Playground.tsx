@@ -86,6 +86,10 @@ export function Playground() {
     setPanelMode(initialPanelMode);
   }
 
+  useEffect(() => {
+    lastLoadedCodeRef.current = initialSource;
+  }, [initialSource]);
+
   const { status, output, errors, ast, compilerVersion, buildManifest, elapsedMs, run, compile, dumpAST, clearOutput } =
     useChoreoWorker();
 

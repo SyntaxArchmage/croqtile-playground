@@ -207,7 +207,7 @@ function registerChoreoLanguage(monaco: Monaco) {
   });
 
   monaco.languages.registerCompletionItemProvider("choreo", {
-    provideCompletionItems: (model: unknown, position: unknown) => {
+    provideCompletionItems: () => {
       const suggestions = [
         // Choreo-specific constructs
         ...["__co__", "__cok__", "parallel", "foreach", "pipeline", "stage", "dma",

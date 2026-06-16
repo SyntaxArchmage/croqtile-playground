@@ -13,6 +13,18 @@ export interface BuildManifest {
 
 export type CommandType = "mockRun" | "compile" | "dumpAST";
 
+function parseBuildManifest(raw: unknown): BuildManifest | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const m = raw as Record<string, unknown>;
+  const strOrNull = (v: unknown): string | null => (typeof v === "string" ? v : null);
+  return {
+    version: strOrNull(m.version),
+    commit: strOrNull(m.commit),
+    commit_short: strOrNull(m.commit_short),
+    built_at: strOrNull(m.built_at),
+  };
+}
+
 export function useChoreoWorker() {
   const [status, setStatus] = useState<WorkerStatus>("loading");
   const [output, setOutput] = useState("");
@@ -31,7 +43,7 @@ export function useChoreoWorker() {
   useEffect(() => {
     fetch("/wasm/build-manifest.json")
       .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
-      .then((m) => setBuildManifest(m))
+      .then((m) => setBuildManifest(parseBuildManifest(m)))
       .catch(() => {});
   }, []);
 
