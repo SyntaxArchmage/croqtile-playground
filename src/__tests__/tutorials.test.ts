@@ -33,4 +33,23 @@ describe("TUTORIALS", () => {
       }
     }
   });
+
+  it("tutorial IDs follow ch## pattern", () => {
+    for (const t of TUTORIALS) {
+      expect(t.id).toMatch(/^ch\d{2}$/);
+    }
+  });
+
+  it("tutorial IDs are sequential starting from ch01", () => {
+    TUTORIALS.forEach((t, i) => {
+      const expected = `ch${String(i + 1).padStart(2, "0")}`;
+      expect(t.id).toBe(expected);
+    });
+  });
+
+  it("every tutorial has exactly 3 steps", () => {
+    for (const t of TUTORIALS) {
+      expect(t.steps.length).toBe(3);
+    }
+  });
 });

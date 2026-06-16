@@ -36,4 +36,31 @@ describe("CHALLENGES", () => {
       expect(["easy", "medium", "hard"]).toContain(c.difficulty);
     }
   });
+
+  it("challenge IDs follow c## pattern", () => {
+    for (const c of CHALLENGES) {
+      expect(c.id).toMatch(/^c\d{2}$/);
+    }
+  });
+
+  it("challenge IDs are sequential starting from c01", () => {
+    CHALLENGES.forEach((c, i) => {
+      const expected = `c${String(i + 1).padStart(2, "0")}`;
+      expect(c.id).toBe(expected);
+    });
+  });
+
+  it("has all three difficulty levels", () => {
+    const difficulties = new Set(CHALLENGES.map((c) => c.difficulty));
+    expect(difficulties).toContain("easy");
+    expect(difficulties).toContain("medium");
+    expect(difficulties).toContain("hard");
+  });
+
+  it("every challenge has a hint", () => {
+    for (const c of CHALLENGES) {
+      expect(c.hint).toBeDefined();
+      expect(c.hint!.trim().length).toBeGreaterThan(0);
+    }
+  });
 });

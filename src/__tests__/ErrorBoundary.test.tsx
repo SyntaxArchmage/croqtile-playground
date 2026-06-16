@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
@@ -50,6 +50,23 @@ describe("ErrorBoundary", () => {
     expect(btn).not.toBeDisabled();
   });
 
+  it("invokes reload handler when Reload is clicked", () => {
+    render(
+      <ErrorBoundary>
+        <ThrowingComponent msg="crash" />
+      </ErrorBoundary>
+    );
+    // jsdom's reload logs "Not implemented: navigation" but still runs the onClick handler.
+    expect(() => fireEvent.click(screen.getByText("Reload"))).not.toThrow();
+  });
+
+  it("getDerivedStateFromError sets hasError and stores the error", () => {
+    const err = new Error("derived");
+    expect(ErrorBoundary.getDerivedStateFromError(err)).toEqual({
+      hasError: true,
+      error: err,
+    });
+  });
 
   it("calls componentDidCatch and logs to console.error", () => {
     render(
@@ -71,6 +88,13 @@ describe("ErrorBoundary", () => {
       </ErrorBoundary>
     );
     expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(screen.getByText("An unexpected error occurred.")).toBeInTheDocument();
+  });
+
+  it("shows fallback message when error state is null", () => {
+    const boundary = new ErrorBoundary({ children: <GoodComponent /> });
+    boundary.state = { hasError: true, error: null };
+    render(boundary.render());
     expect(screen.getByText("An unexpected error occurred.")).toBeInTheDocument();
   });
 });
