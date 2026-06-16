@@ -24,9 +24,9 @@
 - Error boundary with graceful crash recovery
 
 ### Content
-- 10 tutorials (ch01–ch10) with "Try it" inline code blocks
+- 12 tutorials (ch01–ch12) with "Try it" inline code blocks
 - 20 challenges (c01–c20) with auto-verification, progress badges, and "in progress" status
-- 12 example programs
+- 14 example programs
 
 ### User Experience
 - URL sharing with base64url encoding (backward-compatible with legacy percent-encoding)
