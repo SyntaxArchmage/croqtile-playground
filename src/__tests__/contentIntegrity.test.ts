@@ -5,9 +5,9 @@ import { parseContent } from "../lib/parseContent";
 import { formatChoreoCode } from "../lib/formatCode";
 
 describe("Content integrity", () => {
-  it("has 30 challenges and 15 tutorials", () => {
-    expect(CHALLENGES.length).toBe(30);
-    expect(TUTORIALS.length).toBe(15);
+  it("has 32 challenges and 16 tutorials", () => {
+    expect(CHALLENGES.length).toBe(32);
+    expect(TUTORIALS.length).toBe(16);
   });
 
   it("all tutorials have at least 2 steps", () => {
