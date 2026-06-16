@@ -26,5 +26,6 @@ import { ch11 } from "./ch11-types";
 import { ch12 } from "./ch12-slicing";
 import { ch13 } from "./ch13-synchronization";
 import { ch14 } from "./ch14-performance";
+import { ch15 } from "./ch15-pitfalls";
 
-export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14];
+export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14, ch15];

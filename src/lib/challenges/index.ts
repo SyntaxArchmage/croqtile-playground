@@ -42,6 +42,8 @@ import { challenge25 } from "./25-rotate-left";
 import { challenge26 } from "./26-diagonal-sum";
 import { challenge27 } from "./27-vector-normalize";
 import { challenge28 } from "./28-checkerboard";
+import { challenge29 } from "./29-clamp-values";
+import { challenge30 } from "./30-stencil-average";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -51,4 +53,5 @@ export const CHALLENGES: Challenge[] = [
   challenge17, challenge18, challenge19, challenge20,
   challenge21, challenge22, challenge23, challenge24,
   challenge25, challenge26, challenge27, challenge28,
+  challenge29, challenge30,
 ];

@@ -2,144 +2,140 @@ import type { Tutorial } from "./index";
 
 export const ch14: Tutorial = {
   id: "ch14",
-  title: "Performance Optimization",
-  description: "Write faster GPU kernels by reducing memory traffic and maximizing parallelism.",
+  title: "Performance Tips",
+  description: "Write faster GPU kernels with coalesced memory access, conflict-free shared memory, and smart thread counts.",
   steps: [
     {
-      title: "Minimizing Global Memory Access",
-      content: `Global memory is the slowest tier on a GPU. Every \`global\` array read or write costs 100-400 cycles, while \`shared\` memory costs ~5 cycles.
+      title: "Memory Coalescing for Efficient Global Reads",
+      content: `When threads in a warp read consecutive addresses from global memory, the hardware combines them into a single wide transaction — this is **memory coalescing**. Uncoalesced access (scattered indices, strided reads) wastes bandwidth.
 
-The key optimization: load data from global once, process it in shared, then write results back.
-
-**Anti-pattern — repeated global reads:**
+**Coalesced — each thread reads a contiguous element:**
 \`\`\`
-parallel {i} by [4] {
-  result[i] = data[i] * 2 + data[i] + data[i] / 3;  // 3 global reads!
+parallel {i} by [8] {
+  val = data[i];  // threads 0,1,2,... read addresses 0,1,2,...
 }
 \`\`\`
 
-**Optimized — load once into shared:**
+**Uncoalesced — strided or random access:**
 \`\`\`
-dma(data[0:4], buf[0:4]);  // 1 bulk read
-parallel {i} by [4] {
-  result[i] = buf[i] * 2 + buf[i] + buf[i] / 3;  // shared reads
+parallel {i} by [8] {
+  val = data[i * 4];  // large gaps between addresses
 }
 \`\`\`
 
-Try the example below — it loads data into shared memory first, then does all computation from the fast buffer.`,
-      code: `__co__ void minimize_global() {
+Best practice: structure your \`parallel\` loops so thread \`i\` accesses index \`i\` (or \`base + i\`), and use \`dma()\` for bulk contiguous transfers instead of many scattered global reads.
+
+Try the example — it loads a contiguous block with one DMA, then each thread reads its own slot from shared memory.`,
+      code: `__co__ void coalesced_reads() {
   global float data[8];
   shared float buf[8];
   global float result[8];
 
-  // Initialize
   parallel {i} by [8] {
     data[i] = (float)(i + 1);
   }
 
-  // Load once from global -> shared
+  // One coalesced bulk transfer
   dma(data[0:8], buf[0:8]);
 
-  // Compute entirely from shared memory
+  // Each thread reads its own contiguous slot
   parallel {i} by [8] {
-    float val = buf[i];
-    result[i] = val * val + val * 2.0f + 1.0f;
+    result[i] = buf[i] * 2.0f;
   }
 
-  foreach i in [0:8] {
-    println("result[" + i + "] =", result[i]);
+  parallel {i} by [8] {
+    println("result[", i, "] =", result[i]);
   }
 }
 `,
     },
     {
-      title: "Tiled Processing for Large Data",
-      content: `When data is too large to fit in shared memory at once, process it in tiles. Each tile loads a chunk, processes it, and moves to the next.
+      title: "Minimizing Shared Memory Bank Conflicts",
+      content: `Shared memory is divided into **banks**. When multiple threads in the same warp access different addresses that map to the same bank, the hardware serializes those accesses — a **bank conflict**.
 
-The pattern:
-1. Loop over tiles
-2. DMA the current tile into shared
-3. Process the tile in parallel
-4. Repeat
+Common causes:
+- Strided access patterns (e.g., every thread reads \`buf[i * 2]\`)
+- Padding arrays so adjacent threads hit different banks
 
-This keeps global memory traffic minimal while processing arbitrarily large arrays.
+**Conflict-prone — stride-2 access:**
+\`\`\`
+parallel {i} by [8] {
+  val = buf[i * 2];  // threads may collide on same banks
+}
+\`\`\`
 
-Tiling also helps when you need to accumulate results — each tile computes a partial result, which you merge at the end.
+**Conflict-free — consecutive access:**
+\`\`\`
+parallel {i} by [8] {
+  val = buf[i];  // thread i -> bank i mod 32
+}
+\`\`\`
 
-Try the example — it sums a 16-element array using 4-element tiles:`,
-      code: `__co__ void tiled_sum() {
-  int N = 16;
-  int TILE = 4;
-  global int data[16];
-  shared int tile[4];
+When you need strided patterns (matrix transpose, reductions), pad array dimensions or reorder data layout to keep threads on distinct banks.
 
-  // Initialize: data = [1, 2, 3, ..., 16]
-  parallel {i} by [16] {
-    data[i] = i + 1;
+Try the example — consecutive indexing avoids bank conflicts during the scale step.`,
+      code: `__co__ void avoid_bank_conflicts() {
+  global float data[8];
+  shared float buf[8];
+  global float scaled[8];
+
+  parallel {i} by [8] {
+    data[i] = (float)(i + 1);
   }
 
-  int total = 0;
+  dma(data[0:8], buf[0:8]);
 
-  // Process in tiles of 4
-  foreach t in [0:4] {
-    int offset = t * TILE;
-    dma(data[offset : offset + TILE], tile[0:4]);
-
-    foreach i in [0:4] {
-      total = total + tile[i];
-    }
+  // Consecutive index i -> no bank conflicts
+  parallel {i} by [8] {
+    scaled[i] = buf[i] * 3.0f;
   }
 
-  println("sum =", total);
-  println("expected = 136");
+  parallel {i} by [8] {
+    println("scaled[", i, "] =", scaled[i]);
+  }
 }
 `,
     },
     {
-      title: "Choosing the Right Parallelism",
-      content: `Not every operation benefits from parallelism. The overhead of launching threads makes parallel blocks worthwhile only when:
-- Each thread does meaningful work (not just a single add)
-- There's enough data to keep all threads busy
-- Threads don't need to communicate heavily
+      title: "Optimizing Parallel Thread Count Choices",
+      content: `The \`by [N]\` clause sets how many threads launch. Too few threads leave the GPU idle; too many threads doing trivial work add overhead without benefit.
 
-**Good use of parallel** — independent element-wise ops:
+Guidelines:
+- Match thread count to data size: \`parallel {i} by [N]\` when you have \`N\` independent elements
+- Use powers of 2 (4, 8, 16, 32) — they align well with warp sizes
+- For small arrays, a single parallel block is fine; for large arrays, tile into chunks
+
+**Good — one thread per element:**
 \`\`\`
-parallel {i} by [N] {
-  output[i] = input[i] * scale + bias;
+parallel {i} by [8] {
+  output[i] = input[i] * 2;
 }
 \`\`\`
 
-**Bad use of parallel** — sequential dependency:
+**Wasteful — more threads than work:**
 \`\`\`
-// DON'T: prefix sum needs previous results
-parallel {i} by [N] {
-  output[i] = output[i-1] + input[i];  // Race condition!
+parallel {i} by [64] {
+  if (i < 8) { output[i] = input[i] * 2; }
 }
 \`\`\`
 
-For sequential dependencies, use \`foreach\` instead.
-
-The example below demonstrates both: parallel for the independent scaling, sequential for the running sum.`,
-      code: `__co__ void choose_parallelism() {
+Try the example — 8 threads for 8 elements, each doing meaningful work.`,
+      code: `__co__ void thread_count() {
   int N = 8;
   global int data[8];
-  global int scaled[8];
+  global int output[8];
 
-  // Initialize
   parallel {i} by [8] {
     data[i] = i + 1;
   }
 
-  // Good: independent scaling — perfect for parallel
-  parallel {i} by [8] {
-    scaled[i] = data[i] * 3;
+  // One thread per element — no idle threads
+  parallel {i} by [N] {
+    output[i] = data[i] * data[i];
   }
 
-  // Good: prefix sum — must be sequential
-  int running = 0;
-  foreach i in [0:8] {
-    running = running + scaled[i];
-    println("prefix[" + i + "] =", running);
+  parallel {i} by [N] {
+    println("output[", i, "] =", output[i]);
   }
 }
 `,
