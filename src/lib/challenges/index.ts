@@ -12,6 +12,17 @@ export interface Challenge {
   starterCode: string;
   tests: TestCase[];
   hint?: string;
+  hints?: string[];
+}
+
+export function getChallengeHints(challenge: Challenge): string[] {
+  if (challenge.hints?.length) {
+    return challenge.hints.filter((h) => h.trim().length > 0);
+  }
+  if (challenge.hint?.trim()) {
+    return [challenge.hint];
+  }
+  return [];
 }
 
 import { challenge01 } from "./01-hello";
@@ -134,6 +145,16 @@ import { challenge117 } from "./117-matrix-identity-check";
 import { challenge118 } from "./118-parallel-power-of-two";
 import { challenge119 } from "./119-array-dedup-adjacent";
 import { challenge120 } from "./120-matrix-border-sum";
+import { challenge121 } from "./121-parallel-sign";
+import { challenge122 } from "./122-matrix-diagonal-sum";
+import { challenge123 } from "./123-array-rotate-right";
+import { challenge124 } from "./124-parallel-min-index";
+import { challenge125 } from "./125-matrix-flatten";
+import { challenge126 } from "./126-array-compact";
+import { challenge127 } from "./127-parallel-ceiling-division";
+import { challenge128 } from "./128-matrix-anti-diagonal";
+import { challenge129 } from "./129-array-zip-sum";
+import { challenge130 } from "./130-grand-convolution";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -167,4 +188,7 @@ export const CHALLENGES: Challenge[] = [
   challenge111, challenge112, challenge113, challenge114,
   challenge115, challenge116, challenge117, challenge118,
   challenge119, challenge120,
+  challenge121, challenge122, challenge123, challenge124,
+  challenge125, challenge126, challenge127, challenge128,
+  challenge129, challenge130,
 ];

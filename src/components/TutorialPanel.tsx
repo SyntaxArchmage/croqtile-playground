@@ -289,6 +289,39 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
       </div>
 
       <div className="flex-1 overflow-auto p-4">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex flex-wrap items-center gap-1 text-xs text-[var(--text-muted)] mb-3"
+          data-testid="tutorial-breadcrumb"
+        >
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedTutorial(null);
+              updateUrlParam("tutorial", null);
+            }}
+            className="text-[var(--accent)] hover:underline"
+          >
+            Tutorials
+          </button>
+          <span aria-hidden="true">&gt;</span>
+          <button
+            type="button"
+            onClick={() => {
+              setStepIndex(0);
+              onLoadCode(stepCode(selectedTutorial.steps, 0));
+              markTutorialStep(selectedTutorial.id, 0);
+              updateUrlParam("tutorial", selectedTutorial.id, 0);
+            }}
+            className="text-[var(--accent)] hover:underline"
+          >
+            {selectedTutorial.title}
+          </button>
+          <span aria-hidden="true">&gt;</span>
+          <span className="text-[var(--text-primary)]">
+            Step {stepIndex + 1}: {step.title}
+          </span>
+        </nav>
         <h2 className="text-base font-semibold text-[var(--text-primary)] mb-3">
           {step.title}
         </h2>

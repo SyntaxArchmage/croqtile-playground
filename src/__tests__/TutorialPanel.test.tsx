@@ -50,6 +50,31 @@ describe("TutorialPanel", () => {
     expect(screen.getByText("Next →")).toBeInTheDocument();
   });
 
+  it("renders breadcrumb on tutorial step view", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="ch01" />);
+    fireEvent.click(screen.getByText("Next →"));
+    const breadcrumb = screen.getByTestId("tutorial-breadcrumb");
+    expect(breadcrumb).toHaveTextContent("Tutorials");
+    expect(breadcrumb).toHaveTextContent("Hello Croqtile");
+    expect(breadcrumb).toHaveTextContent("Step 2: Printing output");
+  });
+
+  it("breadcrumb Tutorials link returns to list", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="ch01" />);
+    fireEvent.click(screen.getByTestId("tutorial-breadcrumb").querySelector("button")!);
+    expect(screen.getByRole("region", { name: "Tutorials" })).toBeInTheDocument();
+  });
+
+  it("breadcrumb tutorial title navigates to step 1", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} initialId="ch01" />);
+    fireEvent.click(screen.getByText("Next →"));
+    const breadcrumbButtons = screen.getByTestId("tutorial-breadcrumb").querySelectorAll("button");
+    fireEvent.click(breadcrumbButtons[1]);
+    expect(screen.getByTestId("tutorial-breadcrumb")).toHaveTextContent(
+      "Step 1: The __co__ keyword",
+    );
+  });
+
   it("navigates forward through steps", () => {
     const onLoadCode = jest.fn();
     render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} />);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { CHALLENGES, type Challenge } from "@/lib/challenges";
+import { CHALLENGES, getChallengeHints, type Challenge } from "@/lib/challenges";
 import { checkTests } from "@/lib/checkTests";
 import { isChallengePassed, markChallengePassed, getChallengeProgress, recordChallengeAttempt } from "@/lib/progress";
 import { ListSearchInput, matchesTitleSearch } from "@/components/ListSearchInput";
@@ -41,7 +41,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
     }
     return null;
   });
-  const [showHint, setShowHint] = useState(false);
+  const [revealedHintCount, setRevealedHintCount] = useState(0);
   const [progressRevision, setProgressRevision] = useState(0);
 
   const testResults = useMemo(
@@ -251,7 +251,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                     type="button"
                     onClick={() => {
                       setSelectedChallenge(c);
-                      setShowHint(false);
+                      setRevealedHintCount(0);
                       onLoadCode(c.starterCode);
                       updateUrlParam("challenge", c.id);
                     }}
@@ -393,31 +393,67 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
             challengeId={selectedChallenge.id}
             onNext={(next) => {
               setSelectedChallenge(next);
-              setShowHint(false);
+              setRevealedHintCount(0);
               onLoadCode(next.starterCode);
               updateUrlParam("challenge", next.id);
             }}
           />
         )}
 
-        {selectedChallenge.hint && (
-          <div className="mt-4">
-            {showHint ? (
-              <div className="p-2 rounded border border-[var(--border)] bg-[var(--bg-surface)] text-xs text-[var(--text-secondary)]">
-                {selectedChallenge.hint}
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowHint(true)}
-                className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)]"
-                aria-label="Show hint"
-              >
-                Show hint
-              </button>
-            )}
-          </div>
-        )}
+        {(() => {
+          const hints = getChallengeHints(selectedChallenge);
+          if (hints.length === 0) return null;
+          const currentHint = revealedHintCount > 0 ? hints[revealedHintCount - 1] : null;
+          const hasMoreHints = revealedHintCount < hints.length;
+          return (
+            <div className="mt-4" data-testid="hint-section">
+              {revealedHintCount === 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setRevealedHintCount(1)}
+                  className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)]"
+                  aria-label="Show hint"
+                >
+                  Show hint
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span
+                      className="text-[10px] text-[var(--text-muted)] tabular-nums"
+                      data-testid="hint-counter"
+                    >
+                      Hint {revealedHintCount} of {hints.length}
+                    </span>
+                    <span
+                      className="text-[10px] text-[var(--text-muted)]/70 tabular-nums"
+                      data-testid="hint-usage"
+                    >
+                      Used {revealedHintCount}/{hints.length} hints
+                    </span>
+                  </div>
+                  <div
+                    className="p-2 rounded border border-[var(--border)] bg-[var(--bg-surface)] text-xs text-[var(--text-secondary)]"
+                    data-testid="hint-content"
+                  >
+                    {currentHint}
+                  </div>
+                  {hasMoreHints && (
+                    <button
+                      type="button"
+                      onClick={() => setRevealedHintCount((n) => n + 1)}
+                      className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)]"
+                      aria-label="Show next hint"
+                      data-testid="next-hint-button"
+                    >
+                      Next Hint
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       <div className="flex items-center gap-2 px-4 py-3 border-t border-[var(--border)] bg-[var(--bg-secondary)]">

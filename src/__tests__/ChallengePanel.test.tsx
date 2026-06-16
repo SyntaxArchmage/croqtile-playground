@@ -161,6 +161,66 @@ describe("ChallengePanel", () => {
     fireEvent.click(screen.getByText("Hello Threads"));
     fireEvent.click(screen.getByText("Show hint"));
     expect(screen.queryByText("Show hint")).not.toBeInTheDocument();
+    expect(screen.getByTestId("hint-counter")).toHaveTextContent("Hint 1 of 1");
+    expect(screen.getByTestId("hint-usage")).toHaveTextContent("Used 1/1 hints");
+    expect(screen.getByTestId("hint-content")).toHaveTextContent(
+      CHALLENGES[0].hint!
+    );
+  });
+
+  it("reveals progressive hints one at a time", () => {
+    const originalHint = CHALLENGES[0].hint;
+    const originalHints = CHALLENGES[0].hints;
+    CHALLENGES[0].hints = ["First hint step", "Second hint step", "Third hint step"];
+    CHALLENGES[0].hint = undefined;
+    try {
+      render(
+        <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+      );
+      fireEvent.click(screen.getByText("Show hint"));
+      expect(screen.getByTestId("hint-counter")).toHaveTextContent("Hint 1 of 3");
+      expect(screen.getByTestId("hint-usage")).toHaveTextContent("Used 1/3 hints");
+      expect(screen.getByTestId("hint-content")).toHaveTextContent("First hint step");
+      expect(screen.getByTestId("next-hint-button")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId("next-hint-button"));
+      expect(screen.getByTestId("hint-counter")).toHaveTextContent("Hint 2 of 3");
+      expect(screen.getByTestId("hint-usage")).toHaveTextContent("Used 2/3 hints");
+      expect(screen.getByTestId("hint-content")).toHaveTextContent("Second hint step");
+
+      fireEvent.click(screen.getByTestId("next-hint-button"));
+      expect(screen.getByTestId("hint-counter")).toHaveTextContent("Hint 3 of 3");
+      expect(screen.getByTestId("hint-usage")).toHaveTextContent("Used 3/3 hints");
+      expect(screen.getByTestId("hint-content")).toHaveTextContent("Third hint step");
+      expect(screen.queryByTestId("next-hint-button")).not.toBeInTheDocument();
+    } finally {
+      CHALLENGES[0].hint = originalHint;
+      CHALLENGES[0].hints = originalHints;
+    }
+  });
+
+  it("resets hints when switching challenges", () => {
+    const originalHint = CHALLENGES[0].hint;
+    const originalHints = CHALLENGES[0].hints;
+    CHALLENGES[0].hints = ["Hint A", "Hint B"];
+    CHALLENGES[0].hint = undefined;
+    try {
+      render(
+        <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+      );
+      fireEvent.click(screen.getByText("Hello Threads"));
+      fireEvent.click(screen.getByText("Show hint"));
+      fireEvent.click(screen.getByTestId("next-hint-button"));
+      expect(screen.getByTestId("hint-content")).toHaveTextContent("Hint B");
+
+      fireEvent.click(screen.getByText("← Back"));
+      fireEvent.click(screen.getByText("DMA Reverse"));
+      expect(screen.getByText("Show hint")).toBeInTheDocument();
+      expect(screen.queryByTestId("hint-content")).not.toBeInTheDocument();
+    } finally {
+      CHALLENGES[0].hint = originalHint;
+      CHALLENGES[0].hints = originalHints;
+    }
   });
 
   it("resets code on Reset Code click", () => {
