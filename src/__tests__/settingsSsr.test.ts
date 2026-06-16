@@ -8,6 +8,7 @@ describe("settings SSR / no-window guards", () => {
   it("loadSettings returns defaults when window is undefined", () => {
     expect(loadSettings()).toEqual({
       fontSize: 14,
+      fontFamily: "JetBrains Mono, monospace",
       wordWrap: false,
       minimap: false,
       tabSize: 2,

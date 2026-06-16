@@ -31,5 +31,6 @@ import { ch16 } from "./ch16-real-world";
 import { ch17 } from "./ch17-rotate";
 import { ch18 } from "./ch18-error-handling";
 import { ch19 } from "./ch19-multi-dim";
+import { ch20 } from "./ch20-dma-patterns";
 
-export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14, ch15, ch16, ch17, ch18, ch19];
+export const TUTORIALS: Tutorial[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07, ch08, ch09, ch10, ch11, ch12, ch13, ch14, ch15, ch16, ch17, ch18, ch19, ch20];

@@ -35,6 +35,16 @@ describe("Editor", () => {
     expect(screen.getByTestId("monaco-mock").textContent).toBe("hello");
   });
 
+  it("passes fontFamily to options", () => {
+    render(<Editor value="" onChange={jest.fn()} fontFamily="Fira Code, monospace" />);
+    expect(capturedOptions?.fontFamily).toBe("Fira Code, monospace");
+  });
+
+  it("defaults fontFamily to JetBrains Mono", () => {
+    render(<Editor value="" onChange={jest.fn()} />);
+    expect(capturedOptions?.fontFamily).toBe("JetBrains Mono, monospace");
+  });
+
   it("passes fontSize and wordWrap to options", () => {
     render(<Editor value="" onChange={jest.fn()} fontSize={18} wordWrap={false} />);
     expect(capturedOptions?.fontSize).toBe(18);

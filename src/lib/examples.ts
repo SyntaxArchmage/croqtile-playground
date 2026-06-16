@@ -498,4 +498,78 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "array-reduction",
+    name: "Array Reduction",
+    code: `__co__ void array_reduction() {
+  global float data[16];
+  global float partial[4];
+
+  parallel {i} by [16] {
+    data[i] = (float)(i + 1);
+  }
+
+  // Each block reduces a 4-element chunk via foreach
+  parallel {block} by [4] {
+    float chunk_sum = 0.0f;
+    foreach i in [block*4 : block*4+4] {
+      chunk_sum = chunk_sum + data[i];
+    }
+    partial[block] = chunk_sum;
+  }
+
+  // Final foreach combines partial results
+  float total = 0.0f;
+  foreach i in [0:4] {
+    total = total + partial[i];
+  }
+
+  println("sum of 1..16 =", total);
+}
+`,
+  },
+  {
+    id: "pipeline-processing",
+    name: "Pipeline Processing",
+    code: `__co__ void pipeline_processing() {
+  global float raw[8];
+  global float normalized[8];
+  global float scaled[8];
+  global float final[8];
+  shared float buf[4];
+
+  parallel {i} by [8] {
+    raw[i] = (float)((i + 1) * 10);
+  }
+
+  // Stage 1: normalize — DMA load, compute, store
+  foreach t in [0:2] {
+    dma(raw[t*4 : t*4+4], buf[0:4]);
+    parallel {i} by [4] {
+      normalized[t*4 + i] = buf[i] / 80.0f;
+    }
+  }
+
+  // Stage 2: scale — DMA from stage 1 output
+  foreach t in [0:2] {
+    dma(normalized[t*4 : t*4+4], buf[0:4]);
+    parallel {i} by [4] {
+      scaled[t*4 + i] = buf[i] * 100.0f;
+    }
+  }
+
+  // Stage 3: finalize — DMA from stage 2 output
+  foreach t in [0:2] {
+    dma(scaled[t*4 : t*4+4], buf[0:4]);
+    parallel {i} by [4] {
+      final[t*4 + i] = buf[i] + 1.0f;
+    }
+  }
+
+  parallel {i} by [8] {
+    println("final[", i, "] =", final[i]);
+  }
+}
+`,
+  },
 ];

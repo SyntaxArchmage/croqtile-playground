@@ -10,6 +10,7 @@ describe("settings", () => {
   it("returns defaults when nothing stored", () => {
     const s = loadSettings();
     expect(s.fontSize).toBe(14);
+    expect(s.fontFamily).toBe("JetBrains Mono, monospace");
     expect(s.wordWrap).toBe(false);
     expect(s.minimap).toBe(false);
     expect(s.tabSize).toBe(2);
@@ -19,9 +20,10 @@ describe("settings", () => {
   });
 
   it("saves and loads settings", () => {
-    saveSettings({ fontSize: 18, wordWrap: false, minimap: true, tabSize: 4, lastTarget: "cute", theme: "light", outputLineNumbers: true });
+    saveSettings({ fontSize: 18, fontFamily: "Fira Code, monospace", wordWrap: false, minimap: true, tabSize: 4, lastTarget: "cute", theme: "light", outputLineNumbers: true });
     const s = loadSettings();
     expect(s.fontSize).toBe(18);
+    expect(s.fontFamily).toBe("Fira Code, monospace");
     expect(s.wordWrap).toBe(false);
     expect(s.minimap).toBe(true);
     expect(s.tabSize).toBe(4);
@@ -76,10 +78,10 @@ describe("settings", () => {
 
   describe("persistence and validation edge cases", () => {
     it("saveSettings persists changes that loadSettings reads back from localStorage", () => {
-      saveSettings({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false });
+      saveSettings({ fontSize: 20, fontFamily: "JetBrains Mono, monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false });
       const raw = localStorage.getItem(STORAGE_KEY);
-      expect(raw).toBe(JSON.stringify({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false }));
-      expect(loadSettings()).toEqual({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false });
+      expect(raw).toBe(JSON.stringify({ fontSize: 20, fontFamily: "JetBrains Mono, monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false }));
+      expect(loadSettings()).toEqual({ fontSize: 20, fontFamily: "JetBrains Mono, monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false });
     });
 
     it("invalid lastTarget in localStorage defaults to cc", () => {
@@ -116,6 +118,11 @@ describe("settings", () => {
       });
       expect(() => saveSettings({ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "dark", outputLineNumbers: false })).not.toThrow();
       (Storage.prototype.setItem as jest.Mock).mockRestore();
+    });
+
+    it("handles invalid fontFamily gracefully", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 14, fontFamily: "Comic Sans", wordWrap: true }));
+      expect(loadSettings().fontFamily).toBe("JetBrains Mono, monospace");
     });
 
     it("handles invalid theme gracefully", () => {

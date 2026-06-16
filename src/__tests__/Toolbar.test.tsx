@@ -17,7 +17,7 @@ const defaultProps = {
   onTogglePanel: jest.fn(),
   panelMode: "closed" as const,
   status: "ready" as const,
-  settings: { fontSize: 14, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const },
+  settings: { fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const },
   onSettingsChange: jest.fn(),
 };
 
@@ -249,72 +249,87 @@ describe("Toolbar", () => {
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByLabelText("Increase font size"));
-    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 15, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const });
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 15, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const });
   });
 
   it("decreases font size via settings menu", () => {
-    render(<Toolbar {...defaultProps} settings={{ fontSize: 16, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 16, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByLabelText("Decrease font size"));
-    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 15, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const });
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 15, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const });
   });
 
   it("increases tab size via settings menu", () => {
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByLabelText("Increase tab size"));
-    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 14, wordWrap: true, minimap: false, tabSize: 3, lastTarget: "cc", theme: "dark" as const });
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 3, lastTarget: "cc", theme: "dark" as const });
   });
 
   it("decreases tab size via settings menu", () => {
-    render(<Toolbar {...defaultProps} settings={{ fontSize: 14, wordWrap: true, minimap: false, tabSize: 4, lastTarget: "cc", theme: "dark" as const }} />);
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 4, lastTarget: "cc", theme: "dark" as const }} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByLabelText("Decrease tab size"));
-    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 14, wordWrap: true, minimap: false, tabSize: 3, lastTarget: "cc", theme: "dark" as const });
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 3, lastTarget: "cc", theme: "dark" as const });
   });
 
   it("toggles word wrap via settings menu", () => {
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByLabelText("Toggle word wrap"));
-    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 14, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const });
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const });
   });
 
   it("toggles minimap via settings menu", () => {
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByLabelText("Toggle minimap"));
-    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 14, wordWrap: true, minimap: true, tabSize: 2, lastTarget: "cc", theme: "dark" as const });
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: true, tabSize: 2, lastTarget: "cc", theme: "dark" as const });
+  });
+
+  it("changes font family via settings menu", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.change(screen.getByLabelText("Editor font family"), { target: { value: "Fira Code, monospace" } });
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({
+      fontSize: 14,
+      fontFamily: "Fira Code, monospace",
+      wordWrap: true,
+      minimap: false,
+      tabSize: 2,
+      lastTarget: "cc",
+      theme: "dark",
+    });
   });
 
   it("toggles light theme via settings menu", () => {
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByLabelText("Toggle light theme"));
-    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 14, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "light" });
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "light" });
   });
 
   it("disables font decrease at minimum size", () => {
-    render(<Toolbar {...defaultProps} settings={{ fontSize: 10, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 10, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     expect(screen.getByLabelText("Decrease font size")).toBeDisabled();
   });
 
   it("does not decrease font size below minimum", () => {
-    render(<Toolbar {...defaultProps} settings={{ fontSize: 10, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 10, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByLabelText("Decrease font size"));
     expect(defaultProps.onSettingsChange).not.toHaveBeenCalled();
   });
 
   it("disables font increase at maximum size", () => {
-    render(<Toolbar {...defaultProps} settings={{ fontSize: 24, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 24, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     expect(screen.getByLabelText("Increase font size")).toBeDisabled();
   });
 
   it("does not increase font size above maximum", () => {
-    render(<Toolbar {...defaultProps} settings={{ fontSize: 24, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 24, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByLabelText("Increase font size"));
     expect(defaultProps.onSettingsChange).not.toHaveBeenCalled();
@@ -668,7 +683,7 @@ describe("Toolbar", () => {
   });
 
   it("does not call onSettingsChange when decrease clicked at minimum font size", () => {
-    render(<Toolbar {...defaultProps} settings={{ fontSize: 10, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 10, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     const decBtn = screen.getByLabelText("Decrease font size") as HTMLElement & Record<string, unknown>;
     const propsKey = Object.keys(decBtn).find((k) => k.startsWith("__reactProps"));
@@ -680,7 +695,7 @@ describe("Toolbar", () => {
   });
 
   it("does not call onSettingsChange when increase clicked at maximum font size", () => {
-    render(<Toolbar {...defaultProps} settings={{ fontSize: 24, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
+    render(<Toolbar {...defaultProps} settings={{ fontSize: 24, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }} />);
     fireEvent.click(screen.getByLabelText("Settings menu"));
     const incBtn = screen.getByLabelText("Increase font size") as HTMLElement & Record<string, unknown>;
     const propsKey = Object.keys(incBtn).find((k) => k.startsWith("__reactProps"));
@@ -812,7 +827,7 @@ describe("Toolbar", () => {
     render(
       <Toolbar
         {...defaultProps}
-        settings={{ fontSize: 14, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }}
+        settings={{ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const }}
       />,
     );
     fireEvent.click(screen.getByLabelText("Settings menu"));
@@ -830,7 +845,7 @@ describe("Toolbar", () => {
     render(
       <Toolbar
         {...defaultProps}
-        settings={{ fontSize: 14, wordWrap: true, minimap: false, tabSize: 8, lastTarget: "cc", theme: "dark" as const }}
+        settings={{ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 8, lastTarget: "cc", theme: "dark" as const }}
       />,
     );
     fireEvent.click(screen.getByLabelText("Settings menu"));
@@ -848,13 +863,14 @@ describe("Toolbar", () => {
     render(
       <Toolbar
         {...defaultProps}
-        settings={{ fontSize: 14, wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "light" }}
+        settings={{ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "light" }}
       />,
     );
     fireEvent.click(screen.getByLabelText("Settings menu"));
     fireEvent.click(screen.getByLabelText("Toggle light theme"));
     expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({
       fontSize: 14,
+      fontFamily: "JetBrains Mono, monospace",
       wordWrap: true,
       minimap: false,
       tabSize: 2,

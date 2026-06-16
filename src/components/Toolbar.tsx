@@ -9,6 +9,7 @@ import { TUTORIALS } from "@/lib/tutorials";
 import { CHALLENGES } from "@/lib/challenges";
 import { getTutorialProgress, isChallengePassed, resetProgress } from "@/lib/progress";
 import type { EditorSettings } from "@/lib/settings";
+import { FONT_FAMILY_OPTIONS } from "@/lib/settings";
 import {
   downloadCoSource,
   isAllowedOpenExtension,
@@ -444,6 +445,23 @@ export const Toolbar = memo(function Toolbar({
                   +
                 </button>
               </div>
+            </div>
+            <div role="none" className="px-3 py-2">
+              <label className="flex flex-col gap-1">
+                <span className="text-xs text-[var(--text-secondary)]">Font family</span>
+                <select
+                  value={settings.fontFamily}
+                  onChange={(e) => onSettingsChange({ ...settings, fontFamily: e.target.value })}
+                  className="w-full min-h-8 px-2 text-xs rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)]"
+                  aria-label="Editor font family"
+                >
+                  {FONT_FAMILY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
             <div role="none" className="px-3 py-2 flex items-center justify-between">
               <span className="text-xs text-[var(--text-secondary)]">Tab size</span>

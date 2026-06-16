@@ -671,4 +671,160 @@ describe("OutputPanel", () => {
 
     getElementByIdSpy.mockRestore();
   });
+
+  it("copies AST tab content when AST tab is active", () => {
+    render(<OutputPanel output="out" errors="err" ast="(program (func main))" />);
+    fireEvent.click(screen.getByRole("tab", { name: /AST/ }));
+    fireEvent.click(screen.getByText("Copy"));
+    expect(writeText).toHaveBeenCalledWith("(program (func main))");
+  });
+
+  it("shows line numbers on AST tab when enabled", () => {
+    localStorage.setItem(
+      "croqtile-playground-settings",
+      JSON.stringify({ outputLineNumbers: true }),
+    );
+    render(<OutputPanel output="" errors="" ast={"node one\nnode two"} />);
+    fireEvent.click(screen.getByRole("tab", { name: /AST/ }));
+    const pre = screen.getByRole("tabpanel").querySelector("pre");
+    expect(pre?.textContent).toBe("1: node one\n2: node two");
+  });
+
+  it("preserves line numbers when switching tabs", () => {
+    localStorage.setItem(
+      "croqtile-playground-settings",
+      JSON.stringify({ outputLineNumbers: true }),
+    );
+    render(
+      <OutputPanel
+        output={"out line\nsecond"}
+        errors={"err line\nsecond err"}
+        ast={"ast line\nsecond ast"}
+      />,
+    );
+
+    const tabpanel = screen.getByRole("tabpanel");
+    expect(tabpanel).toHaveTextContent("1: out line");
+    expect(tabpanel).toHaveTextContent("2: second");
+
+    fireEvent.click(screen.getByRole("tab", { name: /Errors/ }));
+    expect(tabpanel).toHaveTextContent("1: err line");
+    expect(tabpanel).toHaveTextContent("2: second err");
+
+    fireEvent.click(screen.getByRole("tab", { name: /AST/ }));
+    expect(tabpanel).toHaveTextContent("1: ast line");
+    expect(tabpanel).toHaveTextContent("2: second ast");
+
+    fireEvent.click(screen.getByRole("tab", { name: /Output/ }));
+    expect(tabpanel).toHaveTextContent("1: out line");
+  });
+
+  it("toggles word wrap on AST tab content", () => {
+    render(<OutputPanel output="" errors="" ast="long ast line content" />);
+    fireEvent.click(screen.getByRole("tab", { name: /AST/ }));
+    const pre = screen.getByRole("tabpanel").querySelector("pre");
+    expect(pre).toHaveClass("whitespace-pre-wrap");
+
+    fireEvent.click(screen.getByLabelText("Toggle word wrap"));
+    expect(pre).toHaveClass("whitespace-pre");
+    expect(pre).not.toHaveClass("whitespace-pre-wrap");
+  });
+
+  it("does not apply word-wrap classes to errors tab rendering", () => {
+    render(<OutputPanel output="" errors="long error line content" />);
+    fireEvent.click(screen.getByRole("tab", { name: /Errors/ }));
+    expect(screen.getByRole("tabpanel").querySelector("pre")).toBeNull();
+    expect(screen.getByRole("tabpanel").querySelector(".font-mono")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Toggle word wrap"));
+    expect(screen.getByRole("tabpanel").querySelector("pre")).toBeNull();
+  });
+
+  it("highlights error lines with path:line:col pattern", () => {
+    const errorText = "main.cqt:42: undefined symbol\nall good";
+    const { container, rerender } = render(<OutputPanel output="" errors="" />);
+    rerender(<OutputPanel output="" errors={errorText} />);
+    const highlighted = container.querySelectorAll(".error-line-highlight");
+    expect(highlighted).toHaveLength(1);
+    expect(highlighted[0]).toHaveTextContent("main.cqt:42: undefined symbol");
+  });
+
+  it("shows line numbers on highlighted error lines when enabled", () => {
+    localStorage.setItem(
+      "croqtile-playground-settings",
+      JSON.stringify({ outputLineNumbers: true }),
+    );
+    const errorText = "line 5: bad\nok";
+    const { container, rerender } = render(<OutputPanel output="" errors="" />);
+    rerender(<OutputPanel output="" errors={errorText} />);
+    const highlighted = container.querySelectorAll(".error-line-highlight");
+    expect(highlighted).toHaveLength(1);
+    expect(highlighted[0]).toHaveTextContent("1: line 5: bad");
+    expect(screen.getByRole("tabpanel")).toHaveTextContent("2: ok");
+  });
+
+  it("clamps keyboard resize to min and max bounds", () => {
+    render(<OutputPanel output="data" errors="" />);
+    const sep = screen.getByRole("separator");
+
+    for (let i = 0; i < 20; i++) {
+      fireEvent.keyDown(sep, { key: "ArrowDown" });
+    }
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(15);
+
+    for (let i = 0; i < 30; i++) {
+      fireEvent.keyDown(sep, { key: "ArrowUp" });
+    }
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(65);
+  });
+
+  it("ignores touchmove with empty touches during touch resize", () => {
+    render(<OutputPanel output="data" errors="" />);
+    const sep = screen.getByRole("separator");
+    const initialVal = Number(sep.getAttribute("aria-valuenow"));
+
+    fireEvent.touchStart(sep);
+    act(() => {
+      document.dispatchEvent(new TouchEvent("touchmove", { touches: [] }));
+    });
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(initialVal);
+
+    act(() => {
+      document.dispatchEvent(new TouchEvent("touchend"));
+    });
+  });
+
+  it("auto-scroll no-ops when tabpanel node is detached before content update", () => {
+    const { rerender } = render(<OutputPanel output="" errors="" />);
+    screen.getByRole("tabpanel").remove();
+    expect(() => {
+      rerender(<OutputPanel output="line one\nline two" errors="" />);
+    }).not.toThrow();
+  });
+
+  it("updates copy button aria-label after successful copy", () => {
+    render(<OutputPanel output="data" errors="" />);
+    const copyBtn = screen.getByLabelText("Copy output to clipboard");
+    fireEvent.click(copyBtn);
+    expect(screen.getByLabelText("Copied to clipboard")).toBeInTheDocument();
+    expect(copyBtn).toHaveAttribute("title", "Copied!");
+  });
+
+  it("persists line numbers off when toggled from loaded true setting", () => {
+    localStorage.setItem(
+      "croqtile-playground-settings",
+      JSON.stringify({ outputLineNumbers: true }),
+    );
+    render(<OutputPanel output={"A\nB"} errors="" />);
+    fireEvent.click(screen.getByLabelText("Toggle line numbers"));
+    expect(JSON.parse(localStorage.getItem("croqtile-playground-settings")!).outputLineNumbers).toBe(false);
+  });
+
+  it("shows clear button on empty active tab when other tabs have content", () => {
+    const onClear = jest.fn();
+    render(<OutputPanel output="data" errors="err" ast="tree" onClear={onClear} />);
+    fireEvent.click(screen.getByRole("tab", { name: /Errors/ }));
+    fireEvent.click(screen.getByText("Clear"));
+    expect(onClear).toHaveBeenCalledTimes(1);
+  });
 });

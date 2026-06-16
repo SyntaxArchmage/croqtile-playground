@@ -2,8 +2,18 @@ const STORAGE_KEY = "croqtile-playground-settings";
 
 export type Theme = "dark" | "light";
 
+export const FONT_FAMILY_OPTIONS = [
+  { label: "JetBrains Mono", value: "JetBrains Mono, monospace" },
+  { label: "Fira Code", value: "Fira Code, monospace" },
+  { label: "Source Code Pro", value: "Source Code Pro, monospace" },
+  { label: "monospace", value: "monospace" },
+] as const;
+
+const ALLOWED_FONT_FAMILIES = new Set<string>(FONT_FAMILY_OPTIONS.map((o) => o.value));
+
 export interface EditorSettings {
   fontSize: number;
+  fontFamily: string;
   wordWrap: boolean;
   minimap: boolean;
   tabSize: number;
@@ -14,6 +24,7 @@ export interface EditorSettings {
 
 const DEFAULT_SETTINGS: EditorSettings = {
   fontSize: 14,
+  fontFamily: "JetBrains Mono, monospace",
   wordWrap: false,
   minimap: false,
   tabSize: 2,
@@ -49,7 +60,10 @@ export function loadSettings(): EditorSettings {
     const outputLineNumbers = typeof parsed.outputLineNumbers === "boolean"
       ? parsed.outputLineNumbers
       : def.outputLineNumbers;
-    return { fontSize, wordWrap, minimap, tabSize, lastTarget, theme, outputLineNumbers };
+    const fontFamily = typeof parsed.fontFamily === "string" && ALLOWED_FONT_FAMILIES.has(parsed.fontFamily)
+      ? parsed.fontFamily
+      : def.fontFamily;
+    return { fontSize, fontFamily, wordWrap, minimap, tabSize, lastTarget, theme, outputLineNumbers };
   } catch {
     return getDefault();
   }

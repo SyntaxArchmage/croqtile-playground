@@ -453,6 +453,7 @@ export function Playground() {
             onCursorChange={setCursorPos}
             onSelectionChange={setSelection}
             fontSize={settings.fontSize}
+            fontFamily={settings.fontFamily}
             wordWrap={settings.wordWrap}
             minimap={settings.minimap}
             tabSize={settings.tabSize}
