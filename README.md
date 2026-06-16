@@ -8,15 +8,18 @@ Browser-based IDE for writing, compiling, and running Croqtile code. No installa
 - **Mock Interpreter** — instant in-browser execution via WASM
 - **Compiler Output** — view generated C++ or CUDA source
 - **AST Dump** — inspect the abstract syntax tree
-- **Tutorials** — 9 guided lessons (ch01–ch09) with inline "Try it" code blocks
-- **Challenges** — 15 coding problems with auto-verification and progress badges
+- **Tutorials** — 45 guided lessons with inline "Try it" code blocks
+- **Challenges** — 160 coding problems with auto-verification and progress badges
+- **Examples** — 50 built-in example programs
 - **URL Sharing** — share code via URL hash (Ctrl+S)
 - **Deep Linking** — `?tutorial=ch01&step=2` or `?challenge=c04`
-- **Progress Tracking** — localStorage-based tutorial/challenge progress
+- **Progress Tracking** — localStorage-based tutorial/challenge progress with export/import
+- **Command Palette** — Ctrl+P / Ctrl+K for quick access to all actions
 - **Keyboard Shortcuts** — Ctrl+Enter (Run), Ctrl+Shift+Enter (Compile), Ctrl+S (Share)
 - **Responsive** — stacked layout on mobile with touch-resizable panels
-- **Accessibility** — ARIA labels, semantic HTML
+- **Accessibility** — ARIA labels, keyboard navigation, focus traps, screen reader announcements
 - **Error Boundary** — graceful crash recovery
+- **Light/Dark Theme** — system-aware with manual toggle
 
 ## Architecture
 
@@ -56,9 +59,9 @@ src/
   app/              # Next.js pages and layout
   components/       # React components (Playground, Editor, Toolbar, etc.)
   lib/              # Hooks, utilities, content data
-    challenges/     # 15 coding challenges
-    tutorials/      # 9 tutorial chapters (ch01–ch09)
-    examples.ts     # 10 example programs
+    challenges/     # 160 coding challenges
+    tutorials/      # 45 tutorial chapters
+    examples.ts     # 50 example programs
     types.ts        # Shared TypeScript types
     parseContent.ts # Tutorial content parser (Try-it blocks)
     progress.ts     # localStorage progress tracking
