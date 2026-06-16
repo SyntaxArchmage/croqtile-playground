@@ -13,6 +13,7 @@ interface Props {
   lineCount?: number;
   selection?: SelectionInfo | null;
   elapsedMs?: number | null;
+  hasUnsavedChanges?: boolean;
 }
 
 function formatElapsedMs(ms: number): string {
@@ -27,7 +28,7 @@ const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
   error: { label: "Error", color: "text-[var(--error)]" },
 };
 
-export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount, selection, elapsedMs }: Props) {
+export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount, selection, elapsedMs, hasUnsavedChanges }: Props) {
   const { label, color } = statusConfig[status];
   const statusLabel = status === "ready" && elapsedMs != null ? `${label} • ${formatElapsedMs(elapsedMs)}` : label;
   const version = compilerVersion ?? buildManifest?.version ?? null;
@@ -39,6 +40,15 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
         <span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />
         {statusLabel}
       </span>
+      {hasUnsavedChanges && (
+        <>
+          <span className="text-[var(--border)]">|</span>
+          <span className="flex items-center gap-1 text-amber-500" aria-label="Unsaved changes">
+            <span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />
+            Unsaved
+          </span>
+        </>
+      )}
       <span className="text-[var(--border)]">|</span>
       <span>
         Croqtile {version ?? "—"}

@@ -1,5 +1,6 @@
+import { SOURCE_STORAGE_KEY, loadSavedSource, saveSource } from "./sourceStorage";
+
 const STORAGE_KEY = "croqtile-playground-progress";
-const LAST_SOURCE_KEY = "croqtile-playground-last-source";
 
 export interface ChallengeProgress {
   status: "not_started" | "attempted" | "passed";
@@ -126,26 +127,16 @@ export function resetProgress(): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(LAST_SOURCE_KEY);
+    localStorage.removeItem(SOURCE_STORAGE_KEY);
   } catch {
     // noop
   }
 }
 
 export function saveLastSource(source: string): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(LAST_SOURCE_KEY, source);
-  } catch {
-    // noop
-  }
+  saveSource(source);
 }
 
 export function loadLastSource(): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    return localStorage.getItem(LAST_SOURCE_KEY);
-  } catch {
-    return null;
-  }
+  return loadSavedSource();
 }

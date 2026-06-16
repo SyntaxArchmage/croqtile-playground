@@ -30,8 +30,6 @@ jest.mock("@/lib/useChoreoWorker", () => ({
 }));
 
 jest.mock("@/lib/progress", () => ({
-  loadLastSource: (...args: unknown[]) => mockLoadLastSource(...args),
-  saveLastSource: jest.fn(),
   getTutorialProgress: () => -1,
   markTutorialStep: () => {},
   isChallengePassed: () => false,
@@ -39,6 +37,11 @@ jest.mock("@/lib/progress", () => ({
   getChallengeProgress: () => ({ status: "not_started", attempts: 0 }),
   recordChallengeAttempt: jest.fn(),
   resetProgress: jest.fn(),
+}));
+
+jest.mock("@/lib/sourceStorage", () => ({
+  saveSource: jest.fn(),
+  loadSavedSource: (...args: unknown[]) => mockLoadLastSource(...args),
 }));
 
 jest.mock("@/lib/settings", () => ({
@@ -602,17 +605,17 @@ describe("Playground", () => {
   });
 
   describe("source persistence", () => {
-    it("schedules saveLastSource after source changes", () => {
+    it("schedules saveSource after source changes", () => {
       jest.useFakeTimers();
       renderPlayground();
       fireEvent.change(screen.getByTestId("code-editor"), {
         target: { value: "__co__ void edited() {}" },
       });
       act(() => {
-        jest.advanceTimersByTime(1000);
+        jest.advanceTimersByTime(5000);
       });
-      const { saveLastSource } = jest.requireMock("@/lib/progress");
-      expect(saveLastSource).toHaveBeenCalledWith("__co__ void edited() {}");
+      const { saveSource } = jest.requireMock("@/lib/sourceStorage");
+      expect(saveSource).toHaveBeenCalledWith("__co__ void edited() {}");
       jest.useRealTimers();
     });
   });

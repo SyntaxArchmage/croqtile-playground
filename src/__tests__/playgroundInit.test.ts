@@ -9,14 +9,14 @@ import {
   getDeepLinkId,
 } from "@/lib/playgroundInit";
 
-const mockLoadLastSource = jest.fn(() => null);
-jest.mock("@/lib/progress", () => ({
-  loadLastSource: (...args: unknown[]) => mockLoadLastSource(...args),
+const mockLoadSavedSource = jest.fn(() => null);
+jest.mock("@/lib/sourceStorage", () => ({
+  loadSavedSource: (...args: unknown[]) => mockLoadSavedSource(...args),
 }));
 
 describe("playgroundInit", () => {
   beforeEach(() => {
-    mockLoadLastSource.mockReturnValue(null);
+    mockLoadSavedSource.mockReturnValue(null);
   });
 
   describe("readInitialSource", () => {

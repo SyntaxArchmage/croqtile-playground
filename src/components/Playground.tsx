@@ -11,7 +11,7 @@ import { ResizableSplit } from "./ResizableSplit";
 import { useChoreoWorker } from "@/lib/useChoreoWorker";
 import { EXAMPLES } from "@/lib/examples";
 import type { PanelMode } from "@/lib/types";
-import { saveLastSource } from "@/lib/progress";
+import { saveSource } from "@/lib/sourceStorage";
 import { loadSettings, saveSettings, type EditorSettings } from "@/lib/settings";
 import type { CursorPosition, SelectionInfo } from "./Editor";
 import { encodeCode } from "@/lib/urlCodec";
@@ -54,6 +54,7 @@ export function Playground() {
   const initialPanelMode = useSyncExternalStore(noop, readInitialPanelMode, () => "closed" as PanelMode);
 
   const [source, setSource] = useState(initialSource);
+  const [lastSavedSource, setLastSavedSource] = useState(initialSource);
   const [target, setTarget] = useState(() => loadSettings().lastTarget);
   const [panelMode, setPanelMode] = useState(initialPanelMode);
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -78,6 +79,7 @@ export function Playground() {
   if (initialSource !== prevInitSource) {
     setPrevInitSource(initialSource);
     setSource(initialSource);
+    setLastSavedSource(initialSource);
   }
   if (initialPanelMode !== prevInitPanel) {
     setPrevInitPanel(initialPanelMode);
@@ -95,7 +97,10 @@ export function Playground() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    const timer = setTimeout(() => saveLastSource(source), 1000);
+    const timer = setTimeout(() => {
+      saveSource(source);
+      setLastSavedSource(source);
+    }, 5000);
     return () => clearTimeout(timer);
   }, [source]);
 
@@ -472,6 +477,7 @@ export function Playground() {
         lineCount={lineCount}
         selection={selection}
         elapsedMs={elapsedMs}
+        hasUnsavedChanges={source !== lastSavedSource}
       />
     </div>
   );

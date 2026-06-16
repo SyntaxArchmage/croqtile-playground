@@ -116,4 +116,15 @@ describe("StatusBar", () => {
     expect(screen.getByText("Ready")).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/Ready •/);
   });
+
+  it("shows unsaved indicator when hasUnsavedChanges is true", () => {
+    render(<StatusBar status="ready" hasUnsavedChanges />);
+    expect(screen.getByLabelText("Unsaved changes")).toBeInTheDocument();
+    expect(screen.getByText("Unsaved")).toBeInTheDocument();
+  });
+
+  it("hides unsaved indicator when hasUnsavedChanges is false", () => {
+    render(<StatusBar status="ready" hasUnsavedChanges={false} />);
+    expect(screen.queryByLabelText("Unsaved changes")).not.toBeInTheDocument();
+  });
 });

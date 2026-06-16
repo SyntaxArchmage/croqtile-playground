@@ -1,5 +1,5 @@
 import { EXAMPLES } from "@/lib/examples";
-import { loadLastSource } from "@/lib/progress";
+import { loadSavedSource } from "@/lib/sourceStorage";
 import type { PanelMode } from "@/lib/types";
 import { decodeCode } from "@/lib/urlCodec";
 
@@ -8,7 +8,7 @@ export function readInitialSource(): string {
     return decodeCode(window.location.hash.slice(1));
   }
   if (typeof window !== "undefined") {
-    const saved = loadLastSource();
+    const saved = loadSavedSource();
     if (saved) return saved;
   }
   return EXAMPLES[0].code;
