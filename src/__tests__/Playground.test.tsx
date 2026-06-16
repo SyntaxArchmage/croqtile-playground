@@ -67,6 +67,8 @@ let mockEditorProvidesRef = true;
 let mockOmitToolbarOpenFileRef = false;
 const mockEditorUndo = jest.fn();
 const mockEditorRedo = jest.fn();
+const mockEditorFind = jest.fn();
+const mockEditorReplace = jest.fn();
 jest.mock("@/components/Toolbar", () => {
   const React = require("react") as typeof import("react");
   const actual = jest.requireActual<typeof import("@/components/Toolbar")>("@/components/Toolbar");
@@ -83,15 +85,17 @@ jest.mock("@/components/Toolbar", () => {
 });
 jest.mock("@/components/Editor", () => ({
   Editor: React.forwardRef<
-    { getValue: () => string; undo: () => void; redo: () => void },
+    { getValue: () => string; undo: () => void; redo: () => void; find: () => void; replace: () => void },
     { value: string; onChange: (value: string) => void; fontSize?: number; wordWrap?: boolean }
   >(function MockEditor({ value, onChange, fontSize, wordWrap }, ref) {
     React.useImperativeHandle(ref, () => {
-      if (!mockEditorProvidesRef) return null as unknown as { getValue: () => string; undo: () => void; redo: () => void };
+      if (!mockEditorProvidesRef) return null as unknown as { getValue: () => string; undo: () => void; redo: () => void; find: () => void; replace: () => void };
       return {
         getValue: () => value,
         undo: mockEditorUndo,
         redo: mockEditorRedo,
+        find: mockEditorFind,
+        replace: mockEditorReplace,
       };
     });
     return (
@@ -840,6 +844,8 @@ describe("Playground", () => {
     expect(screen.getByText("Share link")).toBeInTheDocument();
     expect(screen.getByText("Undo")).toBeInTheDocument();
     expect(screen.getByText("Redo")).toBeInTheDocument();
+    expect(screen.getByText("Find in editor")).toBeInTheDocument();
+    expect(screen.getByText("Find and replace")).toBeInTheDocument();
   });
 
   it("traps focus within shortcuts dialog on Tab", () => {
@@ -955,12 +961,33 @@ describe("Playground", () => {
       expect(mockEditorRedo).toHaveBeenCalledTimes(1);
     });
 
+    it("finds via palette command", () => {
+      renderPlayground();
+      runPaletteCommand("Find");
+      expect(mockEditorFind).toHaveBeenCalledTimes(1);
+    });
+
+    it("replaces via palette command", () => {
+      renderPlayground();
+      runPaletteCommand("Replace");
+      expect(mockEditorReplace).toHaveBeenCalledTimes(1);
+    });
+
     it("undo and redo palette commands tolerate missing editor ref", () => {
       mockEditorProvidesRef = false;
       renderPlayground();
       expect(() => {
         runPaletteCommand("Undo");
         runPaletteCommand("Redo");
+      }).not.toThrow();
+    });
+
+    it("find and replace palette commands tolerate missing editor ref", () => {
+      mockEditorProvidesRef = false;
+      renderPlayground();
+      expect(() => {
+        runPaletteCommand("Find");
+        runPaletteCommand("Replace");
       }).not.toThrow();
     });
 

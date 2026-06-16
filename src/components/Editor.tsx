@@ -28,6 +28,8 @@ export interface EditorHandle {
   getValue: () => string;
   undo: () => void;
   redo: () => void;
+  find: () => void;
+  replace: () => void;
 }
 
 interface Props {
@@ -444,6 +446,8 @@ export const Editor = forwardRef<EditorHandle, Props>(
       getValue: () => editorRef.current?.getValue?.() ?? value,
       undo: () => editorRef.current?.trigger?.("keyboard", "undo", null),
       redo: () => editorRef.current?.trigger?.("keyboard", "redo", null),
+      find: () => editorRef.current?.trigger?.("keyboard", "actions.find", null),
+      replace: () => editorRef.current?.trigger?.("keyboard", "editor.action.startFindReplaceAction", null),
     }));
 
     useEffect(() => {

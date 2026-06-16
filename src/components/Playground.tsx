@@ -275,6 +275,14 @@ export function Playground() {
     editorRef.current?.redo();
   }, []);
 
+  const handleFind = useCallback(() => {
+    editorRef.current?.find();
+  }, []);
+
+  const handleReplace = useCallback(() => {
+    editorRef.current?.replace();
+  }, []);
+
   const openCommandPalette = useCallback(() => {
     setShowCommandPalette(true);
   }, []);
@@ -296,13 +304,15 @@ export function Playground() {
     { label: "Toggle Theme", action: handleToggleTheme, shortcut: "Ctrl+Shift+T" },
     { label: "Undo", action: handleUndo, shortcut: "Ctrl+Z" },
     { label: "Redo", action: handleRedo, shortcut: "Ctrl+Shift+Z" },
+    { label: "Find", action: handleFind, shortcut: "Ctrl+F" },
+    { label: "Replace", action: handleReplace, shortcut: "Ctrl+H" },
     { label: "Open File", action: () => openFileRef.current?.() },
     { label: "Download Code", action: handleDownload },
     { label: "Format Code", action: handleFormatCode },
     { label: "Open Tutorial", action: () => handleTogglePanel("tutorial") },
     { label: "Open Challenges", action: () => handleTogglePanel("challenge") },
     { label: "Keyboard Shortcuts", action: () => setShowShortcuts(true), shortcut: "?" },
-  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme, handleUndo, handleRedo, handleDownload, handleTogglePanel, handleFormatCode]);
+  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme, handleUndo, handleRedo, handleFind, handleReplace, handleDownload, handleTogglePanel, handleFormatCode]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -387,6 +397,8 @@ export function Playground() {
             ["Ctrl+Shift+T", "Toggle theme"],
             ["Ctrl+Z", "Undo"],
             ["Ctrl+Shift+Z", "Redo"],
+            ["Ctrl+F", "Find in editor"],
+            ["Ctrl+H", "Find and replace"],
             ["Ctrl+P", "Command palette"],
             ["?", "Toggle this help"],
             ["Esc", "Close dialog"],

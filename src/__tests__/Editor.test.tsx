@@ -148,6 +148,34 @@ describe("Editor", () => {
     expect(mockEditor.trigger).toHaveBeenCalledWith("keyboard", "redo", null);
   });
 
+  it("exposes find via ref and triggers Monaco find command", () => {
+    const ref = React.createRef<EditorHandle>();
+    render(<Editor ref={ref} value="" onChange={jest.fn()} />);
+    const mockEditor = {
+      ...createMockEditor(),
+      trigger: jest.fn(),
+    };
+    const mockMonaco = createMockMonaco();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    act(() => ref.current?.find());
+    expect(mockEditor.trigger).toHaveBeenCalledWith("keyboard", "actions.find", null);
+  });
+
+  it("exposes replace via ref and triggers Monaco find-replace command", () => {
+    const ref = React.createRef<EditorHandle>();
+    render(<Editor ref={ref} value="" onChange={jest.fn()} />);
+    const mockEditor = {
+      ...createMockEditor(),
+      trigger: jest.fn(),
+    };
+    const mockMonaco = createMockMonaco();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+    act(() => ref.current?.replace());
+    expect(mockEditor.trigger).toHaveBeenCalledWith("keyboard", "editor.action.startFindReplaceAction", null);
+  });
+
   it("undo and redo are no-ops before Monaco editor mounts", () => {
     const ref = React.createRef<EditorHandle>();
     render(<Editor ref={ref} value="" onChange={jest.fn()} />);
@@ -155,6 +183,17 @@ describe("Editor", () => {
       act(() => {
         ref.current?.undo();
         ref.current?.redo();
+      });
+    }).not.toThrow();
+  });
+
+  it("find and replace are no-ops before Monaco editor mounts", () => {
+    const ref = React.createRef<EditorHandle>();
+    render(<Editor ref={ref} value="" onChange={jest.fn()} />);
+    expect(() => {
+      act(() => {
+        ref.current?.find();
+        ref.current?.replace();
       });
     }).not.toThrow();
   });
