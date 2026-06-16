@@ -424,3 +424,24 @@ This session performed 54 development cycles on `croqtile-playground`, a browser
 - **Commits**: 4 commits this session
 - **PRD progress**: All implementable features complete; 54 challenges, 21 tutorials, 22 examples, 712+ tests
 - **Next priority**: Additional edge case testing, visual inspection, content refinement
+
+### Auto-Dev Session 2026-06-16 (continuation)
+- **Duration**: ~180 minutes
+- **Defects found**: 3 (P0: 1 TextEncoder jsdom compat, P3: 1 beforeunload listener churn, P4: 1 missing type="button")
+- **Defects fixed**: 3
+- **Tests added**: ~90 new tests (from ~720 to ~774)
+- **Features implemented**:
+  - Optimized beforeunload handler via ref (avoids re-registering on every keystroke)
+  - Fixed urlCodec TextEncoder regression (reverted to browser-compatible unescape pattern)
+  - Added explicit type="button" to all button elements across Toolbar, ChallengePanel, Playground, ErrorBoundary
+  - touchcancel event cleanup in ResizableSplit
+- **Content added** (via parallel agent integration):
+  - Challenges: c55-c70 (16 new challenges)
+  - Tutorials: ch22-ch25 (4 new tutorials)
+  - Extracted renderTutorialContent for testability
+  - Edge case panel tests, tutorialContentRendering tests
+- **Code quality**: TutorialPanel helper extraction (clampStepIndex, stepCode, isTutorialComplete)
+- **Coverage**: 99.86% statements, 98.78% branches, 100% functions, 99.92% lines
+- **Commits**: ~10 commits this session
+- **PRD progress**: 70 challenges, 25 tutorials, 22 examples, 774 tests across 37 suites
+- **Next priority**: Performance profiling, additional edge case testing, visual inspection
