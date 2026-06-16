@@ -277,4 +277,116 @@ describe("ResizableSplit", () => {
     const rightWidth = parseFloat((panels[1] as HTMLElement).style.width);
     expect(leftWidth + rightWidth).toBeCloseTo(100, 1);
   });
+
+  it("updateRatio no-ops when container is unmounted during mouse drag", () => {
+    const { container, unmount } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} initialRatio={0.35} />
+    );
+    const sep = screen.getByRole("separator");
+    const outer = container.firstElementChild as HTMLElement;
+
+    jest.spyOn(outer, "getBoundingClientRect").mockReturnValue({
+      left: 0, top: 0, right: 1000, bottom: 600,
+      width: 1000, height: 600, x: 0, y: 0, toJSON: () => {},
+    });
+
+    fireEvent.mouseDown(sep);
+    unmount();
+
+    expect(() => {
+      fireEvent.mouseMove(document, { clientX: 500 });
+    }).not.toThrow();
+  });
+
+  it("updateRatio no-ops when container is unmounted during touch drag", () => {
+    const { container, unmount } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} initialRatio={0.35} />
+    );
+    const sep = screen.getByRole("separator");
+    const outer = container.firstElementChild as HTMLElement;
+
+    jest.spyOn(outer, "getBoundingClientRect").mockReturnValue({
+      left: 0, top: 0, right: 1000, bottom: 600,
+      width: 1000, height: 600, x: 0, y: 0, toJSON: () => {},
+    });
+
+    fireEvent.touchStart(sep);
+    unmount();
+
+    expect(() => {
+      act(() => {
+        const touchEvent = new Event("touchmove") as unknown as TouchEvent;
+        Object.defineProperty(touchEvent, "touches", {
+          value: [{ clientX: 500 }],
+        });
+        document.dispatchEvent(touchEvent);
+      });
+    }).not.toThrow();
+  });
+
+  it("ignores mouse move when dragging flag is false but a stale listener remains", () => {
+    const { container } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} initialRatio={0.35} />
+    );
+    const sep = screen.getByRole("separator");
+    const outer = container.firstElementChild as HTMLElement;
+
+    jest.spyOn(outer, "getBoundingClientRect").mockReturnValue({
+      left: 0, top: 0, right: 1000, bottom: 600,
+      width: 1000, height: 600, x: 0, y: 0, toJSON: () => {},
+    });
+
+    const removeSpy = jest
+      .spyOn(document, "removeEventListener")
+      .mockImplementation(() => {});
+
+    fireEvent.mouseDown(sep);
+    fireEvent.mouseUp(document);
+
+    fireEvent.mouseMove(document, { clientX: 500 });
+    const left = container.querySelectorAll("[style]")[0] as HTMLElement;
+    expect(parseFloat(left.style.width)).toBe(35);
+
+    removeSpy.mockRestore();
+    fireEvent.mouseUp(document);
+  });
+
+  it("ignores touch move when dragging flag is false but a stale listener remains", () => {
+    const { container } = render(
+      <ResizableSplit left={<div>L</div>} right={<div>R</div>} initialRatio={0.35} />
+    );
+    const sep = screen.getByRole("separator");
+    const outer = container.firstElementChild as HTMLElement;
+
+    jest.spyOn(outer, "getBoundingClientRect").mockReturnValue({
+      left: 0, top: 0, right: 1000, bottom: 600,
+      width: 1000, height: 600, x: 0, y: 0, toJSON: () => {},
+    });
+
+    const removeSpy = jest
+      .spyOn(document, "removeEventListener")
+      .mockImplementation(() => {});
+
+    fireEvent.touchStart(sep);
+
+    act(() => {
+      document.dispatchEvent(new Event("touchend"));
+    });
+
+    act(() => {
+      const touchEvent = new Event("touchmove") as unknown as TouchEvent;
+      Object.defineProperty(touchEvent, "touches", {
+        value: [{ clientX: 500 }],
+      });
+      document.dispatchEvent(touchEvent);
+    });
+
+    const left = container.querySelectorAll("[style]")[0] as HTMLElement;
+    expect(parseFloat(left.style.width)).toBe(35);
+
+    removeSpy.mockRestore();
+    act(() => {
+      document.dispatchEvent(new Event("touchend"));
+    });
+  });
 });

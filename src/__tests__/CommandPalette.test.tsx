@@ -1,3 +1,19 @@
+var syncEmptyEffects = false;
+
+jest.mock("react", () => {
+  const actual = jest.requireActual<typeof import("react")>("react");
+  return {
+    ...actual,
+    useEffect: (fn: () => void | (() => void), deps?: readonly unknown[]) => {
+      if (syncEmptyEffects && Array.isArray(deps) && deps.length === 0) {
+        fn();
+        return () => undefined;
+      }
+      return actual.useEffect(fn, deps);
+    },
+  };
+});
+
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { CommandPalette, type CommandItem } from "@/components/CommandPalette";
@@ -160,5 +176,48 @@ describe("CommandPalette", () => {
     for (let i = 0; i < 10; i++) fireEvent.keyDown(input, { key: "ArrowDown" });
     fireEvent.keyDown(input, { key: "Enter" });
     expect(cmds[2].action).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores unhandled keys without closing or executing", () => {
+    const cmds = makeCommands();
+    const onClose = jest.fn();
+    render(<CommandPalette commands={cmds} onClose={onClose} />);
+    const input = screen.getByLabelText("Search commands");
+    fireEvent.keyDown(input, { key: "Tab" });
+    fireEvent.keyDown(input, { key: "Home" });
+    fireEvent.keyDown(input, { key: "End" });
+    expect(onClose).not.toHaveBeenCalled();
+    cmds.forEach((cmd) => expect(cmd.action).not.toHaveBeenCalled());
+  });
+
+  it("shows all commands when search is whitespace only", () => {
+    const cmds = makeCommands();
+    render(<CommandPalette commands={cmds} onClose={jest.fn()} />);
+    fireEvent.change(screen.getByLabelText("Search commands"), {
+      target: { value: "   " },
+    });
+    expect(screen.getByText("Run Code")).toBeInTheDocument();
+    expect(screen.getByText("Compile Code")).toBeInTheDocument();
+    expect(screen.getByText("Format Code")).toBeInTheDocument();
+  });
+
+  it("ArrowDown is a no-op when filtered list is empty", () => {
+    const cmds = makeCommands();
+    const onClose = jest.fn();
+    render(<CommandPalette commands={cmds} onClose={onClose} />);
+    const input = screen.getByLabelText("Search commands");
+    fireEvent.change(input, { target: { value: "zzzznotfound" } });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onClose).not.toHaveBeenCalled();
+    cmds.forEach((cmd) => expect(cmd.action).not.toHaveBeenCalled());
+  });
+
+  it("handles missing input ref on mount without throwing", () => {
+    syncEmptyEffects = true;
+    expect(() =>
+      render(<CommandPalette commands={makeCommands()} onClose={jest.fn()} />),
+    ).not.toThrow();
+    syncEmptyEffects = false;
   });
 });
