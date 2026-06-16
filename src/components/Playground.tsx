@@ -390,6 +390,11 @@ export function Playground() {
     </a>
   );
 
+  const closePanel = useCallback(() => {
+    setPanelMode("closed");
+    clearPanelParams();
+  }, []);
+
   const idePanel = (
     <div className="h-full flex flex-col relative">
       {skipLink}
@@ -469,11 +474,6 @@ export function Playground() {
       />
     </div>
   );
-
-  const closePanel = useCallback(() => {
-    setPanelMode("closed");
-    clearPanelParams();
-  }, []);
 
   if (panelMode === "closed") {
     return <div className="h-screen">{idePanel}</div>;
