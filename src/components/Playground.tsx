@@ -256,17 +256,29 @@ export function Playground() {
     setShowCommandPalette(false);
   }, []);
 
+  const handleDownload = useCallback(() => {
+    const code = getCode();
+    const blob = new Blob([code], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "croqtile-code.co";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [getCode]);
+
   const paletteCommands = useMemo<CommandItem[]>(() => [
     { label: "Run Code", action: handleRun, shortcut: "Ctrl+Enter" },
     { label: "Compile Code", action: handleCompile, shortcut: "Ctrl+Shift+Enter" },
     { label: "Dump AST", action: handleDumpAST, shortcut: "Ctrl+Shift+D" },
     { label: "Share Link", action: handleShare, shortcut: "Ctrl+S" },
     { label: "Clear Output", action: clearOutput, shortcut: "Ctrl+L" },
+    { label: "Download Code", action: handleDownload },
+    { label: "Format Code", action: handleFormatCode },
     { label: "Open Tutorial", action: () => handleTogglePanel("tutorial") },
     { label: "Open Challenges", action: () => handleTogglePanel("challenge") },
-    { label: "Format Code", action: handleFormatCode },
     { label: "Keyboard Shortcuts", action: () => setShowShortcuts(true), shortcut: "?" },
-  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleTogglePanel, handleFormatCode]);
+  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleDownload, handleTogglePanel, handleFormatCode]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
