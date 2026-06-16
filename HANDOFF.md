@@ -6,7 +6,7 @@
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (794 tests, 37 suites)
+- `npm test` ✅ (889 tests, 40 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -26,9 +26,9 @@
 - Light/dark theme toggle (Catppuccin Latte/Mocha)
 
 ### Content
-- 27 tutorials (ch01–ch27) with "Try it" inline code blocks
-- 84 challenges (c01–c84) with auto-verification, progress badges, and "in progress" status
-- 26 example programs
+- 32 tutorials (ch01–ch32) with "Try it" inline code blocks
+- 100 challenges (c01–c100) with auto-verification, progress badges, and "in progress" status
+- 30 example programs
 
 ### User Experience
 - URL sharing with base64url encoding (backward-compatible with legacy percent-encoding)
@@ -59,7 +59,7 @@
 - GitHub Actions CI: type check, lint, test, build
 - `.npmrc` with `legacy-peer-deps=true` for CI compatibility
 - WASM build script with version tracking (build-manifest.json)
-- 794 unit/component tests across 37 suites
+- 889 unit/component tests across 40 suites
 - Coverage: 99.86% statements, 98.78% branches, 100% functions, 99.92% lines
 - prefers-reduced-motion media query for accessibility
 - Coverage thresholds: 95% statements, 85% branches, 95% functions, 95% lines

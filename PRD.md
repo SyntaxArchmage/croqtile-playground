@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (26 tutorials):
+**Current content** (32 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -348,7 +348,7 @@ interface Challenge {
 
 ### 5.6 Example Programs
 
-Built-in code snippets loadable from toolbar dropdown (25 examples):
+Built-in code snippets loadable from toolbar dropdown (30 examples):
 
 | Name | Demonstrates |
 |------|-------------|
@@ -547,7 +547,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (794 tests across 37 suites)
+- [x] Unit tests (889 tests across 40 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
@@ -559,7 +559,7 @@ src/
 - [ ] L2 execution: Remote GPU Server integration
 - [ ] Extend MockInterpreter to support mma (CPU simulation)
 - [x] ~~Additional tutorials (ch04–ch09)~~ — Done
-- [x] ~~Additional challenges (9–15 total)~~ — Done (80 total)
+- [x] ~~Additional challenges (9–15 total)~~ — Done (100 total)
 - [x] ~~Code sharing via short links~~ — Done (base64url encoding)
 - [ ] WebGPU exploration (L3)
 
