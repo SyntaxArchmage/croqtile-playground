@@ -39,6 +39,17 @@ describe("playgroundInit (browser)", () => {
       expect(readInitialSource()).toBe("__co__ void saved() {}");
     });
 
+    it("returns empty saved source instead of default example", () => {
+      mockLoadSavedSource.mockReturnValue("");
+      expect(readInitialSource()).toBe("");
+    });
+
+    it("prefers hash over ?example= param", () => {
+      const code = "__co__ void fromHash() {}";
+      window.history.pushState({}, "", `/?example=parallel#${encodeURIComponent(code)}`);
+      expect(readInitialSource()).toBe(code);
+    });
+
     it("returns saved source when no hash or example param", () => {
       mockLoadSavedSource.mockReturnValue("__co__ void saved() {}");
       expect(readInitialSource()).toBe("__co__ void saved() {}");
@@ -75,6 +86,11 @@ describe("playgroundInit (browser)", () => {
     it("returns null when the requested panel param is missing", () => {
       window.history.pushState({}, "", "/?tutorial=ch01");
       expect(getDeepLinkId("challenge")).toBeNull();
+    });
+
+    it("returns null when panel mode is closed even if challenge param exists", () => {
+      window.history.pushState({}, "", "/?challenge=c01");
+      expect(getDeepLinkId("closed")).toBeNull();
     });
   });
 });

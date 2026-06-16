@@ -24,7 +24,7 @@ export function readInitialSource(): string {
   }
   if (typeof window !== "undefined") {
     const saved = loadSavedSource();
-    if (saved) return saved;
+    if (saved !== null) return saved;
   }
   return EXAMPLES[0].code;
 }
@@ -39,6 +39,7 @@ export function readInitialPanelMode(): PanelMode {
 
 export function getDeepLinkId(panelMode: PanelMode): string | null {
   if (typeof window === "undefined") return null;
+  if (panelMode === "closed") return null;
   return new URLSearchParams(window.location.search).get(
     panelMode === "tutorial" ? "tutorial" : "challenge",
   );

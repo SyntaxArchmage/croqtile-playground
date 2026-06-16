@@ -56,13 +56,9 @@ function shouldSplitAfterClose(line: string, closeIndex: number): boolean {
 }
 
 function splitSameLineCloseBraces(line: string, startInBlockComment: boolean): string[] {
-  if (startInBlockComment) {
-    return [line];
-  }
-
   const parts: string[] = [];
   let current = "";
-  let inBlockComment = false;
+  let inBlockComment = startInBlockComment;
   let inString = false;
   let inChar = false;
   let escape = false;

@@ -31,4 +31,10 @@ describe("sourceStorage", () => {
     expect(() => saveSource("code")).not.toThrow();
     (Storage.prototype.setItem as jest.Mock).mockRestore();
   });
+
+  it("round-trips empty string (distinct from missing key)", () => {
+    saveSource("");
+    expect(loadSavedSource()).toBe("");
+    expect(localStorage.getItem(SOURCE_STORAGE_KEY)).toBe("");
+  });
 });
