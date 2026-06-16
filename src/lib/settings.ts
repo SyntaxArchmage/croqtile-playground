@@ -5,6 +5,7 @@ export type Theme = "dark" | "light";
 export interface EditorSettings {
   fontSize: number;
   wordWrap: boolean;
+  minimap: boolean;
   tabSize: number;
   lastTarget: string;
   theme: Theme;
@@ -12,7 +13,8 @@ export interface EditorSettings {
 
 const DEFAULT_SETTINGS: EditorSettings = {
   fontSize: 14,
-  wordWrap: true,
+  wordWrap: false,
+  minimap: false,
   tabSize: 2,
   lastTarget: "cc",
   theme: "dark",
@@ -34,6 +36,7 @@ export function loadSettings(): EditorSettings {
       fontSize = parsed.fontSize;
     }
     const wordWrap = typeof parsed.wordWrap === "boolean" ? parsed.wordWrap : def.wordWrap;
+    const minimap = typeof parsed.minimap === "boolean" ? parsed.minimap : def.minimap;
     let tabSize = def.tabSize;
     if (typeof parsed.tabSize === "number" && parsed.tabSize >= 2 && parsed.tabSize <= 8) {
       tabSize = parsed.tabSize;
@@ -41,7 +44,7 @@ export function loadSettings(): EditorSettings {
     const lastTarget = typeof parsed.lastTarget === "string" && ["cc", "cute"].includes(parsed.lastTarget)
       ? parsed.lastTarget : def.lastTarget;
     const theme = parsed.theme === "light" || parsed.theme === "dark" ? parsed.theme : def.theme;
-    return { fontSize, wordWrap, tabSize, lastTarget, theme };
+    return { fontSize, wordWrap, minimap, tabSize, lastTarget, theme };
   } catch {
     return getDefault();
   }

@@ -31,6 +31,7 @@ interface Props {
   onSelectionChange?: (selection: SelectionInfo | null) => void;
   fontSize?: number;
   wordWrap?: boolean;
+  minimap?: boolean;
   tabSize?: number;
   theme?: Theme;
 }
@@ -427,7 +428,7 @@ function registerChoreoLanguage(monaco: Monaco) {
 }
 
 export const Editor = forwardRef<{ getValue: () => string }, Props>(
-  function Editor({ value, onChange, onCursorChange, onSelectionChange, fontSize = 14, wordWrap = true, tabSize = 2, theme = "dark" }, ref) {
+  function Editor({ value, onChange, onCursorChange, onSelectionChange, fontSize = 14, wordWrap = false, minimap = false, tabSize = 2, theme = "dark" }, ref) {
     const editorRef = useRef<unknown>(null);
     const monacoRef = useRef<Monaco | null>(null);
     const monacoTheme = theme === "light" ? "choreo-light" : "choreo-dark";
@@ -495,7 +496,7 @@ export const Editor = forwardRef<{ getValue: () => string }, Props>(
         options={{
           fontSize,
           fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
-          minimap: { enabled: false },
+          minimap: { enabled: minimap },
           scrollBeyondLastLine: false,
           padding: { top: 12 },
           lineNumbers: "on",

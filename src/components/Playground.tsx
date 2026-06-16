@@ -65,6 +65,7 @@ export function Playground() {
     document.documentElement.setAttribute("data-theme", settings.theme);
   }, [settings.theme]);
   const editorRef = useRef<{ getValue: () => string }>(null);
+  const openFileRef = useRef<(() => void) | null>(null);
   const shortcutsDialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const lastLoadedCodeRef = useRef<string>(initialSource);
@@ -272,6 +273,7 @@ export function Playground() {
     { label: "Share Link", action: handleShare, shortcut: "Ctrl+S" },
     { label: "Clear Output", action: clearOutput, shortcut: "Ctrl+L" },
     { label: "Toggle Theme", action: handleToggleTheme, shortcut: "Ctrl+Shift+T" },
+    { label: "Open File", action: () => openFileRef.current?.() },
     { label: "Download Code", action: handleDownload },
     { label: "Format Code", action: handleFormatCode },
     { label: "Open Tutorial", action: () => handleTogglePanel("tutorial") },
@@ -431,6 +433,7 @@ export function Playground() {
         settings={settings}
         onSettingsChange={handleSettingsChange}
         onOpenCommandPalette={openCommandPalette}
+        openFileRef={openFileRef}
       />
       <div className="flex-1 min-h-0 flex flex-col">
         <div id="main-content" className="flex-1 min-h-0 relative" tabIndex={-1}>
@@ -442,7 +445,9 @@ export function Playground() {
             onSelectionChange={setSelection}
             fontSize={settings.fontSize}
             wordWrap={settings.wordWrap}
+            minimap={settings.minimap}
             tabSize={settings.tabSize}
+            theme={settings.theme}
           />
           {status === "ready" && (
             <button

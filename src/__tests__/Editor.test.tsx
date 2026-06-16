@@ -41,9 +41,19 @@ describe("Editor", () => {
     expect(capturedOptions?.wordWrap).toBe("off");
   });
 
-  it("defaults wordWrap to on", () => {
+  it("defaults wordWrap to off", () => {
     render(<Editor value="" onChange={jest.fn()} />);
-    expect(capturedOptions?.wordWrap).toBe("on");
+    expect(capturedOptions?.wordWrap).toBe("off");
+  });
+
+  it("passes minimap to options", () => {
+    render(<Editor value="" onChange={jest.fn()} minimap={true} />);
+    expect(capturedOptions?.minimap).toEqual({ enabled: true });
+  });
+
+  it("defaults minimap to disabled", () => {
+    render(<Editor value="" onChange={jest.fn()} />);
+    expect(capturedOptions?.minimap).toEqual({ enabled: false });
   });
 
   it("passes tabSize to options", () => {

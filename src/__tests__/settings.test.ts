@@ -10,17 +10,19 @@ describe("settings", () => {
   it("returns defaults when nothing stored", () => {
     const s = loadSettings();
     expect(s.fontSize).toBe(14);
-    expect(s.wordWrap).toBe(true);
+    expect(s.wordWrap).toBe(false);
+    expect(s.minimap).toBe(false);
     expect(s.tabSize).toBe(2);
     expect(s.lastTarget).toBe("cc");
     expect(s.theme).toBe("dark");
   });
 
   it("saves and loads settings", () => {
-    saveSettings({ fontSize: 18, wordWrap: false, tabSize: 4, lastTarget: "cute", theme: "light" });
+    saveSettings({ fontSize: 18, wordWrap: false, minimap: true, tabSize: 4, lastTarget: "cute", theme: "light" });
     const s = loadSettings();
     expect(s.fontSize).toBe(18);
     expect(s.wordWrap).toBe(false);
+    expect(s.minimap).toBe(true);
     expect(s.tabSize).toBe(4);
     expect(s.lastTarget).toBe("cute");
     expect(s.theme).toBe("light");
@@ -44,7 +46,8 @@ describe("settings", () => {
     localStorage.setItem(STORAGE_KEY, "not json");
     const s = loadSettings();
     expect(s.fontSize).toBe(14);
-    expect(s.wordWrap).toBe(true);
+    expect(s.wordWrap).toBe(false);
+    expect(s.minimap).toBe(false);
     expect(s.theme).toBe("dark");
   });
 
@@ -52,7 +55,8 @@ describe("settings", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 16 }));
     const s = loadSettings();
     expect(s.fontSize).toBe(16);
-    expect(s.wordWrap).toBe(true);
+    expect(s.wordWrap).toBe(false);
+    expect(s.minimap).toBe(false);
     expect(s.tabSize).toBe(2);
     expect(s.lastTarget).toBe("cc");
     expect(s.theme).toBe("dark");
@@ -70,10 +74,10 @@ describe("settings", () => {
 
   describe("persistence and validation edge cases", () => {
     it("saveSettings persists changes that loadSettings reads back from localStorage", () => {
-      saveSettings({ fontSize: 20, wordWrap: false, tabSize: 2, lastTarget: "cute", theme: "light" });
+      saveSettings({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light" });
       const raw = localStorage.getItem(STORAGE_KEY);
-      expect(raw).toBe(JSON.stringify({ fontSize: 20, wordWrap: false, tabSize: 2, lastTarget: "cute", theme: "light" }));
-      expect(loadSettings()).toEqual({ fontSize: 20, wordWrap: false, tabSize: 2, lastTarget: "cute", theme: "light" });
+      expect(raw).toBe(JSON.stringify({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light" }));
+      expect(loadSettings()).toEqual({ fontSize: 20, wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light" });
     });
 
     it("invalid lastTarget in localStorage defaults to cc", () => {
@@ -91,7 +95,12 @@ describe("settings", () => {
 
     it("handles non-boolean wordWrap gracefully", () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 14, wordWrap: "yes" }));
-      expect(loadSettings().wordWrap).toBe(true);
+      expect(loadSettings().wordWrap).toBe(false);
+    });
+
+    it("handles non-boolean minimap gracefully", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 14, minimap: "yes" }));
+      expect(loadSettings().minimap).toBe(false);
     });
 
     it("saveSettings catches when localStorage.setItem throws", () => {

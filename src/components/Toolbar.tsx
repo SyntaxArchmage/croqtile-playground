@@ -31,6 +31,7 @@ interface Props {
   settings: EditorSettings;
   onSettingsChange: (settings: EditorSettings) => void;
   onOpenCommandPalette?: () => void;
+  openFileRef?: React.MutableRefObject<(() => void) | null>;
 }
 
 export const Toolbar = memo(function Toolbar({
@@ -49,6 +50,7 @@ export const Toolbar = memo(function Toolbar({
   settings,
   onSettingsChange,
   onOpenCommandPalette,
+  openFileRef,
 }: Props) {
   const busy = status === "running";
   const tutorialsCompleted = TUTORIALS.filter(
@@ -131,6 +133,14 @@ export const Toolbar = memo(function Toolbar({
     fileInputRef.current?.click();
   }, []);
 
+  useEffect(() => {
+    if (!openFileRef) return;
+    openFileRef.current = handleOpenClick;
+    return () => {
+      openFileRef.current = null;
+    };
+  }, [openFileRef, handleOpenClick]);
+
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -157,10 +167,6 @@ export const Toolbar = memo(function Toolbar({
     },
     [onLoadCode],
   );
-
-  const handleFormat = useCallback(() => {
-    onFormat();
-  }, [onFormat]);
 
   useEffect(() => {
     return () => {
@@ -345,7 +351,7 @@ export const Toolbar = memo(function Toolbar({
             <div role="separator" className="border-t border-[var(--border)] my-1" />
             <button
               role="menuitem"
-              onClick={() => { handleFormat(); setShowFileMenu(false); }}
+              onClick={() => { onFormat(); setShowFileMenu(false); }}
               className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
             >
               Format code
@@ -481,6 +487,17 @@ export const Toolbar = memo(function Toolbar({
                 onChange={(e) => onSettingsChange({ ...settings, wordWrap: e.target.checked })}
                 className="accent-[var(--accent)]"
                 aria-label="Toggle word wrap"
+                tabIndex={-1}
+              />
+            </label>
+            <label role="menuitemcheckbox" aria-checked={settings.minimap} className="flex items-center justify-between px-3 py-2 hover:bg-[var(--bg-primary)] cursor-pointer transition-colors">
+              <span className="text-xs text-[var(--text-secondary)]">Minimap</span>
+              <input
+                type="checkbox"
+                checked={settings.minimap}
+                onChange={(e) => onSettingsChange({ ...settings, minimap: e.target.checked })}
+                className="accent-[var(--accent)]"
+                aria-label="Toggle minimap"
                 tabIndex={-1}
               />
             </label>

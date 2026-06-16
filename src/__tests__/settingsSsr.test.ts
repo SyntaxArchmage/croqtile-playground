@@ -8,7 +8,8 @@ describe("settings SSR / no-window guards", () => {
   it("loadSettings returns defaults when window is undefined", () => {
     expect(loadSettings()).toEqual({
       fontSize: 14,
-      wordWrap: true,
+      wordWrap: false,
+      minimap: false,
       tabSize: 2,
       lastTarget: "cc",
       theme: "dark",
