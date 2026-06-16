@@ -2,6 +2,7 @@ import { TUTORIALS } from "../lib/tutorials";
 import { CHALLENGES } from "../lib/challenges";
 import { EXAMPLES } from "../lib/examples";
 import { parseContent } from "../lib/parseContent";
+import { formatChoreoCode } from "../lib/formatCode";
 
 describe("Content integrity", () => {
   it("all tutorials have at least one step", () => {
@@ -126,6 +127,32 @@ describe("Content integrity", () => {
   it("tutorial IDs follow naming convention", () => {
     for (const t of TUTORIALS) {
       expect(t.id).toMatch(/^ch\d{2}/);
+    }
+  });
+
+  it("example code formatting is idempotent", () => {
+    for (const ex of EXAMPLES) {
+      const formatted = formatChoreoCode(ex.code);
+      const reformatted = formatChoreoCode(formatted);
+      expect(reformatted).toBe(formatted);
+    }
+  });
+
+  it("challenge starter code formatting is idempotent", () => {
+    for (const c of CHALLENGES) {
+      const formatted = formatChoreoCode(c.starterCode);
+      const reformatted = formatChoreoCode(formatted);
+      expect(reformatted).toBe(formatted);
+    }
+  });
+
+  it("tutorial step code formatting is idempotent", () => {
+    for (const t of TUTORIALS) {
+      for (const step of t.steps) {
+        const formatted = formatChoreoCode(step.code);
+        const reformatted = formatChoreoCode(formatted);
+        expect(reformatted).toBe(formatted);
+      }
     }
   });
 });
