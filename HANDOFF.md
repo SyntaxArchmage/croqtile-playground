@@ -6,7 +6,7 @@
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (479 tests, 27 suites)
+- `npm test` ✅ (486 tests, 27 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -25,7 +25,7 @@
 
 ### Content
 - 10 tutorials (ch01–ch10) with "Try it" inline code blocks
-- 18 challenges (c01–c18) with auto-verification and progress badges
+- 20 challenges (c01–c20) with auto-verification, progress badges, and "in progress" status
 - 12 example programs
 
 ### User Experience
@@ -38,7 +38,8 @@
 - Progress summary bars in tutorial list, challenge list, and settings menu
 - Unsaved changes warning dialog
 - Running indicator in document title
-- Tutorial step indicator dots
+- Clickable tutorial step dots for direct navigation
+- "In progress" badges on tutorials and challenges
 - Responsive layout (stacked on mobile with touch-resizable panels)
 - ARIA accessibility labels, keyboard-navigable menus, focus trapping in modals
 - Floating Run button (FAB) for mobile users

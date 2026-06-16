@@ -245,7 +245,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (18):
+**Current challenges** (20):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -267,6 +267,8 @@ interface Challenge {
 | c16 | Parallel Classify | Medium | Conditional logic in parallel blocks |
 | c17 | Matrix Transpose | Medium | 2D indexing, row/column swap |
 | c18 | Histogram Count | Hard | Sequential accumulation, race condition awareness |
+| c19 | Swap Adjacent Pairs | Easy | `parallel`, array pair swapping |
+| c20 | Moving Average | Hard | `shared`, `dma`, boundary handling, stencil computation |
 
 ### 5.6 Example Programs
 
@@ -448,7 +450,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (478 tests across 27 suites)
+- [x] Unit tests (486 tests across 27 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
