@@ -3,6 +3,7 @@ import {
   extractCoFunctionName,
   isAllowedOpenExtension,
   downloadCoSource,
+  printCode,
   CROQTILE_MIME,
   MAX_OPEN_FILE_BYTES,
 } from "@/lib/fileIO";
@@ -121,6 +122,15 @@ describe("fileIO", () => {
       jest.runAllTimers();
       expect(mockRevokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
       jest.useRealTimers();
+    });
+  });
+
+  describe("printCode", () => {
+    it("calls window.print", () => {
+      const printSpy = jest.spyOn(window, "print").mockImplementation(() => {});
+      printCode();
+      expect(printSpy).toHaveBeenCalledTimes(1);
+      printSpy.mockRestore();
     });
   });
 

@@ -125,3 +125,101 @@ html, body {
     transition-duration: 0.01ms !important;
   }
 }
+
+@media print {
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #ffffff;
+    --bg-surface: #f5f5f5;
+    --text-primary: #1a1a1a;
+    --text-secondary: #333333;
+    --text-muted: #666666;
+    --border: #cccccc;
+    --accent: #1e66f5;
+    --success: #2d6a2d;
+    --error: #b00020;
+    --warning: #8a4b00;
+  }
+
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #1a1a1a !important;
+  }
+
+  .playground-screen {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  nav[aria-label="Playground toolbar"],
+  nav[aria-label="Playground toolbar"] ~ div:last-child,
+  [role="region"][aria-label="Tutorials"],
+  [role="region"][aria-label="Challenges"],
+  [role="region"][aria-label^="Tutorial:"],
+  [role="region"][aria-label^="Challenge:"],
+  [role="separator"],
+  [role="tablist"],
+  button[aria-label="Run code"],
+  .fixed.inset-0,
+  .sr-only {
+    display: none !important;
+  }
+
+  #main-content,
+  [role="region"][aria-label="Output panel"] {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border: none !important;
+    page-break-inside: avoid;
+  }
+
+  #main-content {
+    min-height: 40vh;
+  }
+
+  [role="region"][aria-label="Output panel"] {
+    margin-top: 1rem;
+    border-top: 1px solid #cccccc !important;
+  }
+
+  #output-tabpanel {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    color: #1a1a1a !important;
+    background: #ffffff !important;
+  }
+
+  #output-tabpanel pre,
+  #output-tabpanel .text-xs {
+    color: #1a1a1a !important;
+    white-space: pre-wrap !important;
+  }
+
+  .monaco-editor,
+  .monaco-editor .margin,
+  .monaco-editor-background,
+  .monaco-editor .view-lines {
+    background: #ffffff !important;
+  }
+
+  .monaco-editor .view-line span {
+    color: #1a1a1a !important;
+  }
+
+  .error-line-highlight {
+    background: #fff0f0 !important;
+    border-left-color: #b00020 !important;
+  }
+}

@@ -32,3 +32,7 @@ export function downloadCoSource(code: string): void {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 0);
 }
+
+export function printCode(): void {
+  window.print();
+}

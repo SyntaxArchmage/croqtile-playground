@@ -14,6 +14,7 @@ import {
   downloadCoSource,
   isAllowedOpenExtension,
   MAX_OPEN_FILE_BYTES,
+  printCode,
 } from "@/lib/fileIO";
 import { exportProgress, importProgress } from "@/lib/progressExport";
 
@@ -127,6 +128,10 @@ export const Toolbar = memo(function Toolbar({
   const handleDownload = useCallback(() => {
     downloadCoSource(getCode());
   }, [getCode]);
+
+  const handlePrint = useCallback(() => {
+    printCode();
+  }, []);
 
   const clearResetConfirm = useCallback(() => {
     setResetConfirmPending(false);
@@ -448,6 +453,14 @@ export const Toolbar = memo(function Toolbar({
               className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
             >
               Download .co
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => { handlePrint(); setShowFileMenu(false); }}
+              className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+            >
+              Print Code
             </button>
             <div role="separator" className="border-t border-[var(--border)] my-1" />
             <button

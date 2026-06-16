@@ -59,6 +59,7 @@ describe("Toolbar", () => {
     fireEvent.click(screen.getByLabelText("File menu"));
     expect(screen.getByText("Open file...")).toBeInTheDocument();
     expect(screen.getByText("Download .co")).toBeInTheDocument();
+    expect(screen.getByText("Print Code")).toBeInTheDocument();
     expect(screen.getByText("Format code")).toBeInTheDocument();
   });
 
@@ -100,6 +101,15 @@ describe("Toolbar", () => {
     fireEvent.click(screen.getByLabelText("File menu"));
     fireEvent.click(screen.getByText("Open file..."));
     expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls window.print when Print Code clicked in File menu", () => {
+    const printSpy = jest.spyOn(window, "print").mockImplementation(() => {});
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    fireEvent.click(screen.getByText("Print Code"));
+    expect(printSpy).toHaveBeenCalledTimes(1);
+    printSpy.mockRestore();
   });
 
   it("calls onFormat when Format code clicked in File menu", () => {
