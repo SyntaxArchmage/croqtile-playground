@@ -247,7 +247,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (20):
+**Current challenges** (24):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -271,6 +271,10 @@ interface Challenge {
 | c18 | Histogram Count | Hard | Sequential accumulation, race condition awareness |
 | c19 | Swap Adjacent Pairs | Easy | `parallel`, array pair swapping |
 | c20 | Moving Average | Hard | `shared`, `dma`, boundary handling, stencil computation |
+| c21 | Running Maximum | Medium | `foreach`, sequential max tracking |
+| c22 | Matrix Column Sum | Medium | 2D indexing, column-wise reduction |
+| c23 | 1D Convolution | Hard | `dma`, `shared`, kernel convolution, boundary handling |
+| c24 | Pack & Unpack | Easy | Array interleaving, index arithmetic |
 
 ### 5.6 Example Programs
 
@@ -462,7 +466,7 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (486 tests across 27 suites)
+- [x] Unit tests (545 tests across 29 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling

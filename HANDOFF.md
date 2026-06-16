@@ -6,7 +6,7 @@
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (486 tests, 27 suites)
+- `npm test` ✅ (545 tests, 29 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -25,7 +25,7 @@
 
 ### Content
 - 12 tutorials (ch01–ch12) with "Try it" inline code blocks
-- 20 challenges (c01–c20) with auto-verification, progress badges, and "in progress" status
+- 24 challenges (c01–c24) with auto-verification, progress badges, and "in progress" status
 - 14 example programs
 
 ### User Experience
