@@ -46,6 +46,11 @@ jest.mock("@/lib/settings", () => ({
   saveSettings: (...args: unknown[]) => mockSaveSettings(...args),
 }));
 
+const mockDownloadCoSource = jest.fn();
+jest.mock("@/lib/fileIO", () => ({
+  downloadCoSource: (...args: unknown[]) => mockDownloadCoSource(...args),
+}));
+
 jest.mock("@/components/Editor", () => ({
   Editor: React.forwardRef<
     { getValue: () => string },
@@ -288,6 +293,15 @@ describe("Playground", () => {
 
       fireEvent.keyDown(window, { key: "Escape" });
       expect(screen.queryByLabelText("Search commands")).not.toBeInTheDocument();
+    });
+
+    it("executes Download Code from command palette", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
+
+      fireEvent.click(screen.getByText("Download Code"));
+      expect(mockDownloadCoSource).toHaveBeenCalledTimes(1);
+      expect(mockDownloadCoSource).toHaveBeenCalledWith(expect.any(String));
     });
   });
 
