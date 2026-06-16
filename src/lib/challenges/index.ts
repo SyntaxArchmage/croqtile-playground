@@ -36,7 +36,7 @@ import { challenge19 } from "./19-swap-pairs";
 import { challenge20 } from "./20-moving-average";
 import { challenge21 } from "./21-running-maximum";
 import { challenge22 } from "./22-matrix-column-sum";
-import { challenge23 } from "./23-convolution";
+import { challenge23 } from "./23-pipeline-sum";
 import { challenge24 } from "./24-pack-unpack";
 
 export const CHALLENGES: Challenge[] = [
