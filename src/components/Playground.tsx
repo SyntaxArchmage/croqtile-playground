@@ -18,6 +18,7 @@ import { encodeCode } from "@/lib/urlCodec";
 import { formatChoreoCode } from "@/lib/formatCode";
 import { downloadCoSource } from "@/lib/fileIO";
 import { CommandPalette, type CommandItem } from "./CommandPalette";
+import { ShortcutsDialog } from "./ShortcutsDialog";
 import { readInitialSource, readInitialPanelMode, getDeepLinkId } from "@/lib/playgroundInit";
 
 const noop = () => () => {};
@@ -67,8 +68,6 @@ export function Playground() {
   }, [settings.theme]);
   const editorRef = useRef<EditorHandle>(null);
   const openFileRef = useRef<(() => void) | null>(null);
-  const shortcutsDialogRef = useRef<HTMLDivElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
   const lastLoadedCodeRef = useRef<string>(initialSource);
   const loadAndRunTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (loadAndRunTimerRef.current) clearTimeout(loadAndRunTimerRef.current); }, []);
@@ -133,38 +132,6 @@ export function Playground() {
     prevErrorsRef.current = errors;
     prevAstRef.current = ast;
   }, [status, output, errors, ast]);
-
-  useEffect(() => {
-    if (!showShortcuts) return;
-
-    previousFocusRef.current = document.activeElement as HTMLElement;
-    const dialog = shortcutsDialogRef.current;
-    const focusable = dialog?.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    );
-    const first = focusable?.[0];
-    const last = focusable?.[focusable.length - 1];
-    first?.focus();
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Tab" || !focusable?.length) return;
-      if (e.shiftKey) {
-        if (document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        }
-      } else if (document.activeElement === last) {
-        e.preventDefault();
-        first?.focus();
-      }
-    };
-
-    dialog?.addEventListener("keydown", handleKeyDown);
-    return () => {
-      dialog?.removeEventListener("keydown", handleKeyDown);
-      previousFocusRef.current?.focus();
-    };
-  }, [showShortcuts]);
 
   const getCode = useCallback(() => editorRef.current?.getValue() ?? source, [source]);
 
@@ -388,47 +355,7 @@ export function Playground() {
   );
 
   const shortcutsOverlay = showShortcuts && (
-    <div
-      className="absolute inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={() => setShowShortcuts(false)}
-    >
-      <div
-        ref={shortcutsDialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="shortcuts-dialog-title"
-        className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h2 id="shortcuts-dialog-title" className="text-sm font-semibold text-[var(--text-primary)]">Keyboard Shortcuts</h2>
-          <button type="button" onClick={() => setShowShortcuts(false)} className="flex items-center justify-center min-h-11 min-w-11 text-[var(--text-muted)] hover:text-[var(--text-primary)]" aria-label="Close keyboard shortcuts">×</button>
-        </div>
-        <div className="space-y-2 text-xs">
-          {[
-            ["Ctrl+Enter", "Run code"],
-            ["Ctrl+Shift+Enter", "Compile code"],
-            ["Ctrl+Alt+D", "Dump AST"],
-            ["Ctrl+S", "Share link"],
-            ["Ctrl+L", "Clear output"],
-            ["Ctrl+Shift+T", "Toggle theme"],
-            ["Ctrl+Z", "Undo"],
-            ["Ctrl+Shift+Z", "Redo"],
-            ["Ctrl+F", "Find in editor"],
-            ["Ctrl+H", "Find and replace"],
-            ["Ctrl+G", "Go to line"],
-            ["Ctrl+P", "Command palette"],
-            ["?", "Toggle this help"],
-            ["Esc", "Close dialog"],
-          ].map(([key, desc]) => (
-            <div key={key} className="flex items-center justify-between py-1">
-              <kbd className="px-2 py-0.5 rounded bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-secondary)] font-mono text-[10px]">{key}</kbd>
-              <span className="text-[var(--text-muted)]">{desc}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    <ShortcutsDialog onClose={() => setShowShortcuts(false)} />
   );
 
   const skipLink = (
