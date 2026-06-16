@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (17 tutorials):
+**Current content** (20 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|

@@ -6,7 +6,7 @@
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (630 tests, 32 suites)
+- `npm test` ✅ (672 tests, 34 suites)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -24,20 +24,21 @@
 - Error boundary with graceful crash recovery
 
 ### Content
-- 17 tutorials (ch01–ch17) with "Try it" inline code blocks
-- 40 challenges (c01–c40) with auto-verification, progress badges, and "in progress" status
-- 17 example programs
+- 20 tutorials (ch01–ch20) with "Try it" inline code blocks
+- 44 challenges (c01–c44) with auto-verification, progress badges, and "in progress" status
+- 22 example programs
 
 ### User Experience
 - URL sharing with base64url encoding (backward-compatible with legacy percent-encoding)
 - URL deep linking (?tutorial=ch01&step=2, ?challenge=c04)
 - localStorage persistence: progress, last source, editor settings
-- Editor settings: font size (10–24px), word wrap toggle
+- Editor settings: font size (10–24px), font family, word wrap toggle, output line numbers
 - Challenge progress tracking: attempts, best code, pass/fail status, confetti animation
 - Challenge test failure diff with color-coded expected (green) vs actual (red)
 - Challenge status filter (All/To Do/Passed) in challenge list
 - Progress summary bars in tutorial list, challenge list, and settings menu
-- Unsaved changes warning dialog
+- Unsaved changes warning dialog with auto-save (5s debounce)
+- Unsaved changes indicator in status bar
 - Running indicator in document title
 - Clickable tutorial step dots for direct navigation
 - "In progress" badges on tutorials and challenges
@@ -56,8 +57,8 @@
 - GitHub Actions CI: type check, lint, test, build
 - `.npmrc` with `legacy-peer-deps=true` for CI compatibility
 - WASM build script with version tracking (build-manifest.json)
-- 619 unit/component tests across 31 suites
-- Coverage: 99.85% statements, 98.24% branches, 100% functions, 100% lines
+- 672 unit/component tests across 34 suites
+- Coverage: ~99.8% statements, ~98.6% branches, ~99.7% functions, ~99.9% lines
 - prefers-reduced-motion media query for accessibility
 - Coverage thresholds: 95% statements, 85% branches, 95% functions, 95% lines
 - Worker execution timeout (30s) with elapsed time reporting
