@@ -5,9 +5,14 @@ import { parseContent } from "../lib/parseContent";
 import { formatChoreoCode } from "../lib/formatCode";
 
 describe("Content integrity", () => {
-  it("all tutorials have at least one step", () => {
+  it("has 30 challenges and 15 tutorials", () => {
+    expect(CHALLENGES.length).toBe(30);
+    expect(TUTORIALS.length).toBe(15);
+  });
+
+  it("all tutorials have at least 2 steps", () => {
     for (const t of TUTORIALS) {
-      expect(t.steps.length).toBeGreaterThanOrEqual(1);
+      expect(t.steps.length).toBeGreaterThanOrEqual(2);
     }
   });
 
@@ -18,6 +23,11 @@ describe("Content integrity", () => {
 
   it("all challenges have unique IDs", () => {
     const ids = CHALLENGES.map((c) => c.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("no duplicate IDs across challenges and tutorials", () => {
+    const ids = [...CHALLENGES.map((c) => c.id), ...TUTORIALS.map((t) => t.id)];
     expect(new Set(ids).size).toBe(ids.length);
   });
 
@@ -126,7 +136,7 @@ describe("Content integrity", () => {
 
   it("tutorial IDs follow naming convention", () => {
     for (const t of TUTORIALS) {
-      expect(t.id).toMatch(/^ch\d{2}/);
+      expect(t.id).toMatch(/^ch\d{2}$/);
     }
   });
 

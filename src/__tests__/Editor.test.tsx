@@ -98,17 +98,39 @@ describe("Editor", () => {
     );
     expect(mockMonaco.languages.setLanguageConfiguration).toHaveBeenCalledWith(
       "choreo",
-      expect.objectContaining({
-        comments: { lineComment: "//", blockComment: ["/*", "*/"] },
-        brackets: [["{", "}"], ["[", "]"], ["(", ")"]],
-        autoClosingPairs: expect.any(Array),
-        surroundingPairs: expect.any(Array),
-        indentationRules: expect.objectContaining({
-          increaseIndentPattern: expect.any(RegExp),
-          decreaseIndentPattern: expect.any(RegExp),
-        }),
-      }),
+      expect.any(Object),
     );
+  });
+
+  it("setLanguageConfiguration uses proper comments, auto-closing pairs, and indentation rules", () => {
+    render(<Editor value="" onChange={jest.fn()} />);
+    const mockMonaco = createMockMonaco();
+    const mockEditor = createMockEditor();
+
+    act(() => capturedOnMount?.(mockEditor, mockMonaco));
+
+    const config = mockMonaco.languages.setLanguageConfiguration.mock.calls[0][1];
+    expect(config.comments).toEqual({
+      lineComment: "//",
+      blockComment: ["/*", "*/"],
+    });
+    expect(config.autoClosingPairs).toEqual(
+      expect.arrayContaining([
+        { open: "{", close: "}" },
+        { open: "[", close: "]" },
+        { open: "(", close: ")" },
+        { open: '"', close: '"', notIn: ["string", "comment"] },
+        { open: "'", close: "'", notIn: ["string", "comment"] },
+      ]),
+    );
+    expect(config.autoClosingPairs).toHaveLength(5);
+    expect(config.indentationRules.increaseIndentPattern).toEqual(
+      /^((?!\/\/).)*(\{[^}"']*|\([^)"']*|\[[^\]"']*)$/,
+    );
+    expect(config.indentationRules.decreaseIndentPattern).toEqual(
+      /^((?!.*?\/\*).*\*)?\s*(\}|])[^}\]"']*[\)"']*;?\s*$/,
+    );
+    expect(config.onEnterRules).toHaveLength(3);
   });
 
   it("skips re-registering Choreo if already registered", () => {
