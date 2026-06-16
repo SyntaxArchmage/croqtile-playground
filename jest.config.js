@@ -16,9 +16,9 @@ module.exports = {
   testMatch: ["**/__tests__/**/*.test.ts", "**/__tests__/**/*.test.tsx"],
   coverageThreshold: {
     global: {
-      statements: 97,
-      branches: 90,
-      functions: 96,
+      statements: 98,
+      branches: 94,
+      functions: 97,
       lines: 99,
     },
   },
