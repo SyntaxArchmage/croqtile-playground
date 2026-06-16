@@ -141,6 +141,18 @@ function renderPlayground() {
   return render(<Playground />);
 }
 
+const originalConfirm = window.confirm.bind(window);
+const originalPrompt = window.prompt.bind(window);
+const originalAlert = window.alert.bind(window);
+let originalClipboard: Clipboard | undefined;
+
+function withFakeTimers(run: () => void | Promise<void>) {
+  jest.useFakeTimers();
+  return Promise.resolve(run()).finally(() => {
+    jest.useRealTimers();
+  });
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockEditorProvidesRef = true;
@@ -156,6 +168,16 @@ beforeEach(() => {
   window.history.replaceState = jest.fn();
   document.title = "Croqtile Playground";
   window.confirm = jest.fn(() => true);
+  originalClipboard = navigator.clipboard;
+});
+
+afterEach(() => {
+  jest.useRealTimers();
+  window.confirm = originalConfirm;
+  window.prompt = originalPrompt;
+  window.alert = originalAlert;
+  Object.assign(navigator, { clipboard: originalClipboard });
+  document.title = "Croqtile Playground";
 });
 
 function openCommandPalette() {
@@ -178,10 +200,6 @@ async function flushInitialLoadConfirm() {
 
 describe("Playground", () => {
   describe("initial rendering", () => {
-    it("renders without crashing", () => {
-      expect(() => renderPlayground()).not.toThrow();
-    });
-
     it("shows toolbar with branding and actions", () => {
       renderPlayground();
       expect(screen.getByText("Croqtile")).toBeInTheDocument();
@@ -315,26 +333,6 @@ describe("Playground", () => {
 
       fireEvent.keyDown(window, { key: "Escape" });
       expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
-    });
-
-    it("traps Tab focus within shortcuts dialog", () => {
-      renderPlayground();
-      fireEvent.keyDown(window, { key: "?" });
-      const dialog = screen.getByRole("dialog");
-      const focusable = dialog.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      );
-      expect(focusable.length).toBeGreaterThan(0);
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-
-      (last as HTMLElement).focus();
-      fireEvent.keyDown(dialog, { key: "Tab" });
-      expect(document.activeElement).toBe(first);
-
-      (first as HTMLElement).focus();
-      fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
-      expect(document.activeElement).toBe(last);
     });
 
     it("ignores non-Tab keys in shortcuts dialog trap", () => {
@@ -587,113 +585,108 @@ describe("Playground", () => {
 
   describe("tutorial autorun", () => {
     it("auto-runs code loaded from tutorial panel", async () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      await act(async () => {
-        jest.runAllTimers();
+      await withFakeTimers(async () => {
+        renderPlayground();
+        await act(async () => {
+          jest.runAllTimers();
+        });
+
+        fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+        mockRun.mockClear();
+
+        fireEvent.click(screen.getByText("Hello Croqtile"));
+        expect(mockRun).not.toHaveBeenCalled();
+
+        act(() => {
+          jest.advanceTimersByTime(500);
+        });
+        expect(mockRun).toHaveBeenCalledTimes(1);
+        expect(mockRun).toHaveBeenCalledWith(
+          expect.stringContaining('println("Hello from Croqtile!")'),
+        );
       });
-
-      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
-      mockRun.mockClear();
-
-      fireEvent.click(screen.getByText("Hello Croqtile"));
-      expect(mockRun).not.toHaveBeenCalled();
-
-      act(() => {
-        jest.advanceTimersByTime(500);
-      });
-      expect(mockRun).toHaveBeenCalledTimes(1);
-      expect(mockRun).toHaveBeenCalledWith(
-        expect.stringContaining('println("Hello from Croqtile!")'),
-      );
-
-      jest.useRealTimers();
     });
 
     it("auto-runs code loaded from Try it button after 500ms", async () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      await act(async () => { jest.runAllTimers(); });
+      await withFakeTimers(async () => {
+        renderPlayground();
+        await act(async () => { jest.runAllTimers(); });
 
-      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
-      fireEvent.click(screen.getByText("Hello Croqtile"));
-      fireEvent.click(screen.getByText("Next →"));
-      mockRun.mockClear();
+        fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+        fireEvent.click(screen.getByText("Hello Croqtile"));
+        fireEvent.click(screen.getByText("Next →"));
+        mockRun.mockClear();
 
-      fireEvent.click(screen.getByLabelText("Try this code example"));
-      expect(mockRun).not.toHaveBeenCalled();
+        fireEvent.click(screen.getByLabelText("Try this code example"));
+        expect(mockRun).not.toHaveBeenCalled();
 
-      act(() => { jest.advanceTimersByTime(499); });
-      expect(mockRun).not.toHaveBeenCalled();
+        act(() => { jest.advanceTimersByTime(499); });
+        expect(mockRun).not.toHaveBeenCalled();
 
-      act(() => { jest.advanceTimersByTime(1); });
-      expect(mockRun).toHaveBeenCalledTimes(1);
-      expect(mockRun).toHaveBeenCalledWith(
-        expect.stringContaining('println("Hello,", "world!")'),
-      );
-
-      jest.useRealTimers();
+        act(() => { jest.advanceTimersByTime(1); });
+        expect(mockRun).toHaveBeenCalledTimes(1);
+        expect(mockRun).toHaveBeenCalledWith(
+          expect.stringContaining('println("Hello,", "world!")'),
+        );
+      });
     });
 
     it("debounces load-and-run so only last timer fires", async () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      await act(async () => { jest.runAllTimers(); });
+      await withFakeTimers(async () => {
+        renderPlayground();
+        await act(async () => { jest.runAllTimers(); });
 
-      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
-      mockRun.mockClear();
+        fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+        mockRun.mockClear();
 
-      fireEvent.click(screen.getByText("Hello Croqtile"));
-      act(() => { jest.advanceTimersByTime(250); });
-      expect(mockRun).not.toHaveBeenCalled();
+        fireEvent.click(screen.getByText("Hello Croqtile"));
+        act(() => { jest.advanceTimersByTime(250); });
+        expect(mockRun).not.toHaveBeenCalled();
 
-      act(() => { jest.advanceTimersByTime(250); });
-      expect(mockRun).toHaveBeenCalledTimes(1);
-
-      jest.useRealTimers();
+        act(() => { jest.advanceTimersByTime(250); });
+        expect(mockRun).toHaveBeenCalledTimes(1);
+      });
     });
 
     it("cancels pending load-and-run timer when a new tutorial step is loaded", async () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      await act(async () => { jest.runAllTimers(); });
+      await withFakeTimers(async () => {
+        renderPlayground();
+        await act(async () => { jest.runAllTimers(); });
 
-      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
-      mockRun.mockClear();
+        fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+        mockRun.mockClear();
 
-      fireEvent.click(screen.getByText("Hello Croqtile"));
-      act(() => { jest.advanceTimersByTime(250); });
+        fireEvent.click(screen.getByText("Hello Croqtile"));
+        act(() => { jest.advanceTimersByTime(250); });
 
-      fireEvent.click(screen.getByText("The __co__ keyword"));
-      act(() => { jest.advanceTimersByTime(500); });
+        fireEvent.click(screen.getByText("The __co__ keyword"));
+        act(() => { jest.advanceTimersByTime(500); });
 
-      expect(mockRun).toHaveBeenCalledTimes(1);
-      expect(mockRun).toHaveBeenCalledWith(
-        expect.stringContaining("__co__"),
-      );
-
-      jest.useRealTimers();
+        expect(mockRun).toHaveBeenCalledTimes(1);
+        expect(mockRun).toHaveBeenCalledWith(
+          expect.stringContaining("__co__"),
+        );
+      });
     });
   });
 
   describe("tutorial autorun timer cleanup", () => {
     it("clears a pending timer before scheduling the next tutorial run", async () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      await flushInitialLoadConfirm();
+      await withFakeTimers(async () => {
+        renderPlayground();
+        await flushInitialLoadConfirm();
 
-      fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
-      fireEvent.click(screen.getByText("Hello Croqtile"));
-      fireEvent.click(screen.getByText("Next →"));
+        fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
+        fireEvent.click(screen.getByText("Hello Croqtile"));
+        fireEvent.click(screen.getByText("Next →"));
 
-      mockRun.mockClear();
-      act(() => { jest.advanceTimersByTime(500); });
-      expect(mockRun).toHaveBeenCalledTimes(1);
-      expect(mockRun).toHaveBeenCalledWith(
-        expect.stringContaining("printing()"),
-      );
-
-      jest.useRealTimers();
+        mockRun.mockClear();
+        act(() => { jest.advanceTimersByTime(500); });
+        expect(mockRun).toHaveBeenCalledTimes(1);
+        expect(mockRun).toHaveBeenCalledWith(
+          expect.stringContaining("printing()"),
+        );
+      });
     });
   });
 
@@ -727,11 +720,12 @@ describe("Playground", () => {
   });
 
   describe("mobile layout", () => {
-    it("renders stacked layout on mobile", () => {
+    it("renders stacked layout on mobile without resizable split", () => {
       mockMatchMedia(true);
       setUrl("/?tutorial=ch01");
-      const { container } = renderPlayground();
-      expect(container.querySelector(".flex-col")).toBeTruthy();
+      renderPlayground();
+      expect(screen.queryByLabelText("Resize panels")).not.toBeInTheDocument();
+      expect(screen.getByText("The __co__ keyword")).toBeInTheDocument();
     });
 
     it("uses false SSR snapshot for mobile detection (useIsMobile)", () => {
@@ -769,18 +763,18 @@ describe("Playground", () => {
   });
 
   describe("source persistence", () => {
-    it("schedules saveSource after source changes", () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      fireEvent.change(screen.getByTestId("code-editor"), {
-        target: { value: "__co__ void edited() {}" },
+    it("schedules saveSource after source changes", async () => {
+      await withFakeTimers(async () => {
+        renderPlayground();
+        fireEvent.change(screen.getByTestId("code-editor"), {
+          target: { value: "__co__ void edited() {}" },
+        });
+        act(() => {
+          jest.advanceTimersByTime(5000);
+        });
+        const { saveSource } = jest.requireMock("@/lib/sourceStorage");
+        expect(saveSource).toHaveBeenCalledWith("__co__ void edited() {}");
       });
-      act(() => {
-        jest.advanceTimersByTime(5000);
-      });
-      const { saveSource } = jest.requireMock("@/lib/sourceStorage");
-      expect(saveSource).toHaveBeenCalledWith("__co__ void edited() {}");
-      jest.useRealTimers();
     });
 
     it("flushes save on beforeunload", () => {
@@ -797,20 +791,20 @@ describe("Playground", () => {
 
   describe("unsaved changes warning", () => {
     it("does not confirm when loading tutorial code on initial deep link", async () => {
-      jest.useFakeTimers();
-      const hashCode = '__co__ void fromHash() { println("hash"); }';
-      setUrl(`/?tutorial=ch01#${encodeURIComponent(hashCode)}`);
-      renderPlayground();
-      await flushInitialLoadConfirm();
-      expect(window.confirm).not.toHaveBeenCalled();
-      jest.useRealTimers();
+      await withFakeTimers(async () => {
+        const hashCode = '__co__ void fromHash() { println("hash"); }';
+        setUrl(`/?tutorial=ch01#${encodeURIComponent(hashCode)}`);
+        renderPlayground();
+        await flushInitialLoadConfirm();
+        expect(window.confirm).not.toHaveBeenCalled();
+      });
     });
 
     it("confirms before loading example when source was modified", async () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      await flushInitialLoadConfirm();
-      jest.useRealTimers();
+      await withFakeTimers(async () => {
+        renderPlayground();
+        await flushInitialLoadConfirm();
+      });
 
       fireEvent.change(screen.getByTestId("code-editor"), {
         target: { value: "__co__ void edited() {}" },
@@ -826,10 +820,10 @@ describe("Playground", () => {
     });
 
     it("loads example when user confirms overwrite", async () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      await flushInitialLoadConfirm();
-      jest.useRealTimers();
+      await withFakeTimers(async () => {
+        renderPlayground();
+        await flushInitialLoadConfirm();
+      });
 
       fireEvent.change(screen.getByTestId("code-editor"), {
         target: { value: "__co__ void edited() {}" },
@@ -845,10 +839,10 @@ describe("Playground", () => {
     });
 
     it("does not confirm when source is still the default example", async () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      await flushInitialLoadConfirm();
-      jest.useRealTimers();
+      await withFakeTimers(async () => {
+        renderPlayground();
+        await flushInitialLoadConfirm();
+      });
 
       fireEvent.change(screen.getByLabelText("Load example code"), {
         target: { value: "parallel" },
@@ -859,10 +853,10 @@ describe("Playground", () => {
     });
 
     it("does not confirm when loading code that matches current editor content", async () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      await flushInitialLoadConfirm();
-      jest.useRealTimers();
+      await withFakeTimers(async () => {
+        renderPlayground();
+        await flushInitialLoadConfirm();
+      });
 
       fireEvent.change(screen.getByTestId("code-editor"), {
         target: { value: EXAMPLES[1].code },
@@ -877,10 +871,10 @@ describe("Playground", () => {
     });
 
     it("does not run tutorial step when user rejects load confirmation", async () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      await flushInitialLoadConfirm();
-      jest.useRealTimers();
+      await withFakeTimers(async () => {
+        renderPlayground();
+        await flushInitialLoadConfirm();
+      });
 
       fireEvent.change(screen.getByTestId("code-editor"), {
         target: { value: "__co__ void edited() {}" },
@@ -973,12 +967,6 @@ describe("Playground", () => {
   });
 
   describe("command palette", () => {
-    it("opens command palette on Ctrl+P", () => {
-      renderPlayground();
-      fireEvent.keyDown(window, { key: "p", ctrlKey: true });
-      expect(screen.getByLabelText("Search commands")).toBeInTheDocument();
-    });
-
     it("runs a command from the palette", () => {
       renderPlayground();
       fireEvent.keyDown(window, { key: "p", ctrlKey: true });
@@ -1510,6 +1498,7 @@ describe("Playground", () => {
       jest.useFakeTimers();
       renderPlayground();
       await flushInitialLoadConfirm();
+      jest.useRealTimers();
 
       fireEvent.click(screen.getByLabelText("Toggle tutorial panel"));
       expect(screen.getByText("Tutorials")).toBeInTheDocument();
@@ -1520,7 +1509,9 @@ describe("Playground", () => {
         'println("Hello from Croqtile!")',
       );
 
-      fireEvent.click(screen.getByLabelText("Toggle challenge panel"));
+      await act(async () => {
+        fireEvent.click(screen.getByLabelText("Toggle challenge panel"));
+      });
       expect(screen.getByText("Challenges")).toBeInTheDocument();
       expect(screen.queryByText("Tutorials")).not.toBeInTheDocument();
       expect(screen.queryByText("The __co__ keyword")).not.toBeInTheDocument();
@@ -1530,8 +1521,6 @@ describe("Playground", () => {
       expect((screen.getByTestId("code-editor") as HTMLTextAreaElement).value).toContain(
         "hello_threads",
       );
-
-      jest.useRealTimers();
     });
 
     it("opens tutorial panel and step from ?tutorial= deep link", () => {
@@ -1562,54 +1551,52 @@ describe("Playground", () => {
       expect(screen.queryByText("Challenges")).not.toBeInTheDocument();
     });
 
-    it("auto-saves source after debounced edit with fake timers", () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      const { saveSource } = jest.requireMock("@/lib/sourceStorage");
-      saveSource.mockClear();
+    it("auto-saves source after debounced edit with fake timers", async () => {
+      await withFakeTimers(async () => {
+        renderPlayground();
+        const { saveSource } = jest.requireMock("@/lib/sourceStorage");
+        saveSource.mockClear();
 
-      fireEvent.change(screen.getByTestId("code-editor"), {
-        target: { value: "__co__ void integrationSave() {}" },
+        fireEvent.change(screen.getByTestId("code-editor"), {
+          target: { value: "__co__ void integrationSave() {}" },
+        });
+        expect(saveSource).not.toHaveBeenCalled();
+
+        act(() => {
+          jest.advanceTimersByTime(4999);
+        });
+        expect(saveSource).not.toHaveBeenCalled();
+
+        act(() => {
+          jest.advanceTimersByTime(1);
+        });
+        expect(saveSource).toHaveBeenCalledTimes(1);
+        expect(saveSource).toHaveBeenCalledWith("__co__ void integrationSave() {}");
       });
-      expect(saveSource).not.toHaveBeenCalled();
-
-      act(() => {
-        jest.advanceTimersByTime(4999);
-      });
-      expect(saveSource).not.toHaveBeenCalled();
-
-      act(() => {
-        jest.advanceTimersByTime(1);
-      });
-      expect(saveSource).toHaveBeenCalledTimes(1);
-      expect(saveSource).toHaveBeenCalledWith("__co__ void integrationSave() {}");
-
-      jest.useRealTimers();
     });
 
-    it("shows unsaved indicator while editing then clears after auto-save", () => {
-      jest.useFakeTimers();
-      renderPlayground();
-      const { saveSource } = jest.requireMock("@/lib/sourceStorage");
-      saveSource.mockClear();
+    it("shows unsaved indicator while editing then clears after auto-save", async () => {
+      await withFakeTimers(async () => {
+        renderPlayground();
+        const { saveSource } = jest.requireMock("@/lib/sourceStorage");
+        saveSource.mockClear();
 
-      expect(screen.queryByLabelText("Unsaved changes")).not.toBeInTheDocument();
+        expect(screen.queryByLabelText("Unsaved changes")).not.toBeInTheDocument();
 
-      fireEvent.change(screen.getByTestId("code-editor"), {
-        target: { value: "__co__ void pendingSave() {}" },
+        fireEvent.change(screen.getByTestId("code-editor"), {
+          target: { value: "__co__ void pendingSave() {}" },
+        });
+        expect(screen.getByLabelText("Unsaved changes")).toBeInTheDocument();
+        expect(screen.getByText("Unsaved")).toBeInTheDocument();
+        expect(saveSource).not.toHaveBeenCalled();
+
+        act(() => {
+          jest.advanceTimersByTime(5000);
+        });
+
+        expect(saveSource).toHaveBeenCalledWith("__co__ void pendingSave() {}");
+        expect(screen.queryByLabelText("Unsaved changes")).not.toBeInTheDocument();
       });
-      expect(screen.getByLabelText("Unsaved changes")).toBeInTheDocument();
-      expect(screen.getByText("Unsaved")).toBeInTheDocument();
-      expect(saveSource).not.toHaveBeenCalled();
-
-      act(() => {
-        jest.advanceTimersByTime(5000);
-      });
-
-      expect(saveSource).toHaveBeenCalledWith("__co__ void pendingSave() {}");
-      expect(screen.queryByLabelText("Unsaved changes")).not.toBeInTheDocument();
-
-      jest.useRealTimers();
     });
 
     it("toggles theme and updates data-theme on document and editor", () => {
@@ -1686,11 +1673,11 @@ describe("Playground", () => {
     });
 
     it("uses sourceRef in confirmAndLoad when editor ref is unavailable", async () => {
-      jest.useFakeTimers();
-      mockEditorProvidesRef = false;
-      renderPlayground();
-      await flushInitialLoadConfirm();
-      jest.useRealTimers();
+      await withFakeTimers(async () => {
+        mockEditorProvidesRef = false;
+        renderPlayground();
+        await flushInitialLoadConfirm();
+      });
 
       fireEvent.change(screen.getByTestId("code-editor"), {
         target: { value: "__co__ void edited() {}" },

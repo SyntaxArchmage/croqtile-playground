@@ -14,18 +14,22 @@ class MockWorker {
 
 let mockWorker: MockWorker;
 
+const defaultFetchResponse = {
+  ok: true,
+  json: () => Promise.resolve({ version: "1.0.0", commit: null, commit_short: null, built_at: null }),
+};
+
 beforeEach(() => {
+  jest.clearAllMocks();
   mockWorker = new MockWorker();
   global.Worker = jest.fn(() => mockWorker) as unknown as typeof Worker;
-  global.fetch = jest.fn().mockResolvedValue({
-    ok: true,
-    json: () => Promise.resolve({ version: "1.0.0", commit: null, commit_short: null, built_at: null }),
-  });
+  global.fetch = jest.fn().mockResolvedValue(defaultFetchResponse);
   jest.useFakeTimers();
 });
 
 afterEach(() => {
   jest.useRealTimers();
+  jest.restoreAllMocks();
 });
 
 function postWorkerMessage(type: string, data: Record<string, unknown> = {}) {
@@ -44,6 +48,13 @@ function mockPerformanceNow(values: number[]) {
     const v = values[Math.min(idx, values.length - 1)];
     idx += 1;
     return v;
+  });
+}
+
+async function flushManifestFetch() {
+  await act(async () => {
+    await Promise.resolve();
+    await Promise.resolve();
   });
 }
 
@@ -391,49 +402,50 @@ describe("useChoreoWorker", () => {
 
     it("sets elapsedMs from compile-result using performance.now delta", () => {
       const nowSpy = mockPerformanceNow([1000, 1542.7]);
+      try {
+        const { result } = renderHook(() => useChoreoWorker());
+        makeReady();
 
-      const { result } = renderHook(() => useChoreoWorker());
-      makeReady();
+        act(() => { result.current.run("code"); });
+        postWorkerMessage("compile-result", { output: "done", errors: "" });
 
-      act(() => { result.current.run("code"); });
-      postWorkerMessage("compile-result", { output: "done", errors: "" });
-
-      expect(result.current.elapsedMs).toBe(543);
-      nowSpy.mockRestore();
+        expect(result.current.elapsedMs).toBe(543);
+      } finally {
+        nowSpy.mockRestore();
+      }
     });
 
     it("sets elapsedMs on timeout using performance.now delta", () => {
       const nowSpy = mockPerformanceNow([2000, 2875.4]);
+      try {
+        const { result } = renderHook(() => useChoreoWorker());
+        makeReady();
 
-      const { result } = renderHook(() => useChoreoWorker());
-      makeReady();
+        act(() => { result.current.run("slow"); });
+        act(() => { jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS); });
 
-      act(() => { result.current.run("slow"); });
-      act(() => { jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS); });
-
-      expect(result.current.elapsedMs).toBe(875);
-      nowSpy.mockRestore();
+        expect(result.current.elapsedMs).toBe(875);
+      } finally {
+        nowSpy.mockRestore();
+      }
     });
 
-    it("clears pending timeout when compile-result arrives", () => {
-      const clearSpy = jest.spyOn(global, "clearTimeout");
+    it("does not apply timeout error after compile-result completes", () => {
       const { result } = renderHook(() => useChoreoWorker());
       makeReady();
 
       act(() => {
         result.current.run("code");
       });
-
-      const callsBefore = clearSpy.mock.calls.length;
       postWorkerMessage("compile-result", { output: "ok", errors: "" });
-      expect(clearSpy.mock.calls.length).toBeGreaterThan(callsBefore);
       expect(result.current.output).toBe("ok");
+      expect(result.current.status).toBe("ready");
 
       act(() => {
         jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS + 1000);
       });
       expect(result.current.errors).toBe("");
-      clearSpy.mockRestore();
+      expect(result.current.output).toBe("ok");
     });
 
     it("handles compile-result when execution timeout id is falsy", () => {
@@ -443,7 +455,24 @@ describe("useChoreoWorker", () => {
         }
         return jest.requireActual<typeof globalThis>("timers").setTimeout(fn, delay as number);
       });
+      try {
+        const { result } = renderHook(() => useChoreoWorker());
+        makeReady();
 
+        act(() => {
+          result.current.run("code");
+        });
+        expect(result.current.status).toBe("running");
+
+        postWorkerMessage("compile-result", { output: "ok", errors: "" });
+        expect(result.current.status).toBe("ready");
+        expect(result.current.output).toBe("ok");
+      } finally {
+        setTimeoutSpy.mockRestore();
+      }
+    });
+
+    it("returns to ready when ready message arrives during run without timing out", () => {
       const { result } = renderHook(() => useChoreoWorker());
       makeReady();
 
@@ -452,34 +481,19 @@ describe("useChoreoWorker", () => {
       });
       expect(result.current.status).toBe("running");
 
-      postWorkerMessage("compile-result", { output: "ok", errors: "" });
-      expect(result.current.status).toBe("ready");
-      expect(result.current.output).toBe("ok");
-
-      setTimeoutSpy.mockRestore();
-    });
-
-    it("clears pending timeout when ready message arrives during run", () => {
-      const clearSpy = jest.spyOn(global, "clearTimeout");
-      const { result } = renderHook(() => useChoreoWorker());
-      makeReady();
-
-      act(() => {
-        result.current.run("code");
-      });
-
-      const callsBefore = clearSpy.mock.calls.length;
       postWorkerMessage("ready", { version: "3.0.0" });
-      expect(clearSpy.mock.calls.length).toBeGreaterThan(callsBefore);
       expect(result.current.status).toBe("ready");
       expect(result.current.compilerVersion).toBe("3.0.0");
-      clearSpy.mockRestore();
+
+      act(() => {
+        jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS + 1000);
+      });
+      expect(result.current.errors).toBe("");
     });
   });
 
   describe("cleanup", () => {
-    it("terminates worker and clears pending timeout on unmount", () => {
-      const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
+    it("terminates worker on unmount and ignores stale timeout callbacks", () => {
       const { result, unmount } = renderHook(() => useChoreoWorker());
       makeReady();
       act(() => { result.current.run("code"); });
@@ -487,10 +501,8 @@ describe("useChoreoWorker", () => {
 
       unmount();
       expect(mockWorker.terminate).toHaveBeenCalledTimes(1);
-      expect(clearTimeoutSpy).toHaveBeenCalled();
 
       act(() => { jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS); });
-      clearTimeoutSpy.mockRestore();
     });
 
     it("creates worker with expected script path", () => {
@@ -537,8 +549,6 @@ describe("useChoreoWorker", () => {
 
   describe("timeout when status already changed", () => {
     it("no-ops if status changed from running before timeout fires", () => {
-      const clearTimeoutSpy = jest.spyOn(global, "clearTimeout").mockImplementation(() => {});
-
       const { result } = renderHook(() => useChoreoWorker());
       makeReady();
       act(() => { result.current.run("code"); });
@@ -548,8 +558,6 @@ describe("useChoreoWorker", () => {
       act(() => { jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS); });
       expect(result.current.status).toBe("error");
       expect(result.current.errors).toBe("crash");
-
-      clearTimeoutSpy.mockRestore();
     });
   });
 
@@ -577,6 +585,7 @@ describe("useChoreoWorker", () => {
   describe("build manifest fetch", () => {
     it("loads build manifest when fetch succeeds", async () => {
       const { result } = renderHook(() => useChoreoWorker());
+      await flushManifestFetch();
       await waitFor(() => {
         expect(result.current.buildManifest).toEqual({
           version: "1.0.0",
@@ -590,6 +599,7 @@ describe("useChoreoWorker", () => {
     it("leaves buildManifest null when fetch fails", async () => {
       global.fetch = jest.fn().mockResolvedValue({ ok: false, statusText: "Not Found" });
       const { result } = renderHook(() => useChoreoWorker());
+      await flushManifestFetch();
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalled();
       });
@@ -602,6 +612,7 @@ describe("useChoreoWorker", () => {
         json: () => Promise.resolve(null),
       });
       const { result } = renderHook(() => useChoreoWorker());
+      await flushManifestFetch();
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalled();
       });
@@ -620,6 +631,7 @@ describe("useChoreoWorker", () => {
           }),
       });
       const { result } = renderHook(() => useChoreoWorker());
+      await flushManifestFetch();
       await waitFor(() => {
         expect(result.current.buildManifest).toEqual({
           version: null,

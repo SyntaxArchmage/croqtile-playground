@@ -235,6 +235,21 @@ import { challenge207 } from "./207-parallel-reciprocal";
 import { challenge208 } from "./208-matrix-power-diagonal";
 import { challenge209 } from "./209-array-weighted-sum";
 import { challenge210 } from "./210-grand-gaussian-elimination";
+import { challenge211 } from "./211-array-zip";
+import { challenge212 } from "./212-matrix-transpose-3x3";
+import { challenge213 } from "./213-parallel-cube";
+import { challenge214 } from "./214-array-slide";
+import { challenge215 } from "./215-matrix-is-zero";
+import { challenge216 } from "./216-parallel-min-max";
+import { challenge217 } from "./217-array-remove-at";
+import { challenge218 } from "./218-matrix-column-sort";
+import { challenge219 } from "./219-parallel-factorial";
+import { challenge220 } from "./220-grand-matrix-qr";
+import { challenge221 } from "./221-array-insert-at";
+import { challenge222 } from "./222-matrix-reshape";
+import { challenge223 } from "./223-parallel-sum-of-digits";
+import { challenge224 } from "./224-array-mean";
+import { challenge225 } from "./225-grand-kmeans-step";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -293,4 +308,8 @@ export const CHALLENGES: Challenge[] = [
   challenge200, challenge201, challenge202, challenge203,
   challenge204, challenge205, challenge206, challenge207,
   challenge208, challenge209, challenge210,
+  challenge211, challenge212, challenge213, challenge214,
+  challenge215, challenge216, challenge217, challenge218,
+  challenge219, challenge220, challenge221, challenge222,
+  challenge223, challenge224, challenge225,
 ];

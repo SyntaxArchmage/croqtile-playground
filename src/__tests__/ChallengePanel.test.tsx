@@ -27,6 +27,11 @@ describe("ChallengePanel", () => {
     jest.clearAllMocks();
     mockIsChallengePassed = false;
     mockChallengeProgress = { status: "not_started", attempts: 0 };
+    window.history.pushState({}, "", "/");
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it("renders challenges header", () => {
@@ -130,7 +135,10 @@ describe("ChallengePanel", () => {
       <ChallengePanel onLoadCode={onLoadCode} onClose={() => {}} lastOutput="" />
     );
     fireEvent.click(screen.getByText("Hello Threads"));
-    expect(onLoadCode).toHaveBeenCalled();
+    expect(onLoadCode).toHaveBeenCalledTimes(1);
+    expect(onLoadCode).toHaveBeenCalledWith(
+      expect.stringContaining("hello_threads"),
+    );
   });
 
   it("shows challenge detail view with Back button", () => {
@@ -238,6 +246,9 @@ describe("ChallengePanel", () => {
     );
     fireEvent.click(screen.getByText("Hello Threads"));
     expect(screen.getByText("Tests")).toBeInTheDocument();
+    const results = screen.getAllByTestId("test-result");
+    expect(results.some((el) => el.textContent?.includes("○"))).toBe(true);
+    expect(results.every((el) => !el.textContent?.includes("✗"))).toBe(true);
   });
 
   it("shows expected/actual diff when test fails with output", () => {
@@ -368,6 +379,9 @@ describe("ChallengePanel", () => {
     onLoadCode.mockClear();
     fireEvent.click(screen.getByText("Reset Code"));
     expect(onLoadCode).toHaveBeenCalledTimes(1);
+    expect(onLoadCode).toHaveBeenCalledWith(
+      expect.stringContaining("hello_threads"),
+    );
   });
 
   it("renders with initialId", () => {
@@ -560,16 +574,20 @@ describe("ChallengePanel", () => {
 
   it("scrolls to first failing test when scrollIntoView is available", () => {
     const scrollIntoView = jest.fn();
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
     Element.prototype.scrollIntoView = scrollIntoView;
 
-    const { rerender } = render(
-      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
-    );
-    rerender(
-      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="wrong output" initialId="c01" />
-    );
-    expect(scrollIntoView).toHaveBeenCalled();
-    delete (Element.prototype as Record<string, unknown>).scrollIntoView;
+    try {
+      const { rerender } = render(
+        <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" initialId="c01" />
+      );
+      rerender(
+        <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="wrong output" initialId="c01" />
+      );
+      expect(scrollIntoView).toHaveBeenCalled();
+    } finally {
+      Element.prototype.scrollIntoView = originalScrollIntoView;
+    }
   });
 
   it("shows Load Best button when challenge has best code saved", () => {
@@ -603,7 +621,6 @@ describe("ChallengePanel", () => {
     fireEvent.click(screen.getByText("Hello Threads"));
     const params = new URLSearchParams(window.location.search);
     expect(params.get("challenge")).toBe("c01");
-    window.history.pushState({}, "", "/");
   });
 
   it("removes challenge URL param on back", () => {
@@ -614,7 +631,6 @@ describe("ChallengePanel", () => {
     fireEvent.click(screen.getByText("← Back"));
     const params = new URLSearchParams(window.location.search);
     expect(params.get("challenge")).toBeNull();
-    window.history.pushState({}, "", "/");
   });
 
   it("renders status filter buttons", () => {
@@ -736,7 +752,6 @@ describe("ChallengePanel", () => {
       <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="ran" initialId="c01" />
     );
     expect(screen.getByText("(no output)")).toBeInTheDocument();
-    jest.restoreAllMocks();
   });
 
   it("shows no-tests message when challenge has empty tests array", () => {
@@ -752,7 +767,6 @@ describe("ChallengePanel", () => {
       );
     } finally {
       CHALLENGES[0].tests = original;
-      jest.restoreAllMocks();
     }
   });
 });
