@@ -5,9 +5,9 @@ import { parseContent } from "../lib/parseContent";
 import { formatChoreoCode } from "../lib/formatCode";
 
 describe("Content integrity", () => {
-  it("has 70 challenges and 25 tutorials", () => {
-    expect(CHALLENGES.length).toBe(70);
-    expect(TUTORIALS.length).toBe(25);
+  it("has 76 challenges and 26 tutorials", () => {
+    expect(CHALLENGES.length).toBe(76);
+    expect(TUTORIALS.length).toBe(26);
   });
 
   it("all tutorials have at least 2 steps", () => {
@@ -115,9 +115,10 @@ describe("Content integrity", () => {
     }
   });
 
-  it("all examples have non-empty name and code", () => {
+  it("all examples have non-empty name, description, and code", () => {
     for (const ex of EXAMPLES) {
       expect(ex.name.trim().length).toBeGreaterThan(0);
+      expect(ex.description.trim().length).toBeGreaterThan(0);
       expect(ex.code.trim().length).toBeGreaterThan(0);
     }
   });

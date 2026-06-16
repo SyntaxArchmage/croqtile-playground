@@ -84,6 +84,12 @@ import { challenge67 } from "./67-parallel-decrement";
 import { challenge68 } from "./68-matrix-diagonal-fill";
 import { challenge69 } from "./69-running-minimum";
 import { challenge70 } from "./70-double-buffer-copy";
+import { challenge71 } from "./71-sum-of-squares";
+import { challenge72 } from "./72-matrix-add";
+import { challenge73 } from "./73-array-search";
+import { challenge74 } from "./74-outer-product";
+import { challenge75 } from "./75-parallel-threshold";
+import { challenge76 } from "./76-sliding-window-max";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -103,5 +109,6 @@ export const CHALLENGES: Challenge[] = [
   challenge57, challenge58, challenge59, challenge60,
   challenge61, challenge62, challenge63, challenge64,
   challenge65, challenge66, challenge67, challenge68,
-  challenge69, challenge70,
+  challenge69, challenge70, challenge71, challenge72,
+  challenge73, challenge74, challenge75, challenge76,
 ];
