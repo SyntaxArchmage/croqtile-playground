@@ -17,6 +17,7 @@ import type { CursorPosition, EditorHandle, SelectionInfo } from "./Editor";
 import { encodeCode } from "@/lib/urlCodec";
 import { formatChoreoCode } from "@/lib/formatCode";
 import { downloadCoSource } from "@/lib/fileIO";
+import { exportProgress } from "@/lib/progressExport";
 import { CommandPalette, type CommandItem } from "./CommandPalette";
 import { ShortcutsDialog } from "./ShortcutsDialog";
 import { readInitialSource, readInitialPanelMode, getDeepLinkId } from "@/lib/playgroundInit";
@@ -293,6 +294,7 @@ export function Playground() {
     { label: "Format Code", action: handleFormatCode },
     { label: "Open Tutorial", action: () => handleTogglePanel("tutorial") },
     { label: "Open Challenges", action: () => handleTogglePanel("challenge") },
+    { label: "Export Progress", action: exportProgress },
     { label: "Keyboard Shortcuts", action: () => setShowShortcuts(true), shortcut: "?" },
   ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme, handleUndo, handleRedo, handleFind, handleReplace, handleGoToLine, handleDownload, handleTogglePanel, handleFormatCode]);
 
