@@ -24,8 +24,8 @@
 - Error boundary with graceful crash recovery
 
 ### Content
-- 20 tutorials (ch01–ch20) with "Try it" inline code blocks
-- 48 challenges (c01–c48) with auto-verification, progress badges, and "in progress" status
+- 21 tutorials (ch01–ch21) with "Try it" inline code blocks
+- 54 challenges (c01–c54) with auto-verification, progress badges, and "in progress" status
 - 22 example programs
 
 ### User Experience
@@ -57,7 +57,7 @@
 - GitHub Actions CI: type check, lint, test, build
 - `.npmrc` with `legacy-peer-deps=true` for CI compatibility
 - WASM build script with version tracking (build-manifest.json)
-- 683 unit/component tests across 34 suites
+- 712 unit/component tests across 35 suites
 - Coverage: 99.86% statements, 97.97% branches, 100% functions, 100% lines
 - prefers-reduced-motion media query for accessibility
 - Coverage thresholds: 95% statements, 85% branches, 95% functions, 95% lines
