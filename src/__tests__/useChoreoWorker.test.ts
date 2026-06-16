@@ -149,6 +149,15 @@ describe("useChoreoWorker", () => {
       expect(result.current.errors).toBe("Script load failed");
     });
 
+    it("extracts nested error.message from ErrorEvent when message is absent", () => {
+      const { result } = renderHook(() => useChoreoWorker());
+      act(() => {
+        mockWorker.onerror?.({ error: new Error("WASM OOM") } as ErrorEvent);
+      });
+      expect(result.current.status).toBe("error");
+      expect(result.current.errors).toBe("WASM OOM");
+    });
+
     it("handles WASM init error during loading", () => {
       const { result } = renderHook(() => useChoreoWorker());
       expect(result.current.status).toBe("loading");
@@ -407,23 +416,41 @@ describe("useChoreoWorker", () => {
     });
 
     it("clears pending timeout when compile-result arrives", () => {
+      const clearSpy = jest.spyOn(global, "clearTimeout");
       const { result } = renderHook(() => useChoreoWorker());
       makeReady();
 
       act(() => {
         result.current.run("code");
       });
-      act(() => {
-        jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS - 1000);
-      });
 
+      const callsBefore = clearSpy.mock.calls.length;
       postWorkerMessage("compile-result", { output: "ok", errors: "" });
+      expect(clearSpy.mock.calls.length).toBeGreaterThan(callsBefore);
       expect(result.current.output).toBe("ok");
 
       act(() => {
-        jest.advanceTimersByTime(2000);
+        jest.advanceTimersByTime(EXECUTION_TIMEOUT_MS + 1000);
       });
       expect(result.current.errors).toBe("");
+      clearSpy.mockRestore();
+    });
+
+    it("clears pending timeout when ready message arrives during run", () => {
+      const clearSpy = jest.spyOn(global, "clearTimeout");
+      const { result } = renderHook(() => useChoreoWorker());
+      makeReady();
+
+      act(() => {
+        result.current.run("code");
+      });
+
+      const callsBefore = clearSpy.mock.calls.length;
+      postWorkerMessage("ready", { version: "3.0.0" });
+      expect(clearSpy.mock.calls.length).toBeGreaterThan(callsBefore);
+      expect(result.current.status).toBe("ready");
+      expect(result.current.compilerVersion).toBe("3.0.0");
+      clearSpy.mockRestore();
     });
   });
 
