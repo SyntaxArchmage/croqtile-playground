@@ -20,15 +20,17 @@ export function useChoreoWorker() {
   const workerRef = useRef<Worker | null>(null);
   const statusRef = useRef<WorkerStatus>("loading");
 
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
   useEffect(() => {
-    fetch("/wasm/build-manifest.json")
+    fetch(`${basePath}/wasm/build-manifest.json`)
       .then((r) => r.json())
       .then((m) => setBuildManifest(m))
       .catch(() => {});
-  }, []);
+  }, [basePath]);
 
   useEffect(() => {
-    const worker = new Worker("/wasm/choreo-worker.js");
+    const worker = new Worker(`${basePath}/wasm/choreo-worker.js`);
     workerRef.current = worker;
 
     const updateStatus = (s: WorkerStatus) => {
