@@ -198,6 +198,11 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
               </div>
             );
           })()}
+          {CHALLENGES.length > 0 && CHALLENGES.every((c) => isChallengePassed(c.id)) && (
+            <div className="text-xs text-[var(--success)] bg-[var(--success)]/10 border border-[var(--success)]/30 rounded px-3 py-2" role="status">
+              All challenges completed!
+            </div>
+          )}
           <ListSearchInput
             value={searchQuery}
             onChange={(q) => {

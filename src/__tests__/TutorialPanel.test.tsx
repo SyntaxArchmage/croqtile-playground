@@ -35,6 +35,18 @@ describe("TutorialPanel", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it("shows completion banner when all tutorials are completed", () => {
+    mockTutorialProgress = 999;
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    expect(screen.getByText("All tutorials completed!")).toBeInTheDocument();
+    mockTutorialProgress = -1;
+  });
+
+  it("hides completion banner when tutorials are incomplete", () => {
+    render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+    expect(screen.queryByText("All tutorials completed!")).not.toBeInTheDocument();
+  });
+
   it("loads code when tutorial is selected", () => {
     const onLoadCode = jest.fn();
     render(<TutorialPanel onLoadCode={onLoadCode} onClose={() => {}} />);
@@ -350,6 +362,20 @@ describe("TutorialPanel", () => {
     mockTutorialProgress = -1;
     render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
     expect(screen.getByTestId("tutorial-progress-summary")).toHaveTextContent(/0\/\d+ done/);
+  });
+
+  it("shows zero progress when tutorial catalog is empty", () => {
+    const backup = TUTORIALS.splice(0, TUTORIALS.length);
+    try {
+      render(<TutorialPanel onLoadCode={() => {}} onClose={() => {}} />);
+      expect(screen.getByTestId("tutorial-progress-summary")).toHaveTextContent("0/0 done");
+      const bar = screen
+        .getByTestId("tutorial-progress-summary")
+        .previousElementSibling?.firstElementChild as HTMLElement | null;
+      expect(bar?.style.width).toBe("0%");
+    } finally {
+      TUTORIALS.push(...backup);
+    }
   });
 
   it("navigates to a step when clicking a step dot", () => {

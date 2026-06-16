@@ -1,3 +1,4 @@
+import React from "react";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { CHALLENGES } from "@/lib/challenges";
@@ -42,6 +43,21 @@ describe("ChallengePanel", () => {
     );
     fireEvent.click(screen.getByLabelText("Close challenges panel"));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows completion banner when all challenges are passed", () => {
+    mockIsChallengePassed = true;
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    expect(screen.getByText("All challenges completed!")).toBeInTheDocument();
+  });
+
+  it("hides completion banner when challenges are incomplete", () => {
+    render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    expect(screen.queryByText("All challenges completed!")).not.toBeInTheDocument();
   });
 
   it("renders challenge titles from the list", () => {
@@ -157,6 +173,63 @@ describe("ChallengePanel", () => {
     fireEvent.click(screen.getByText("Hello Threads"));
     fireEvent.click(screen.getByText("← Back"));
     expect(screen.getByText("Challenges")).toHaveFocus();
+  });
+
+  it("tolerates null detailBackRef when opening a challenge", () => {
+    const realUseRef = React.useRef;
+    let call = 0;
+    jest.spyOn(React, "useRef").mockImplementation((initial) => {
+      const idx = call % 5;
+      call += 1;
+      if (idx === 2) return { current: null };
+      return realUseRef(initial);
+    });
+
+    try {
+      render(
+        <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+      );
+      fireEvent.click(screen.getByText("Hello Threads"));
+      expect(screen.getByLabelText("Back to challenges list")).toBeInTheDocument();
+    } finally {
+      jest.restoreAllMocks();
+    }
+  });
+
+  it("tolerates null listHeadingRef when returning to the list", () => {
+    const realUseRef = React.useRef;
+    let call = 0;
+    jest.spyOn(React, "useRef").mockImplementation((initial) => {
+      const idx = call % 5;
+      call += 1;
+      if (idx === 1) return { current: null };
+      return realUseRef(initial);
+    });
+
+    try {
+      render(
+        <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+      );
+      fireEvent.click(screen.getByText("Hello Threads"));
+      fireEvent.click(screen.getByText("← Back"));
+      expect(screen.getByText("Challenges")).toBeInTheDocument();
+    } finally {
+      jest.restoreAllMocks();
+    }
+  });
+
+  it("does not refocus when selected challenge id is unchanged", () => {
+    const focusSpy = jest.spyOn(HTMLElement.prototype, "focus");
+    const { rerender } = render(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="" />
+    );
+    fireEvent.click(screen.getByText("Hello Threads"));
+    focusSpy.mockClear();
+    rerender(
+      <ChallengePanel onLoadCode={() => {}} onClose={() => {}} lastOutput="updated output" />
+    );
+    expect(focusSpy).not.toHaveBeenCalled();
+    focusSpy.mockRestore();
   });
 
   it("shows test results as not-ran when no output", () => {

@@ -114,6 +114,11 @@ export function TutorialPanel({ onLoadCode, onClose, initialId }: Props) {
               </div>
             );
           })()}
+          {TUTORIALS.length > 0 && TUTORIALS.every((t) => isTutorialComplete(t)) && (
+            <div className="text-xs text-[var(--success)] bg-[var(--success)]/10 border border-[var(--success)]/30 rounded px-3 py-2" role="status">
+              All tutorials completed!
+            </div>
+          )}
           <ListSearchInput
             value={searchQuery}
             onChange={setSearchQuery}
