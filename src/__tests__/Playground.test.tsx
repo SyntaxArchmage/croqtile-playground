@@ -878,6 +878,25 @@ describe("Playground", () => {
     });
   });
 
+  describe("theme toggle", () => {
+    it("toggles theme from dark to light via Ctrl+Shift+T", () => {
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "T", ctrlKey: true, shiftKey: true });
+      expect(mockSaveSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ theme: "light" }),
+      );
+    });
+
+    it("toggles theme from light to dark via Ctrl+Shift+T", () => {
+      mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, lastTarget: "cc", theme: "light" as const });
+      renderPlayground();
+      fireEvent.keyDown(window, { key: "T", ctrlKey: true, shiftKey: true });
+      expect(mockSaveSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ theme: "dark" }),
+      );
+    });
+  });
+
   describe("document title", () => {
     it("shows running indicator in title when status is running", () => {
       mockStatus = "running";
