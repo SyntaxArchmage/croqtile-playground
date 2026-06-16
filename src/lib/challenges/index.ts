@@ -225,6 +225,16 @@ import { challenge197 } from "./197-array-majority-element";
 import { challenge198 } from "./198-parallel-saturate";
 import { challenge199 } from "./199-matrix-eigenvalue-2x2";
 import { challenge200 } from "./200-grand-jacobi-solver";
+import { challenge201 } from "./201-array-flatten-2d";
+import { challenge202 } from "./202-matrix-inverse-2x2";
+import { challenge203 } from "./203-parallel-index-of";
+import { challenge204 } from "./204-array-fill-pattern";
+import { challenge205 } from "./205-matrix-hadamard";
+import { challenge206 } from "./206-array-right-shift";
+import { challenge207 } from "./207-parallel-reciprocal";
+import { challenge208 } from "./208-matrix-power-diagonal";
+import { challenge209 } from "./209-array-weighted-sum";
+import { challenge210 } from "./210-grand-gaussian-elimination";
 
 export const CHALLENGES: Challenge[] = [
   challenge01, challenge02, challenge03, challenge04,
@@ -280,5 +290,7 @@ export const CHALLENGES: Challenge[] = [
   challenge188, challenge189, challenge190, challenge191,
   challenge192, challenge193, challenge194, challenge195,
   challenge196, challenge197, challenge198, challenge199,
-  challenge200,
+  challenge200, challenge201, challenge202, challenge203,
+  challenge204, challenge205, challenge206, challenge207,
+  challenge208, challenge209, challenge210,
 ];

@@ -202,7 +202,7 @@ interface Tutorial {
 }
 ```
 
-**Current content** (45 tutorials):
+**Current content** (50 tutorials):
 
 | ID | Title | Steps | Topics |
 |----|-------|-------|--------|
@@ -261,7 +261,7 @@ interface Challenge {
 
 **Validation logic**: `mockRun(userCode)` → compare `output.trim()` with `expectedOutput.trim()`.
 
-**Current challenges** (160):
+**Current challenges** (200):
 
 | ID | Title | Difficulty | Key Construct |
 |----|-------|-----------|---------------|
@@ -348,7 +348,7 @@ interface Challenge {
 
 ### 5.6 Example Programs
 
-Built-in code snippets loadable from toolbar dropdown (30 examples):
+Built-in code snippets loadable from toolbar dropdown (60 examples):
 
 | Name | Demonstrates |
 |------|-------------|
@@ -443,7 +443,7 @@ Managed via `useChoreoWorker` hook + component state:
 | `status` | `"loading" \| "ready" \| "running" \| "error"` | Worker status |
 | `output` / `errors` | `string` | Execution results |
 
-### 7.2 Persistence (Future — localStorage)
+### 7.2 Persistence (localStorage)
 
 ```typescript
 interface PlaygroundState {
@@ -458,7 +458,7 @@ interface PlaygroundState {
 }
 ```
 
-No backend needed for MVP. localStorage is sufficient.
+Implemented. Tracks tutorial/challenge progress, last source, and editor settings. Export/import progress via settings menu and command palette (JSON backup/restore). No backend needed for MVP.
 
 ---
 
@@ -547,20 +547,31 @@ src/
 - [x] Error states / graceful degradation
 - [x] Auto-scroll output panel
 - [x] Auto-switch to errors tab
-- [x] Unit tests (962 tests across 44 suites)
+- [x] Unit tests (994 tests across 44 suites)
 - [x] GitHub Actions CI pipeline
 - [x] ErrorBoundary component
 - [x] Custom scrollbar styling
 - [x] ARIA accessibility labels
 - [x] Favicon
+- [x] ListSearchInput for tutorial/challenge list filtering
+- [x] Breadcrumb navigation in tutorial detail view
+- [x] Pagination (load-more) for tutorial/challenge lists
+- [x] Export/import progress (JSON backup/restore)
+- [x] ShortcutsDialog extracted component
+- [x] Platform detection (macOS vs Windows/Linux shortcut labels)
+- [x] Print-friendly CSS
+- [x] Responsive layout improvements (touch targets, mobile FAB, stacked panels)
+- [x] Accessibility: focus-visible styles, CommandPalette focus trap, contrast, landmarks, live regions
 
 ### Phase 6: Future Enhancements
 
 - [ ] L2 execution: Remote GPU Server integration
 - [ ] Extend MockInterpreter to support mma (CPU simulation)
-- [x] ~~Additional tutorials (ch04–ch09)~~ — Done (45 tutorials)
-- [x] ~~Additional challenges (9–15 total)~~ — Done (160 challenges)
+- [x] ~~Additional tutorials (ch04–ch09)~~ — Done (50 tutorials)
+- [x] ~~Additional challenges (9–15 total)~~ — Done (200 challenges)
+- [x] ~~Additional examples~~ — Done (60 examples)
 - [x] ~~Code sharing via short links~~ — Done (base64url encoding)
+- [x] ~~Progressive hint reveal for challenges~~ — Done (multi-hint, one-at-a-time UI)
 - [ ] WebGPU exploration (L3)
 
 ---
