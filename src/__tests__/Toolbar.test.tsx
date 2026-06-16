@@ -782,4 +782,133 @@ describe("Toolbar", () => {
     render(<Toolbar {...defaultProps} />);
     expect(screen.getByText("⚙")).toBeInTheDocument();
   });
+
+  it("loads example from mobile Examples group in File menu", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    const examplesGroup = screen.getByRole("group", { name: "Examples" });
+    fireEvent.click(examplesGroup.querySelector("button")!);
+    expect(defaultProps.onLoadCode).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("Open file...")).not.toBeInTheDocument();
+  });
+
+  it("renders command palette button when handler provided", () => {
+    const onOpenCommandPalette = jest.fn();
+    render(<Toolbar {...defaultProps} onOpenCommandPalette={onOpenCommandPalette} />);
+    const btn = screen.getByLabelText("Open command palette");
+    expect(btn).toBeInTheDocument();
+    fireEvent.click(btn);
+    expect(onOpenCommandPalette).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not call onSettingsChange when decrease clicked at minimum tab size", () => {
+    render(
+      <Toolbar
+        {...defaultProps}
+        settings={{ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "dark" as const }}
+      />,
+    );
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByLabelText("Decrease tab size")).toBeDisabled();
+    const decBtn = screen.getByLabelText("Decrease tab size") as HTMLElement & Record<string, unknown>;
+    const propsKey = Object.keys(decBtn).find((k) => k.startsWith("__reactProps"));
+    expect(propsKey).toBeDefined();
+    (decBtn[propsKey!] as { onClick: (e: React.MouseEvent) => void }).onClick({
+      preventDefault: () => {},
+    } as React.MouseEvent);
+    expect(defaultProps.onSettingsChange).not.toHaveBeenCalled();
+  });
+
+  it("does not call onSettingsChange when increase clicked at maximum tab size", () => {
+    render(
+      <Toolbar
+        {...defaultProps}
+        settings={{ fontSize: 14, wordWrap: true, tabSize: 8, lastTarget: "cc", theme: "dark" as const }}
+      />,
+    );
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    expect(screen.getByLabelText("Increase tab size")).toBeDisabled();
+    const incBtn = screen.getByLabelText("Increase tab size") as HTMLElement & Record<string, unknown>;
+    const propsKey = Object.keys(incBtn).find((k) => k.startsWith("__reactProps"));
+    expect(propsKey).toBeDefined();
+    (incBtn[propsKey!] as { onClick: (e: React.MouseEvent) => void }).onClick({
+      preventDefault: () => {},
+    } as React.MouseEvent);
+    expect(defaultProps.onSettingsChange).not.toHaveBeenCalled();
+  });
+
+  it("switches to dark theme when light theme is unchecked", () => {
+    render(
+      <Toolbar
+        {...defaultProps}
+        settings={{ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "light" }}
+      />,
+    );
+    fireEvent.click(screen.getByLabelText("Settings menu"));
+    fireEvent.click(screen.getByLabelText("Toggle light theme"));
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({
+      fontSize: 14,
+      wordWrap: true,
+      tabSize: 2,
+      lastTarget: "cc",
+      theme: "dark",
+    });
+  });
+
+  it("handles Open file when file input ref is cleared", () => {
+    const shareTimeoutRef = { current: null as ReturnType<typeof setTimeout> | null };
+    const fileInputRef = { current: null as HTMLInputElement | null };
+    const fileMenuRef = { current: null as HTMLDivElement | null };
+    const settingsMenuRef = { current: null as HTMLDivElement | null };
+    const refs = [shareTimeoutRef, fileInputRef, fileMenuRef, settingsMenuRef];
+    let useRefCall = 0;
+    const useRefSpy = jest.spyOn(React, "useRef").mockImplementation((initial) => {
+      const ref = refs[useRefCall % 4];
+      useRefCall += 1;
+      if (ref === shareTimeoutRef && initial !== undefined) {
+        ref.current = initial as ReturnType<typeof setTimeout> | null;
+      }
+      return ref;
+    });
+
+    try {
+      render(<Toolbar {...defaultProps} />);
+      fireEvent.click(screen.getByLabelText("File menu"));
+      fileInputRef.current = null;
+      expect(() => fireEvent.click(screen.getByText("Open file..."))).not.toThrow();
+    } finally {
+      useRefSpy.mockRestore();
+    }
+  });
+
+  it("no-ops menu keyboard navigation when menu ref is cleared", () => {
+    const shareTimeoutRef = { current: null as ReturnType<typeof setTimeout> | null };
+    const fileInputRef = { current: null as HTMLInputElement | null };
+    const fileMenuRef = { current: null as HTMLDivElement | null };
+    const settingsMenuRef = { current: null as HTMLDivElement | null };
+    const refs = [shareTimeoutRef, fileInputRef, fileMenuRef, settingsMenuRef];
+    let useRefCall = 0;
+    const useRefSpy = jest.spyOn(React, "useRef").mockImplementation((initial) => {
+      const ref = refs[useRefCall % 4];
+      useRefCall += 1;
+      if (ref === shareTimeoutRef && initial !== undefined) {
+        ref.current = initial as ReturnType<typeof setTimeout> | null;
+      }
+      return ref;
+    });
+
+    try {
+      render(<Toolbar {...defaultProps} />);
+      fireEvent.click(screen.getByLabelText("File menu"));
+      const fileMenu = screen.getByRole("menu", { name: "File" });
+      fileMenuRef.current = null;
+      expect(() => {
+        fireEvent.keyDown(fileMenu, { key: "ArrowDown" });
+        fireEvent.keyDown(fileMenu, { key: "Escape" });
+      }).not.toThrow();
+      expect(screen.getByText("Open file...")).toBeInTheDocument();
+    } finally {
+      useRefSpy.mockRestore();
+    }
+  });
 });
