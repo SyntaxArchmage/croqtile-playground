@@ -272,7 +272,7 @@ interface Challenge {
 
 ### 5.6 Example Programs
 
-Built-in code snippets loadable from toolbar dropdown:
+Built-in code snippets loadable from toolbar dropdown (14 examples):
 
 | Name | Demonstrates |
 |------|-------------|
@@ -280,6 +280,16 @@ Built-in code snippets loadable from toolbar dropdown:
 | Parallel Loop | `parallel {i} by [4]` |
 | DMA Transfer | `global`/`shared` memory + `dma()` |
 | Matrix Multiply | `parallel` + `foreach` + accumulation |
+| Shared Memory | DMA to shared tile + parallel read |
+| Sum Reduction | `foreach` loop accumulation |
+| Tiled Processing | Loop over tiles with DMA |
+| 2D Parallel Grid | `parallel {i,j} by [N,M]` |
+| Conditional Logic | `if/else` inside parallel blocks |
+| 1D Stencil | Neighbor averaging with boundary handling |
+| Matrix Transpose | 2D index swapping |
+| Dot Product | Vector multiply-accumulate |
+| Find Maximum | Conditional reduction for max value |
+| Two-Stage Pipeline | DMA + shared memory processing |
 
 ---
 
