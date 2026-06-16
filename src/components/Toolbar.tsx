@@ -239,6 +239,7 @@ export const Toolbar = memo(function Toolbar({
   return (
     <nav className="flex flex-wrap items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]" aria-label="Playground toolbar">
       <button
+        type="button"
         onClick={() => onTogglePanel("tutorial")}
         className={`flex items-center justify-center min-h-11 min-w-11 rounded transition-colors ${
           panelMode === "tutorial"
@@ -255,6 +256,7 @@ export const Toolbar = memo(function Toolbar({
         </svg>
       </button>
       <button
+        type="button"
         onClick={() => onTogglePanel("challenge")}
         className={`flex items-center justify-center min-h-11 min-w-11 rounded transition-colors ${
           panelMode === "challenge"
@@ -286,6 +288,7 @@ export const Toolbar = memo(function Toolbar({
       </select>
 
       <button
+        type="button"
         onClick={onRun}
         disabled={busy}
         className="min-h-11 px-3 text-xs font-medium rounded bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
@@ -296,6 +299,7 @@ export const Toolbar = memo(function Toolbar({
       </button>
 
       <button
+        type="button"
         onClick={onCompile}
         disabled={busy}
         className="min-h-11 px-3 text-xs font-medium rounded bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
@@ -307,6 +311,7 @@ export const Toolbar = memo(function Toolbar({
       </button>
 
       <button
+        type="button"
         onClick={onDumpAST}
         disabled={busy}
         className="min-h-11 px-3 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)] disabled:opacity-50"
@@ -317,6 +322,7 @@ export const Toolbar = memo(function Toolbar({
       </button>
 
       <button
+        type="button"
         onClick={handleShareClick}
         className={`min-h-11 px-3 text-xs font-medium rounded border transition-colors ${
           copied
@@ -351,6 +357,7 @@ export const Toolbar = memo(function Toolbar({
 
       <div className="relative" data-file-menu>
         <button
+          type="button"
           onClick={() => setShowFileMenu((v) => !v)}
           className="min-h-11 px-3 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
           aria-label="File menu"
@@ -368,6 +375,7 @@ export const Toolbar = memo(function Toolbar({
             onKeyDown={(e) => handleMenuKeyDown(e, () => setShowFileMenu(false), fileMenuRef)}
           >
             <button
+              type="button"
               role="menuitem"
               onClick={() => { handleOpenClick(); setShowFileMenu(false); }}
               className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
@@ -375,6 +383,7 @@ export const Toolbar = memo(function Toolbar({
               Open file...
             </button>
             <button
+              type="button"
               role="menuitem"
               onClick={() => { handleDownload(); setShowFileMenu(false); }}
               className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
@@ -383,6 +392,7 @@ export const Toolbar = memo(function Toolbar({
             </button>
             <div role="separator" className="border-t border-[var(--border)] my-1" />
             <button
+              type="button"
               role="menuitem"
               onClick={() => { onFormat(); setShowFileMenu(false); }}
               className="w-full text-left px-3 py-3 min-h-11 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
@@ -408,6 +418,7 @@ export const Toolbar = memo(function Toolbar({
 
       {onOpenCommandPalette && (
         <button
+          type="button"
           onClick={onOpenCommandPalette}
           className="sm:hidden flex items-center justify-center min-h-11 min-w-11 rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
           aria-label="Open command palette"
@@ -424,6 +435,7 @@ export const Toolbar = memo(function Toolbar({
 
       <div className="relative" data-settings-menu>
         <button
+          type="button"
           onClick={() => setShowMenu((v) => !v)}
           className="flex items-center justify-center min-h-11 min-w-11 rounded hover:bg-[var(--bg-surface)] text-[var(--text-muted)] transition-colors"
           title="Settings"
@@ -448,6 +460,7 @@ export const Toolbar = memo(function Toolbar({
               <span className="text-xs text-[var(--text-secondary)]">Font size</span>
               <div className="flex items-center gap-1">
                 <button
+                  type="button"
                   role="menuitem"
                   onClick={() => {
                     if (settings.fontSize > 10) {
@@ -464,6 +477,7 @@ export const Toolbar = memo(function Toolbar({
                   {settings.fontSize}
                 </span>
                 <button
+                  type="button"
                   role="menuitem"
                   onClick={() => {
                     if (settings.fontSize < 24) {
@@ -499,6 +513,7 @@ export const Toolbar = memo(function Toolbar({
               <span className="text-xs text-[var(--text-secondary)]">Tab size</span>
               <div className="flex items-center gap-1">
                 <button
+                  type="button"
                   role="menuitem"
                   onClick={() => {
                     if (settings.tabSize > 2) {

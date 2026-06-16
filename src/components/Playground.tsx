@@ -109,7 +109,9 @@ export function Playground() {
   }, [source]);
 
   const sourceRef = useRef(source);
-  sourceRef.current = source;
+  useEffect(() => {
+    sourceRef.current = source;
+  }, [source]);
   useEffect(() => {
     const flush = () => saveSource(sourceRef.current);
     window.addEventListener("beforeunload", flush);
@@ -400,7 +402,7 @@ export function Playground() {
       >
         <div className="flex items-center justify-between mb-4">
           <h2 id="shortcuts-dialog-title" className="text-sm font-semibold text-[var(--text-primary)]">Keyboard Shortcuts</h2>
-          <button onClick={() => setShowShortcuts(false)} className="flex items-center justify-center min-h-11 min-w-11 text-[var(--text-muted)] hover:text-[var(--text-primary)]" aria-label="Close keyboard shortcuts">×</button>
+          <button type="button" onClick={() => setShowShortcuts(false)} className="flex items-center justify-center min-h-11 min-w-11 text-[var(--text-muted)] hover:text-[var(--text-primary)]" aria-label="Close keyboard shortcuts">×</button>
         </div>
         <div className="space-y-2 text-xs">
           {[
