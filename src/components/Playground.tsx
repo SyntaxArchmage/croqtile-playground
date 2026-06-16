@@ -243,6 +243,13 @@ export function Playground() {
     saveSettings(s);
   }, []);
 
+  const handleToggleTheme = useCallback(() => {
+    handleSettingsChange({
+      ...settingsRef.current,
+      theme: settingsRef.current.theme === "light" ? "dark" : "light",
+    });
+  }, [handleSettingsChange]);
+
   const handleShare = useCallback(() => {
     const code = getCode();
     const encoded = encodeCode(code);
@@ -281,12 +288,13 @@ export function Playground() {
     { label: "Dump AST", action: handleDumpAST, shortcut: "Ctrl+Alt+D" },
     { label: "Share Link", action: handleShare, shortcut: "Ctrl+S" },
     { label: "Clear Output", action: clearOutput, shortcut: "Ctrl+L" },
+    { label: "Toggle Theme", action: handleToggleTheme, shortcut: "Ctrl+Shift+T" },
     { label: "Download Code", action: handleDownload },
     { label: "Format Code", action: handleFormatCode },
     { label: "Open Tutorial", action: () => handleTogglePanel("tutorial") },
     { label: "Open Challenges", action: () => handleTogglePanel("challenge") },
     { label: "Keyboard Shortcuts", action: () => setShowShortcuts(true), shortcut: "?" },
-  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleDownload, handleTogglePanel, handleFormatCode]);
+  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme, handleDownload, handleTogglePanel, handleFormatCode]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -310,6 +318,10 @@ export function Playground() {
         e.preventDefault();
         clearOutput();
       }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "t" || e.key === "T")) {
+        e.preventDefault();
+        handleToggleTheme();
+      }
       if ((e.ctrlKey || e.metaKey) && (e.key === "p" || e.key === "P")) {
         e.preventDefault();
         setShowCommandPalette(true);
@@ -324,7 +336,7 @@ export function Playground() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput]);
+  }, [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme]);
 
   const lineCount = useMemo(() => {
     let count = 1;
@@ -367,6 +379,7 @@ export function Playground() {
             ["Ctrl+Alt+D", "Dump AST"],
             ["Ctrl+S", "Share link"],
             ["Ctrl+L", "Clear output"],
+            ["Ctrl+Shift+T", "Toggle theme"],
             ["Ctrl+P", "Command palette"],
             ["?", "Toggle this help"],
             ["Esc", "Close dialog"],

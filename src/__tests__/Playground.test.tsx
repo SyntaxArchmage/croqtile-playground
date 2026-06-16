@@ -812,6 +812,19 @@ describe("Playground", () => {
       expect(liveRegion).toHaveTextContent("Run finished with errors");
     });
 
+    it("announces run finished with output available (no errors)", () => {
+      mockStatus = "running";
+      const { rerender } = renderPlayground();
+      const liveRegion = document.querySelector('.sr-only[aria-live="polite"]');
+
+      mockStatus = "ready";
+      mockOutput = "Hello from thread 0";
+      mockErrors = "";
+      rerender(<Playground />);
+
+      expect(liveRegion).toHaveTextContent("Run finished. Output is available");
+    });
+
     it("announces errors found when only errors change", () => {
       mockStatus = "ready";
       const { rerender } = renderPlayground();
