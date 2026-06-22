@@ -41,15 +41,17 @@ export function useChoreoWorker() {
   const startTimeRef = useRef<number>(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
   useEffect(() => {
-    fetch("/wasm/build-manifest.json")
+    fetch(`${basePath}/wasm/build-manifest.json`)
       .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
       .then((m) => setBuildManifest(parseBuildManifest(m)))
       .catch(() => {});
-  }, []);
+  }, [basePath]);
 
   useEffect(() => {
-    const worker = new Worker("/wasm/choreo-worker.js");
+    const worker = new Worker(`${basePath}/wasm/choreo-worker.js`);
     workerRef.current = worker;
 
     const updateStatus = (s: WorkerStatus) => {
@@ -111,7 +113,7 @@ export function useChoreoWorker() {
       workerRef.current = null;
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, []);
+  }, [basePath]);
 
   const postIfReady = useCallback((msg: Record<string, unknown>, cmd: CommandType) => {
     if (!workerRef.current || statusRef.current === "loading" || statusRef.current === "error") return;

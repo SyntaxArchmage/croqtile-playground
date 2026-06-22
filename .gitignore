@@ -28,9 +28,8 @@ npm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# WASM build artifacts (tracked via build-manifest.json)
-public/wasm/co-web.js
-public/wasm/co-web.wasm
+# WASM build artifacts are committed for self-contained deployment
+# Rebuild with: cd ../croqtile && make co-web && ../croqtile-playground/scripts/build-wasm.sh
 coverage/
 
 # playwright
