@@ -78,7 +78,7 @@ describe("settings", () => {
 
   describe("persistence and validation edge cases", () => {
     it("saveSettings persists changes that loadSettings reads back from localStorage", () => {
-      const defaultFlags = { emitSource: true, dumpAst: false, noPreprocess: false, dropComments: false, noCodegen: false, semanticOnly: false, customFlags: "" };
+      const defaultFlags = { emitSource: true, dumpAst: false, noPreprocess: false, dropComments: false, noCodegen: false, semanticOnly: false, architecture: "", customFlags: "" };
       const s = { fontSize: 20, fontFamily: "JetBrains Mono, monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute" as const, theme: "light" as const, outputLineNumbers: false, compilerFlags: defaultFlags };
       saveSettings(s);
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -159,6 +159,7 @@ describe("settings", () => {
         dropComments: true,
         noCodegen: true,
         semanticOnly: false,
+        architecture: "sm_90",
         customFlags: "-O2 --verbose",
       };
       const s = { ...loadSettings(), compilerFlags: flags };
@@ -226,6 +227,7 @@ describe("settings", () => {
         dropComments: false,
         noCodegen: false,
         semanticOnly: false,
+        architecture: "",
         customFlags: "",
       };
       expect(buildFlagString(flags)).toBe("-e -np");
@@ -239,9 +241,22 @@ describe("settings", () => {
         dropComments: false,
         noCodegen: false,
         semanticOnly: false,
+        architecture: "",
         customFlags: "-O2 --verbose",
       };
       expect(buildFlagString(flags)).toBe("-e -O2 --verbose");
+    });
+
+    it("includes -arch when architecture is set", () => {
+      expect(buildFlagString({ ...DEFAULT_COMPILER_FLAGS, architecture: "sm_90" })).toBe("-arch=sm_90");
+    });
+
+    it("uses target default arch when architecture is empty and target provided", () => {
+      expect(buildFlagString({ ...DEFAULT_COMPILER_FLAGS }, "cute")).toBe("-arch=sm_86");
+    });
+
+    it("does not add -arch when no architecture and no target", () => {
+      expect(buildFlagString({ ...DEFAULT_COMPILER_FLAGS })).toBe("");
     });
 
     it("trims whitespace from customFlags", () => {

@@ -3,11 +3,12 @@ import "@testing-library/jest-dom";
 import { CompilerOptionsPanel } from "@/components/CompilerOptionsPanel";
 import { DEFAULT_COMPILER_FLAGS, type CompilerFlags } from "@/lib/settings";
 
-function renderPanel(overrides: Partial<{ flags: CompilerFlags; onChange: jest.Mock; onClose: jest.Mock }> = {}) {
+function renderPanel(overrides: Partial<{ flags: CompilerFlags; target: "cc" | "cute"; onChange: jest.Mock; onClose: jest.Mock }> = {}) {
   const onChange = overrides.onChange ?? jest.fn();
   const onClose = overrides.onClose ?? jest.fn();
   const flags = overrides.flags ?? { ...DEFAULT_COMPILER_FLAGS };
-  const result = render(<CompilerOptionsPanel flags={flags} onChange={onChange} onClose={onClose} />);
+  const target = overrides.target ?? "cute";
+  const result = render(<CompilerOptionsPanel flags={flags} target={target} onChange={onChange} onClose={onClose} />);
   return { ...result, onChange, onClose };
 }
 

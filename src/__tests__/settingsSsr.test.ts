@@ -22,6 +22,7 @@ describe("settings SSR / no-window guards", () => {
         dropComments: false,
         noCodegen: false,
         semanticOnly: false,
+        architecture: "",
         customFlags: "",
       },
     });
@@ -29,7 +30,7 @@ describe("settings SSR / no-window guards", () => {
 
   it("saveSettings is a no-op when window is undefined", () => {
     expect(() =>
-      saveSettings({ fontSize: 16, fontFamily: "monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false, compilerFlags: { emitSource: true, dumpAst: false, noPreprocess: false, dropComments: false, noCodegen: false, semanticOnly: false, customFlags: "" } }),
+      saveSettings({ fontSize: 16, fontFamily: "monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false, compilerFlags: { emitSource: true, dumpAst: false, noPreprocess: false, dropComments: false, noCodegen: false, semanticOnly: false, architecture: "", customFlags: "" } }),
     ).not.toThrow();
   });
 });

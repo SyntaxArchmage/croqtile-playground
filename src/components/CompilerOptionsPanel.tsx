@@ -1,11 +1,12 @@
 "use client";
 
 import { memo, useCallback, useRef, useEffect } from "react";
-import type { CompilerFlags } from "@/lib/settings";
-import { DEFAULT_COMPILER_FLAGS } from "@/lib/settings";
+import type { CompilerFlags, CompilerTarget } from "@/lib/settings";
+import { DEFAULT_COMPILER_FLAGS, TARGET_ARCHITECTURES } from "@/lib/settings";
 
 interface Props {
   flags: CompilerFlags;
+  target: CompilerTarget;
   onChange: (flags: CompilerFlags) => void;
   onClose: () => void;
 }
@@ -21,6 +22,7 @@ const FLAG_OPTIONS: { key: keyof Omit<CompilerFlags, "customFlags">; label: stri
 
 export const CompilerOptionsPanel = memo(function CompilerOptionsPanel({
   flags,
+  target,
   onChange,
   onClose,
 }: Props) {
@@ -99,6 +101,25 @@ export const CompilerOptionsPanel = memo(function CompilerOptionsPanel({
           </label>
         ))}
       </div>
+
+      {TARGET_ARCHITECTURES[target].archs.length > 1 && (
+        <div className="px-3 py-2 border-t border-[var(--border)]">
+          <label className="block">
+            <span className="text-[10px] text-[var(--text-muted)]">Architecture</span>
+            <select
+              value={flags.architecture || TARGET_ARCHITECTURES[target].default}
+              onChange={(e) => onChange({ ...flags, architecture: e.target.value })}
+              className="mt-1 w-full px-2 py-1 text-xs rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)]"
+            >
+              {TARGET_ARCHITECTURES[target].archs.map((arch) => (
+                <option key={arch.id} value={arch.id}>
+                  {arch.id} — {arch.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
 
       <div className="px-3 py-2 border-t border-[var(--border)]">
         <label className="block">

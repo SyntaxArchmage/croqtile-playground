@@ -191,7 +191,7 @@ export function Playground() {
 
   const handleRun = useCallback(() => run(getCode()), [getCode, run]);
   const handleCompile = useCallback(() => {
-    const flagStr = buildFlagString(settingsRef.current.compilerFlags);
+    const flagStr = buildFlagString(settingsRef.current.compilerFlags, target);
     compile(getCode(), target, flagStr);
   }, [getCode, target, compile]);
   const handleDumpAST = useCallback(() => dumpAST(getCode()), [getCode, dumpAST]);

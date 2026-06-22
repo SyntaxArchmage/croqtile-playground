@@ -7,7 +7,7 @@ const mockCompile = jest.fn();
 const mockDumpAST = jest.fn();
 const mockClearOutput = jest.fn();
 const mockLoadLastSource = jest.fn(() => null);
-const defaultCompilerFlags = { emitSource: true, dumpAst: false, noPreprocess: false, dropComments: false, noCodegen: false, semanticOnly: false, customFlags: "" };
+const defaultCompilerFlags = { emitSource: true, dumpAst: false, noPreprocess: false, dropComments: false, noCodegen: false, semanticOnly: false, architecture: "", customFlags: "" };
 const mockLoadSettings = jest.fn(() => ({
   fontSize: 14,
   fontFamily: "JetBrains Mono, monospace",

@@ -8,8 +8,8 @@ import { EXAMPLES } from "@/lib/examples";
 import { TUTORIALS } from "@/lib/tutorials";
 import { CHALLENGES, getChallengeTags, ALL_TAGS, type ChallengeTag } from "@/lib/challenges";
 import { getTutorialProgress, isChallengePassed, resetProgress } from "@/lib/progress";
-import type { EditorSettings, CompilerFlags } from "@/lib/settings";
-import { FONT_FAMILY_OPTIONS } from "@/lib/settings";
+import type { EditorSettings, CompilerFlags, CompilerTarget } from "@/lib/settings";
+import { FONT_FAMILY_OPTIONS, VALID_TARGETS } from "@/lib/settings";
 import { CompilerOptionsPanel } from "./CompilerOptionsPanel";
 import {
   downloadCoSource,
@@ -408,6 +408,7 @@ export const Toolbar = memo(function Toolbar({
         {showCompilerOptions && (
           <CompilerOptionsPanel
             flags={settings.compilerFlags}
+            target={(VALID_TARGETS as readonly string[]).includes(target) ? (target as CompilerTarget) : "cc"}
             onChange={handleCompilerFlagsChange}
             onClose={() => setShowCompilerOptions(false)}
           />

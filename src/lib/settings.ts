@@ -14,6 +14,32 @@ const ALLOWED_FONT_FAMILIES = new Set<string>(FONT_FAMILY_OPTIONS.map((o) => o.v
 export const VALID_TARGETS = ["cc", "cute"] as const;
 export type CompilerTarget = (typeof VALID_TARGETS)[number];
 
+export interface ArchInfo {
+  id: string;
+  label: string;
+}
+
+export const TARGET_ARCHITECTURES: Record<CompilerTarget, { archs: ArchInfo[]; default: string }> = {
+  cc: {
+    archs: [{ id: "x86_64", label: "x86-64 CPU" }],
+    default: "x86_64",
+  },
+  cute: {
+    archs: [
+      { id: "sm_70", label: "SM 7.0 (V100)" },
+      { id: "sm_75", label: "SM 7.5 (T4/RTX 20xx)" },
+      { id: "sm_80", label: "SM 8.0 (A100)" },
+      { id: "sm_86", label: "SM 8.6 (RTX 30xx)" },
+      { id: "sm_89", label: "SM 8.9 (RTX 40xx)" },
+      { id: "sm_90", label: "SM 9.0 (H100)" },
+      { id: "sm_90a", label: "SM 9.0a (H100 SXM)" },
+      { id: "sm_100", label: "SM 10.0 (B100/B200)" },
+      { id: "sm_120", label: "SM 12.0 (next-gen)" },
+    ],
+    default: "sm_86",
+  },
+};
+
 export interface CompilerFlags {
   emitSource: boolean;
   dumpAst: boolean;
@@ -21,6 +47,7 @@ export interface CompilerFlags {
   dropComments: boolean;
   noCodegen: boolean;
   semanticOnly: boolean;
+  architecture: string;
   customFlags: string;
 }
 
@@ -31,6 +58,7 @@ export const DEFAULT_COMPILER_FLAGS: CompilerFlags = {
   dropComments: false,
   noCodegen: false,
   semanticOnly: false,
+  architecture: "",
   customFlags: "",
 };
 
@@ -74,17 +102,23 @@ function parseCompilerFlags(raw: unknown, def: CompilerFlags): CompilerFlags {
     dropComments: bool("dropComments") as boolean,
     noCodegen: bool("noCodegen") as boolean,
     semanticOnly: bool("semanticOnly") as boolean,
+    architecture: typeof r.architecture === "string" ? r.architecture : def.architecture,
     customFlags: typeof r.customFlags === "string" ? r.customFlags : def.customFlags,
   };
 }
 
-export function buildFlagString(flags: CompilerFlags): string {
+export function buildFlagString(flags: CompilerFlags, target?: CompilerTarget): string {
   const parts: string[] = [];
   if (flags.dumpAst) parts.push("-e");
   if (flags.noPreprocess) parts.push("-np");
   if (flags.dropComments) parts.push("-dc");
   if (flags.noCodegen) parts.push("-s");
   if (flags.semanticOnly) parts.push("-s");
+  if (flags.architecture) {
+    parts.push(`-arch=${flags.architecture}`);
+  } else if (target && TARGET_ARCHITECTURES[target]) {
+    parts.push(`-arch=${TARGET_ARCHITECTURES[target].default}`);
+  }
   if (flags.customFlags.trim()) {
     parts.push(...flags.customFlags.trim().split(/\s+/));
   }
