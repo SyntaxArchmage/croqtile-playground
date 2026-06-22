@@ -20,8 +20,9 @@ test.describe("Croqtile Playground smoke tests", () => {
 
   test("toolbar renders with Run button", async ({ page }) => {
     await expect(page.getByRole("navigation", { name: "Playground toolbar" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Run code" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Run code" })).toContainText("Run");
+    const runBtn = page.getByRole("navigation", { name: "Playground toolbar" }).getByRole("button", { name: "Run code" });
+    await expect(runBtn).toBeVisible();
+    await expect(runBtn).toContainText("Run");
   });
 
   test("Monaco editor area loads", async ({ page }) => {
@@ -57,7 +58,7 @@ test.describe("Croqtile Playground smoke tests", () => {
 
     await shareButton.click();
 
-    await expect(shareButton).toContainText("Copied!");
+    await expect(page.getByRole("button", { name: "Link copied to clipboard" })).toContainText("Copied!");
   });
 
   test("? keyboard shortcut opens shortcuts dialog", async ({ page }) => {

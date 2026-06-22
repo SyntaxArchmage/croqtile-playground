@@ -1,15 +1,16 @@
 import { test, expect } from "@playwright/test";
 import {
-  clearSettingsStorage,
   getStoredSettings,
   openSettingsMenu,
   waitForMonacoEditor,
+  STORAGE_KEY,
 } from "./helpers";
 
 test.describe("Settings persistence", () => {
   test.beforeEach(async ({ page }) => {
-    await clearSettingsStorage(page);
     await page.goto("/");
+    await page.evaluate((key) => localStorage.removeItem(key), STORAGE_KEY);
+    await page.reload();
     await waitForMonacoEditor(page);
   });
 

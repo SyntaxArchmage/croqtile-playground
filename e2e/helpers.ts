@@ -2,6 +2,14 @@ import { expect, type Page } from "@playwright/test";
 
 export const STORAGE_KEY = "croqtile-playground-settings";
 
+/** Hide the Next.js dev overlay that can intercept pointer events. */
+export async function dismissDevOverlay(page: Page) {
+  await page.evaluate(() => {
+    const portal = document.querySelector("nextjs-portal");
+    if (portal) (portal as HTMLElement).style.display = "none";
+  });
+}
+
 /** Clear persisted settings before navigation (use with page.goto in beforeEach). */
 export async function clearSettingsStorage(page: Page) {
   await page.addInitScript((key) => {
@@ -28,6 +36,7 @@ export async function waitForMonacoEditor(page: Page) {
   const editor = page.locator(".monaco-editor");
   await expect(editor).toBeVisible({ timeout: 30_000 });
   await expect(editor.locator(".view-lines")).toBeVisible({ timeout: 30_000 });
+  await dismissDevOverlay(page);
 }
 
 /** Focus the Monaco editor content area for keyboard input. */

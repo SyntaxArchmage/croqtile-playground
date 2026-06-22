@@ -9,7 +9,7 @@ test.describe("Tutorial panel", () => {
     await page.getByRole("button", { name: "Toggle tutorial panel" }).click();
 
     await expect(page.getByRole("region", { name: "Tutorials" })).toBeVisible();
-    await expect(page.getByText("Tutorials")).toBeVisible();
+    await expect(page.getByText("Tutorials", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Search tutorials")).toBeVisible();
     await expect(page.getByRole("button", { name: /Hello Croqtile:/ })).toBeVisible();
   });
@@ -74,7 +74,7 @@ test.describe("Challenge panel", () => {
     await page.getByRole("button", { name: "Toggle challenge panel" }).click();
 
     await expect(page.getByRole("region", { name: "Challenges" })).toBeVisible();
-    await expect(page.getByText("Challenges")).toBeVisible();
+    await expect(page.getByText("Challenges", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Search challenges")).toBeVisible();
     await expect(page.getByRole("button", { name: /Hello Threads,/ })).toBeVisible();
   });
