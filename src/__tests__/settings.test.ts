@@ -1,4 +1,4 @@
-import { loadSettings, saveSettings } from "@/lib/settings";
+import { loadSettings, saveSettings, buildFlagString, DEFAULT_COMPILER_FLAGS, type CompilerFlags } from "@/lib/settings";
 
 const STORAGE_KEY = "croqtile-playground-settings";
 
@@ -78,10 +78,12 @@ describe("settings", () => {
 
   describe("persistence and validation edge cases", () => {
     it("saveSettings persists changes that loadSettings reads back from localStorage", () => {
-      saveSettings({ fontSize: 20, fontFamily: "JetBrains Mono, monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false });
+      const defaultFlags = { emitSource: true, dumpAst: false, noPreprocess: false, dropComments: false, noCodegen: false, semanticOnly: false, customFlags: "" };
+      const s = { fontSize: 20, fontFamily: "JetBrains Mono, monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute" as const, theme: "light" as const, outputLineNumbers: false, compilerFlags: defaultFlags };
+      saveSettings(s);
       const raw = localStorage.getItem(STORAGE_KEY);
-      expect(raw).toBe(JSON.stringify({ fontSize: 20, fontFamily: "JetBrains Mono, monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false }));
-      expect(loadSettings()).toEqual({ fontSize: 20, fontFamily: "JetBrains Mono, monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute", theme: "light", outputLineNumbers: false });
+      expect(raw).toBe(JSON.stringify(s));
+      expect(loadSettings()).toEqual(s);
     });
 
     it("invalid lastTarget in localStorage defaults to cc", () => {
@@ -136,6 +138,118 @@ describe("settings", () => {
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 1e6, wordWrap: true }));
       expect(loadSettings().fontSize).toBe(14);
+    });
+  });
+
+  describe("compilerFlags", () => {
+    it("returns default compilerFlags when nothing stored", () => {
+      expect(loadSettings().compilerFlags).toEqual(DEFAULT_COMPILER_FLAGS);
+    });
+
+    it("returns default compilerFlags when stored settings lack them", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ fontSize: 16 }));
+      expect(loadSettings().compilerFlags).toEqual(DEFAULT_COMPILER_FLAGS);
+    });
+
+    it("persists and loads compilerFlags", () => {
+      const flags: CompilerFlags = {
+        emitSource: false,
+        dumpAst: true,
+        noPreprocess: true,
+        dropComments: true,
+        noCodegen: true,
+        semanticOnly: false,
+        customFlags: "-O2 --verbose",
+      };
+      const s = { ...loadSettings(), compilerFlags: flags };
+      saveSettings(s);
+      expect(loadSettings().compilerFlags).toEqual(flags);
+    });
+
+    it("handles invalid compilerFlags (non-object) gracefully", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ compilerFlags: "invalid" }));
+      expect(loadSettings().compilerFlags).toEqual(DEFAULT_COMPILER_FLAGS);
+    });
+
+    it("handles partial compilerFlags — fills missing with defaults", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ compilerFlags: { dumpAst: true } }));
+      const flags = loadSettings().compilerFlags;
+      expect(flags.dumpAst).toBe(true);
+      expect(flags.emitSource).toBe(DEFAULT_COMPILER_FLAGS.emitSource);
+      expect(flags.noPreprocess).toBe(DEFAULT_COMPILER_FLAGS.noPreprocess);
+      expect(flags.customFlags).toBe("");
+    });
+
+    it("handles non-boolean flag values as defaults", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ compilerFlags: { emitSource: "yes", dumpAst: 42 } }));
+      const flags = loadSettings().compilerFlags;
+      expect(flags.emitSource).toBe(DEFAULT_COMPILER_FLAGS.emitSource);
+      expect(flags.dumpAst).toBe(DEFAULT_COMPILER_FLAGS.dumpAst);
+    });
+
+    it("handles non-string customFlags as default", () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ compilerFlags: { customFlags: 123 } }));
+      expect(loadSettings().compilerFlags.customFlags).toBe("");
+    });
+  });
+
+  describe("buildFlagString", () => {
+    it("returns empty string for default flags (emitSource only)", () => {
+      expect(buildFlagString(DEFAULT_COMPILER_FLAGS)).toBe("");
+    });
+
+    it("includes -e when dumpAst is true", () => {
+      expect(buildFlagString({ ...DEFAULT_COMPILER_FLAGS, dumpAst: true })).toBe("-e");
+    });
+
+    it("includes -np when noPreprocess is true", () => {
+      expect(buildFlagString({ ...DEFAULT_COMPILER_FLAGS, noPreprocess: true })).toBe("-np");
+    });
+
+    it("includes -dc when dropComments is true", () => {
+      expect(buildFlagString({ ...DEFAULT_COMPILER_FLAGS, dropComments: true })).toBe("-dc");
+    });
+
+    it("includes -s when noCodegen is true", () => {
+      expect(buildFlagString({ ...DEFAULT_COMPILER_FLAGS, noCodegen: true })).toBe("-s");
+    });
+
+    it("includes -s when semanticOnly is true", () => {
+      expect(buildFlagString({ ...DEFAULT_COMPILER_FLAGS, semanticOnly: true })).toBe("-s");
+    });
+
+    it("combines multiple flags", () => {
+      const flags: CompilerFlags = {
+        emitSource: true,
+        dumpAst: true,
+        noPreprocess: true,
+        dropComments: false,
+        noCodegen: false,
+        semanticOnly: false,
+        customFlags: "",
+      };
+      expect(buildFlagString(flags)).toBe("-e -np");
+    });
+
+    it("appends customFlags to built flags", () => {
+      const flags: CompilerFlags = {
+        emitSource: true,
+        dumpAst: true,
+        noPreprocess: false,
+        dropComments: false,
+        noCodegen: false,
+        semanticOnly: false,
+        customFlags: "-O2 --verbose",
+      };
+      expect(buildFlagString(flags)).toBe("-e -O2 --verbose");
+    });
+
+    it("trims whitespace from customFlags", () => {
+      expect(buildFlagString({ ...DEFAULT_COMPILER_FLAGS, customFlags: "  -O2  " })).toBe("-O2");
+    });
+
+    it("handles customFlags with only whitespace as empty", () => {
+      expect(buildFlagString({ ...DEFAULT_COMPILER_FLAGS, customFlags: "   " })).toBe("");
     });
   });
 });

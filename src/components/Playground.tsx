@@ -12,7 +12,7 @@ import { useChoreoWorker } from "@/lib/useChoreoWorker";
 import { EXAMPLES } from "@/lib/examples";
 import type { PanelMode } from "@/lib/types";
 import { saveSource } from "@/lib/sourceStorage";
-import { loadSettings, saveSettings, type EditorSettings } from "@/lib/settings";
+import { loadSettings, saveSettings, buildFlagString, VALID_TARGETS, type EditorSettings, type CompilerTarget } from "@/lib/settings";
 import type { CursorPosition, EditorHandle, SelectionInfo } from "./Editor";
 import { encodeCode } from "@/lib/urlCodec";
 import { formatChoreoCode } from "@/lib/formatCode";
@@ -190,7 +190,10 @@ export function Playground() {
   }, [status]);
 
   const handleRun = useCallback(() => run(getCode()), [getCode, run]);
-  const handleCompile = useCallback(() => compile(getCode(), target), [getCode, target, compile]);
+  const handleCompile = useCallback(() => {
+    const flagStr = buildFlagString(settingsRef.current.compilerFlags);
+    compile(getCode(), target, flagStr);
+  }, [getCode, target, compile]);
   const handleDumpAST = useCallback(() => dumpAST(getCode()), [getCode, dumpAST]);
 
   const panelModeChangedRef = useRef(false);
@@ -209,8 +212,9 @@ export function Playground() {
   useEffect(() => { settingsRef.current = settings; }, [settings]);
 
   const handleTargetChange = useCallback((t: string) => {
-    setTarget(t);
-    saveSettings({ ...settingsRef.current, lastTarget: t });
+    const validated = (VALID_TARGETS as readonly string[]).includes(t) ? (t as CompilerTarget) : "cc";
+    setTarget(validated);
+    saveSettings({ ...settingsRef.current, lastTarget: validated });
   }, []);
 
   const handleSettingsChange = useCallback((s: EditorSettings) => {

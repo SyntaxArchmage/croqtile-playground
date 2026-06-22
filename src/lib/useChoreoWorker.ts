@@ -151,8 +151,8 @@ export function useChoreoWorker() {
     postIfReady({ type: "mockRun", source }, "mockRun");
   }, [postIfReady]);
 
-  const compile = useCallback((source: string, target: string) => {
-    postIfReady({ type: "compile", source, target, flags: "" }, "compile");
+  const compile = useCallback((source: string, target: string, flags: string = "") => {
+    postIfReady({ type: "compile", source, target, flags }, "compile");
   }, [postIfReady]);
 
   const dumpAST = useCallback((source: string) => {

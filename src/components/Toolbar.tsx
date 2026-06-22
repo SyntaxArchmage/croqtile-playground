@@ -8,8 +8,9 @@ import { EXAMPLES } from "@/lib/examples";
 import { TUTORIALS } from "@/lib/tutorials";
 import { CHALLENGES, getChallengeTags, ALL_TAGS, type ChallengeTag } from "@/lib/challenges";
 import { getTutorialProgress, isChallengePassed, resetProgress } from "@/lib/progress";
-import type { EditorSettings } from "@/lib/settings";
+import type { EditorSettings, CompilerFlags } from "@/lib/settings";
 import { FONT_FAMILY_OPTIONS } from "@/lib/settings";
+import { CompilerOptionsPanel } from "./CompilerOptionsPanel";
 import {
   downloadCoSource,
   isAllowedOpenExtension,
@@ -66,6 +67,7 @@ export const Toolbar = memo(function Toolbar({
   const progressInputRef = useRef<HTMLInputElement>(null);
   const fileMenuRef = useRef<HTMLDivElement>(null);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
+  const [showCompilerOptions, setShowCompilerOptions] = useState(false);
 
   const getFocusableMenuItems = useCallback((menuEl: HTMLDivElement | null) => {
     if (!menuEl) return [];
@@ -291,6 +293,13 @@ export const Toolbar = memo(function Toolbar({
     return () => document.removeEventListener("click", close);
   }, [showMenu, showFileMenu]);
 
+  const handleCompilerFlagsChange = useCallback(
+    (flags: CompilerFlags) => {
+      onSettingsChange({ ...settings, compilerFlags: flags });
+    },
+    [settings, onSettingsChange],
+  );
+
   return (
     <nav className="flex flex-wrap items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)] shrink-0" aria-label="Playground toolbar">
       <button
@@ -375,6 +384,35 @@ export const Toolbar = memo(function Toolbar({
       >
         AST
       </button>
+
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setShowCompilerOptions((v) => !v)}
+          className={`flex items-center justify-center min-h-11 px-3 text-xs font-medium rounded border transition-colors ${
+            showCompilerOptions
+              ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
+              : "border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
+          }`}
+          title="Compiler options"
+          aria-label="Compiler options"
+          aria-haspopup="dialog"
+          aria-expanded={showCompilerOptions}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" className="mr-1">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <span className="hidden sm:inline">Options</span>
+        </button>
+        {showCompilerOptions && (
+          <CompilerOptionsPanel
+            flags={settings.compilerFlags}
+            onChange={handleCompilerFlagsChange}
+            onClose={() => setShowCompilerOptions(false)}
+          />
+        )}
+      </div>
 
       <button
         type="button"

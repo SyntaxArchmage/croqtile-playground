@@ -1,10 +1,9 @@
 {
   "artifact": "co-web",
   "version": "1.0.4.pre-beta",
-  "commit": "1f72a3894e62bb6efde806b6d3006b6836e136f9-dirty",
-  "commit_short": "1f72a3894-dirty",
-  "built_at": "2026-06-22T06:35:51Z",
-  "builder": "make co-web (Emscripten)",
+  "commit": "1f72a3894",
+  "built_at": "2026-06-22T14:58:00+08:00",
+  "builder": "make co-web (Emscripten, wasm_api.cpp)",
   "source_repo": "github.com/LancerLab/croqtile",
-  "emsdk": "releases-772bb4648be4a897ca062d6adc65bc70223d2703-64bit"
+  "features": ["full-codegen", "cc-target", "cute-target", "mock-interpreter", "cli-flags"]
 }

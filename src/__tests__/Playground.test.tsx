@@ -7,13 +7,17 @@ const mockCompile = jest.fn();
 const mockDumpAST = jest.fn();
 const mockClearOutput = jest.fn();
 const mockLoadLastSource = jest.fn(() => null);
+const defaultCompilerFlags = { emitSource: true, dumpAst: false, noPreprocess: false, dropComments: false, noCodegen: false, semanticOnly: false, customFlags: "" };
 const mockLoadSettings = jest.fn(() => ({
   fontSize: 14,
   fontFamily: "JetBrains Mono, monospace",
   wordWrap: true,
+  minimap: false,
   tabSize: 2,
   lastTarget: "cc",
   theme: "dark" as const,
+  outputLineNumbers: false,
+  compilerFlags: { ...defaultCompilerFlags },
 }));
 const mockSaveSettings = jest.fn();
 let mockStatus: "ready" | "running" | "loading" | "error" = "ready";
@@ -162,7 +166,7 @@ beforeEach(() => {
   mockErrors = "";
   mockAst = "";
   mockLoadLastSource.mockReturnValue(null);
-  mockLoadSettings.mockReturnValue({ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "dark" });
+  mockLoadSettings.mockReturnValue({ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark", outputLineNumbers: false, compilerFlags: { ...defaultCompilerFlags } });
   mockMatchMedia(false);
   setUrl("/");
   window.history.replaceState = jest.fn();
@@ -1408,7 +1412,7 @@ describe("Playground", () => {
     });
 
     it("toggles theme from light to dark via Ctrl+Shift+T", () => {
-      mockLoadSettings.mockReturnValue({ fontSize: 14, wordWrap: true, tabSize: 2, lastTarget: "cc", theme: "light" as const });
+      mockLoadSettings.mockReturnValue({ fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "light" as const, outputLineNumbers: false, compilerFlags: { ...defaultCompilerFlags } });
       renderPlayground();
       fireEvent.keyDown(window, { key: "T", ctrlKey: true, shiftKey: true });
       expect(mockSaveSettings).toHaveBeenCalledWith(
