@@ -385,22 +385,14 @@ export function Playground() {
       {commandPaletteOverlay}
       {shortcutsOverlay}
       {status === "loading" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/80 backdrop-blur-sm" role="alert" aria-live="polite">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm text-[var(--text-muted)]">Loading WASM compiler...</span>
-          </div>
+        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center gap-2 py-2 bg-[var(--bg-secondary)] border-b border-[var(--border)] text-sm text-[var(--text-muted)]" role="status" aria-live="polite">
+          <div className="w-4 h-4 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
+          Loading WASM compiler...
         </div>
       )}
-      {status === "error" && !errors && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg-primary)]/90" role="alert" aria-live="assertive">
-          <div className="max-w-sm p-6 rounded-lg border border-red-800 bg-red-950/30 text-center">
-            <div className="text-lg text-red-400 mb-2">WASM Load Failed</div>
-            <p className="text-sm text-[var(--text-muted)]">
-              The compiler could not be loaded. WASM files may not be built yet.
-              You can still edit code, but Run / Compile will not work.
-            </p>
-          </div>
+      {status === "error" && (
+        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center gap-2 py-2 bg-yellow-900/50 border-b border-yellow-700 text-sm text-yellow-200" role="alert" aria-live="polite">
+          <span>⚠ WASM compiler unavailable — you can edit code but Run/Compile won&apos;t work.</span>
         </div>
       )}
       <Toolbar

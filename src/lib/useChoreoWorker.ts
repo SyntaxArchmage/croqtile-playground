@@ -51,6 +51,7 @@ export function useChoreoWorker() {
   }, [basePath]);
 
   useEffect(() => {
+    const INIT_TIMEOUT_MS = 5000;
     const worker = new Worker(`${basePath}/wasm/choreo-worker.js`);
     workerRef.current = worker;
 
@@ -59,12 +60,20 @@ export function useChoreoWorker() {
       setStatus(s);
     };
 
+    const initTimeout = setTimeout(() => {
+      if (statusRef.current === "loading") {
+        updateStatus("error");
+        setErrors("WASM compiler timed out. The .wasm file may not be built yet. You can still edit code.");
+      }
+    }, INIT_TIMEOUT_MS);
+
     worker.onmessage = (e) => {
       if (!e.data || typeof e.data !== "object") return;
       const { type, data } = e.data;
       const payload = data && typeof data === "object" ? data : {};
       switch (type) {
         case "ready":
+          clearTimeout(initTimeout);
           if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
           updateStatus("ready");
           if (typeof payload.version === "string") setCompilerVersion(payload.version);
@@ -82,6 +91,7 @@ export function useChoreoWorker() {
           setErrors(typeof payload.errors === "string" ? payload.errors : "");
           break;
         case "error":
+          clearTimeout(initTimeout);
           if (statusRef.current === "error") break;
           if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
           updateStatus("error");
@@ -95,6 +105,7 @@ export function useChoreoWorker() {
     };
 
     worker.onerror = (e) => {
+      clearTimeout(initTimeout);
       if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
       updateStatus("error");
       const ev = e as ErrorEvent;
@@ -109,6 +120,7 @@ export function useChoreoWorker() {
     };
 
     return () => {
+      clearTimeout(initTimeout);
       worker.terminate();
       workerRef.current = null;
       if (timeoutRef.current) clearTimeout(timeoutRef.current);

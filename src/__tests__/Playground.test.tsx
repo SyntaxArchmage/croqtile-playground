@@ -1186,10 +1186,11 @@ describe("Playground", () => {
       expect(screen.getByText("Loading WASM compiler...")).toBeInTheDocument();
     });
 
-    it("shows error overlay when status is error and no errors text", () => {
+    it("shows error banner when status is error", () => {
       mockStatus = "error";
       renderPlayground();
-      expect(screen.getByText("WASM Load Failed")).toBeInTheDocument();
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+      expect(screen.getByText(/WASM compiler unavailable/)).toBeInTheDocument();
     });
   });
 
