@@ -49,7 +49,7 @@ echo "  Commit:  $COMMIT_HASH$DIRTY"
 make co-web
 
 echo "=== Copying artifacts ==="
-cp "$CROQTILE_DIR/tools/co-web/web/co-web.js" "$DEST_DIR/"
+cp "$CROQTILE_DIR/build-wasm/co-web.js" "$DEST_DIR/"
 cp "$CROQTILE_DIR/build-wasm/co-web.wasm" "$DEST_DIR/"
 
 echo "=== Writing build manifest ==="

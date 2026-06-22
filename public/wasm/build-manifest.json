@@ -1,10 +1,10 @@
 {
   "artifact": "co-web",
-  "version": null,
-  "commit": null,
-  "commit_short": null,
-  "built_at": null,
-  "builder": "scripts/build-wasm.sh",
+  "version": "1.0.4.pre-beta",
+  "commit": "1f72a3894e62bb6efde806b6d3006b6836e136f9-dirty",
+  "commit_short": "1f72a3894-dirty",
+  "built_at": "2026-06-22T06:35:51Z",
+  "builder": "make co-web (Emscripten)",
   "source_repo": "github.com/LancerLab/croqtile",
-  "note": "Placeholder — run scripts/build-wasm.sh to populate"
+  "emsdk": "releases-772bb4648be4a897ca062d6adc65bc70223d2703-64bit"
 }
