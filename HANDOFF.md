@@ -1,12 +1,13 @@
 # Croqtile Playground — Session Handoff
 
-**Date**: 2026-06-16
+**Date**: 2026-06-23
 **Sessions**: auto-dev (multiple invocations, 260+ total commits)
 
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (991 tests, 44 suites)
+- `npm test` ✅ (995 tests, 44 suites)
+- `npx playwright test` ✅ (69 E2E tests, 18 spec files)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -27,8 +28,9 @@
 
 ### Content
 - 50 tutorials (ch01–ch50) with "Try it" inline code blocks
-- 250 challenges (c01–c250) with auto-verification, progress badges, and "in progress" status
+- 250 challenges (c01–c250) with auto-verification, progress badges, "in progress" status, and topic tags
 - 59 example programs
+- 10 challenge topic categories: parallel, foreach, dma, pipeline, matrix, array, reduction, math, string, pattern
 
 ### User Experience
 - URL sharing with base64url encoding (backward-compatible with legacy percent-encoding)
@@ -75,7 +77,8 @@
 - `.npmrc` with `legacy-peer-deps=true` for CI compatibility
 - WASM build script with version tracking (build-manifest.json)
 - Platform detection (`src/lib/platform.ts`) for macOS vs Windows/Linux shortcut display
-- 991 unit/component tests across 44 suites
+- 995 unit/component tests across 44 suites
+- 69 Playwright E2E tests across 18 spec files
 - Coverage: 99.91% statements, 98.67% branches, 100% functions, 100% lines
 - Coverage thresholds: 95% statements, 85% branches, 95% functions, 95% lines
 - Worker execution timeout (30s) with elapsed time reporting
@@ -85,6 +88,13 @@
 ### Blocked
 - [ ] WASM build (requires emsdk installation)
 - [ ] E2E test: write code → run → see output (requires WASM)
+
+### Recently Completed (2026-06-23)
+- [x] Challenge topic tag system with auto-inference (10 categories)
+- [x] Topic filter UI in challenge panel
+- [x] Progress visualization charts (difficulty bars, topic progress)
+- [x] 28 new Playwright E2E tests (URL sharing, command palette, search, status bar, hints, tutorial navigation, settings, pagination, reset progress, tags, charts)
+- [x] Fixed waitForMonacoEditor for parallel test stability
 
 ### Future (PRD Phase 6)
 - [ ] L2 execution: Remote GPU Server
