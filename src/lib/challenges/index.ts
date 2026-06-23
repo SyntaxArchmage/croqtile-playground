@@ -4,6 +4,18 @@ export interface TestCase {
   description: string;
 }
 
+export type ChallengeTag =
+  | "parallel"
+  | "foreach"
+  | "dma"
+  | "pipeline"
+  | "matrix"
+  | "array"
+  | "reduction"
+  | "math"
+  | "string"
+  | "pattern";
+
 export interface Challenge {
   id: string;
   title: string;
@@ -13,6 +25,7 @@ export interface Challenge {
   tests: TestCase[];
   hint?: string;
   hints?: string[];
+  tags?: ChallengeTag[];
 }
 
 export function getChallengeHints(challenge: Challenge): string[] {
@@ -345,3 +358,37 @@ export const CHALLENGES: Challenge[] = [
   challenge245, challenge246, challenge247, challenge248,
   challenge249, challenge250,
 ];
+
+const TAG_RULES: Array<{ tag: ChallengeTag; patterns: RegExp }> = [
+  { tag: "parallel", patterns: /parallel|thread|concurrent/i },
+  { tag: "foreach", patterns: /foreach|loop|scan|prefix|running|cumulative/i },
+  { tag: "dma", patterns: /\bdma\b|shared.*memory|buffer|transfer/i },
+  { tag: "pipeline", patterns: /pipeline|stage|producer|consumer|ring/i },
+  { tag: "matrix", patterns: /matrix|2d|transpose|diagonal|row|column|flatten|determinant|cofactor|minor|submatrix|trace.*matrix|lu\b|outer.?product/i },
+  { tag: "array", patterns: /array|vector|rotate|reverse|sort|shift|compact|dedup|zip|split|merge|interleave|pack|search|palindrome|second.?largest|mode|pairwise/i },
+  { tag: "reduction", patterns: /reduce|sum|min|max|count|average|norm|dot.?product|histogram|gcd/i },
+  { tag: "math", patterns: /multiply|divide|square|sqrt|power|abs|ceil|floor|round|sigmoid|lerp|distance|fibonacci|xor|bitwise|bit.?count|normalize|clamp|threshold|ternary|modulo|sign|invert/i },
+  { tag: "string", patterns: /string|char|length.*counter|builder/i },
+  { tag: "pattern", patterns: /pattern|checkerboard|staircase|stencil|spiral|zigzag|fill|border|identity|scatter|gather|convolution|fft|spmv/i },
+];
+
+function inferTags(c: Challenge): ChallengeTag[] {
+  if (c.tags?.length) return c.tags;
+  const text = `${c.title} ${c.description} ${c.starterCode}`;
+  const tags = new Set<ChallengeTag>();
+  for (const rule of TAG_RULES) {
+    if (rule.patterns.test(text)) tags.add(rule.tag);
+  }
+  if (tags.size === 0) tags.add("parallel");
+  return [...tags];
+}
+
+export const ALL_TAGS: ChallengeTag[] = [
+  "parallel", "foreach", "dma", "pipeline",
+  "matrix", "array", "reduction", "math",
+  "string", "pattern",
+];
+
+export function getChallengeTags(c: Challenge): ChallengeTag[] {
+  return inferTags(c);
+}

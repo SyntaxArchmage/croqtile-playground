@@ -11,6 +11,8 @@ jest.mock("@/lib/progress", () => ({
 jest.mock("@/lib/challenges", () => ({
   CHALLENGES: [],
   getChallengeHints: () => [],
+  ALL_TAGS: ["parallel", "foreach", "dma", "pipeline", "matrix", "array", "reduction", "math", "string", "pattern"],
+  getChallengeTags: () => ["parallel"],
 }));
 
 import { ChallengePanel } from "@/components/ChallengePanel";

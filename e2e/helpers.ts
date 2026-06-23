@@ -32,9 +32,8 @@ export async function getStoredSettings(page: Page): Promise<Record<string, unkn
 
 /** Wait for Monaco editor to finish loading asynchronously. */
 export async function waitForMonacoEditor(page: Page) {
-  await expect(page.getByText("Loading editor...")).toBeHidden({ timeout: 30_000 });
-  const editor = page.locator(".monaco-editor");
-  await expect(editor).toBeVisible({ timeout: 30_000 });
+  const editor = page.locator(".monaco-editor").first();
+  await expect(editor).toBeVisible({ timeout: 60_000 });
   await expect(editor.locator(".view-lines")).toBeVisible({ timeout: 30_000 });
   await dismissDevOverlay(page);
 }

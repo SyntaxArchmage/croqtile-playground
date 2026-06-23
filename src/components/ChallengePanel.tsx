@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { CHALLENGES, getChallengeHints, type Challenge } from "@/lib/challenges";
+import { CHALLENGES, getChallengeHints, ALL_TAGS, getChallengeTags, type Challenge, type ChallengeTag } from "@/lib/challenges";
 import { checkTests } from "@/lib/checkTests";
 import { isChallengePassed, markChallengePassed, getChallengeProgress, recordChallengeAttempt } from "@/lib/progress";
 import { ListSearchInput, matchesTitleSearch } from "@/components/ListSearchInput";
@@ -27,6 +27,7 @@ interface Props {
 
 type DifficultyFilter = "all" | "easy" | "medium" | "hard";
 type StatusFilter = "all" | "todo" | "passed";
+type TagFilter = "all" | ChallengeTag;
 
 const PAGE_SIZE = 20;
 
@@ -34,6 +35,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [tagFilter, setTagFilter] = useState<TagFilter>("all");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(() => {
     if (initialId) {
@@ -143,9 +145,13 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
         if (statusFilter === "passed" && !passed) return false;
         if (statusFilter === "todo" && passed) return false;
       }
+      if (tagFilter !== "all") {
+        const tags = getChallengeTags(c);
+        if (!tags.includes(tagFilter)) return false;
+      }
       return matchesTitleSearch(c.title, searchQuery);
     });
-  }, [searchQuery, difficultyFilter, statusFilter, progressRevision]);
+  }, [searchQuery, difficultyFilter, statusFilter, tagFilter, progressRevision]);
 
   const resetPagination = () => setVisibleCount(PAGE_SIZE);
 
@@ -211,7 +217,7 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
             }}
             ariaLabel="Search challenges"
           />
-          <div className="flex gap-3 flex-wrap">
+          <div className="flex gap-3 flex-wrap" data-testid="challenge-filters">
             <div className="flex gap-1" role="group" aria-label="Filter by difficulty">
               {(
                 [
@@ -271,6 +277,35 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
               ))}
             </div>
           </div>
+          <div className="flex gap-1 flex-wrap" role="group" aria-label="Filter by topic">
+            <button
+              type="button"
+              onClick={() => { setTagFilter("all"); resetPagination(); }}
+              aria-pressed={tagFilter === "all"}
+              className={`text-xs px-2 py-0.5 rounded ${
+                tagFilter === "all"
+                  ? "bg-[var(--accent)] text-[var(--bg-primary)]"
+                  : "border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              All Topics
+            </button>
+            {ALL_TAGS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => { setTagFilter(tag); resetPagination(); }}
+                aria-pressed={tagFilter === tag}
+                className={`text-xs px-2 py-0.5 rounded ${
+                  tagFilter === tag
+                    ? "bg-[var(--accent)] text-[var(--bg-primary)]"
+                    : "border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
           {filteredChallenges.length === 0 ? (
             <div className="text-xs text-[var(--text-muted)] text-center py-4">
               No challenges match
@@ -306,6 +341,16 @@ export function ChallengePanel({ onLoadCode, onClose, lastOutput, getCode, initi
                     <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mt-1">
                       <span>{c.tests.length} test{c.tests.length !== 1 ? "s" : ""}</span>
                       {cp.attempts > 0 && <span>{cp.attempts} attempt{cp.attempts !== 1 ? "s" : ""}</span>}
+                    </div>
+                    <div className="flex gap-1 flex-wrap mt-1">
+                      {getChallengeTags(c).map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-[9px] px-1 py-0.5 rounded bg-[var(--bg-primary)] text-[var(--text-muted)] border border-[var(--border)]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                   </button>
                 );
