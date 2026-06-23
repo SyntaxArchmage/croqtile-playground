@@ -193,12 +193,16 @@ export function Playground() {
   const handleCompile = useCallback(() => compile(getCode(), target), [getCode, target, compile]);
   const handleDumpAST = useCallback(() => dumpAST(getCode()), [getCode, dumpAST]);
 
+  const panelModeChangedRef = useRef(false);
   const handleTogglePanel = useCallback((mode: PanelMode) => {
+    panelModeChangedRef.current = true;
     setPanelMode((p) => (p === mode ? "closed" : mode));
   }, []);
 
   useEffect(() => {
-    if (panelMode === "closed") clearPanelParams();
+    if (panelModeChangedRef.current && panelMode === "closed") {
+      clearPanelParams();
+    }
   }, [panelMode]);
 
   const settingsRef = useRef(settings);
