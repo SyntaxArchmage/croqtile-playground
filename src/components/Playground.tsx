@@ -194,12 +194,12 @@ export function Playground() {
   const handleDumpAST = useCallback(() => dumpAST(getCode()), [getCode, dumpAST]);
 
   const handleTogglePanel = useCallback((mode: PanelMode) => {
-    setPanelMode((p) => {
-      const next = p === mode ? "closed" : mode;
-      if (next === "closed") clearPanelParams();
-      return next;
-    });
+    setPanelMode((p) => (p === mode ? "closed" : mode));
   }, []);
+
+  useEffect(() => {
+    if (panelMode === "closed") clearPanelParams();
+  }, [panelMode]);
 
   const settingsRef = useRef(settings);
   useEffect(() => { settingsRef.current = settings; }, [settings]);
