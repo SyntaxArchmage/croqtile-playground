@@ -7,7 +7,7 @@
 
 - `npm install` ✅
 - `npm test` ✅ (997 tests, 44 suites)
-- `npx playwright test` ✅ (122 E2E tests, 26 spec files)
+- `npx playwright test` ✅ (131 E2E tests, 31 spec files)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -78,7 +78,7 @@
 - WASM build script with version tracking (build-manifest.json)
 - Platform detection (`src/lib/platform.ts`) for macOS vs Windows/Linux shortcut display
 - 997 unit/component tests across 44 suites
-- 122 Playwright E2E tests across 26 spec files
+- 131 Playwright E2E tests across 31 spec files
 - Coverage: 99.91% statements, 98.67% branches, 100% functions, 100% lines
 - Coverage thresholds: 95% statements, 85% branches, 95% functions, 95% lines
 - Worker execution timeout (30s) with elapsed time reporting
