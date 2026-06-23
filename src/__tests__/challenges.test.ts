@@ -1,4 +1,4 @@
-import { CHALLENGES } from "@/lib/challenges";
+import { CHALLENGES, ALL_TAGS, getChallengeTags, type ChallengeTag } from "@/lib/challenges";
 
 describe("CHALLENGES", () => {
   it("has at least one challenge", () => {
@@ -61,6 +61,40 @@ describe("CHALLENGES", () => {
     for (const c of CHALLENGES) {
       expect(c.hint).toBeDefined();
       expect(c.hint!.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("every challenge gets at least one inferred tag", () => {
+    for (const c of CHALLENGES) {
+      const tags = getChallengeTags(c);
+      expect(tags.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("all inferred tags are valid ChallengeTag values", () => {
+    for (const c of CHALLENGES) {
+      const tags = getChallengeTags(c);
+      for (const tag of tags) {
+        expect(ALL_TAGS).toContain(tag);
+      }
+    }
+  });
+
+  it("ALL_TAGS contains exactly 10 tag categories", () => {
+    expect(ALL_TAGS).toHaveLength(10);
+    expect(new Set(ALL_TAGS).size).toBe(10);
+  });
+
+  it("each tag is assigned to at least one challenge", () => {
+    const tagCounts: Record<string, number> = {};
+    for (const tag of ALL_TAGS) tagCounts[tag] = 0;
+    for (const c of CHALLENGES) {
+      for (const tag of getChallengeTags(c)) {
+        tagCounts[tag]++;
+      }
+    }
+    for (const tag of ALL_TAGS) {
+      expect(tagCounts[tag]).toBeGreaterThan(0);
     }
   });
 });
