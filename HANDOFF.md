@@ -6,8 +6,8 @@
 ## Current State
 
 - `npm install` ✅
-- `npm test` ✅ (995 tests, 44 suites)
-- `npx playwright test` ✅ (69 E2E tests, 18 spec files)
+- `npm test` ✅ (997 tests, 44 suites)
+- `npx playwright test` ✅ (122 E2E tests, 26 spec files)
 - `npx tsc --noEmit` ✅
 - `npm run lint` ✅
 - `npm run build` ✅
@@ -77,8 +77,8 @@
 - `.npmrc` with `legacy-peer-deps=true` for CI compatibility
 - WASM build script with version tracking (build-manifest.json)
 - Platform detection (`src/lib/platform.ts`) for macOS vs Windows/Linux shortcut display
-- 995 unit/component tests across 44 suites
-- 69 Playwright E2E tests across 18 spec files
+- 997 unit/component tests across 44 suites
+- 122 Playwright E2E tests across 26 spec files
 - Coverage: 99.91% statements, 98.67% branches, 100% functions, 100% lines
 - Coverage thresholds: 95% statements, 85% branches, 95% functions, 95% lines
 - Worker execution timeout (30s) with elapsed time reporting
@@ -91,10 +91,13 @@
 
 ### Recently Completed (2026-06-23)
 - [x] Challenge topic tag system with auto-inference (10 categories)
-- [x] Topic filter UI in challenge panel
+- [x] Topic filter UI in challenge panel with tag badges
 - [x] Progress visualization charts (difficulty bars, topic progress)
-- [x] 28 new Playwright E2E tests (URL sharing, command palette, search, status bar, hints, tutorial navigation, settings, pagination, reset progress, tags, charts)
+- [x] Command palette category badges (execution, editor, navigation, view, file)
+- [x] 84 new Playwright E2E tests covering: URL sharing, command palette, search/filter, status bar, hints, tutorial navigation, settings, pagination, reset progress, tags, charts, export/import, file ops, unsaved indicator, accessibility, responsive, error handling, theme switching, challenge completion, tutorial completion, output panel, example loading, toolbar actions
 - [x] Fixed waitForMonacoEditor for parallel test stability
+- [x] Fixed React render-phase side-effect in clearPanelParams
+- [x] Fixed deep link params being cleared on initial mount
 
 ### Future (PRD Phase 6)
 - [ ] L2 execution: Remote GPU Server
