@@ -6,7 +6,7 @@ import type { PanelMode } from "@/lib/types";
 import { EXAMPLES } from "@/lib/examples";
 
 import { TUTORIALS } from "@/lib/tutorials";
-import { CHALLENGES } from "@/lib/challenges";
+import { CHALLENGES, getChallengeTags, ALL_TAGS, type ChallengeTag } from "@/lib/challenges";
 import { getTutorialProgress, isChallengePassed, resetProgress } from "@/lib/progress";
 import type { EditorSettings } from "@/lib/settings";
 import { FONT_FAMILY_OPTIONS } from "@/lib/settings";
@@ -655,8 +655,24 @@ export const Toolbar = memo(function Toolbar({
             {(() => {
               const tc = TUTORIALS.filter((t) => getTutorialProgress(t.id) >= t.steps.length - 1).length;
               const cp = CHALLENGES.filter((c) => isChallengePassed(c.id)).length;
+
+              const diffStats = { easy: { total: 0, passed: 0 }, medium: { total: 0, passed: 0 }, hard: { total: 0, passed: 0 } };
+              const tagStats: Record<ChallengeTag, { total: number; passed: number }> = {} as Record<ChallengeTag, { total: number; passed: number }>;
+              for (const tag of ALL_TAGS) tagStats[tag] = { total: 0, passed: 0 };
+              for (const c of CHALLENGES) {
+                const passed = isChallengePassed(c.id);
+                diffStats[c.difficulty].total++;
+                if (passed) diffStats[c.difficulty].passed++;
+                for (const tag of getChallengeTags(c)) {
+                  tagStats[tag].total++;
+                  if (passed) tagStats[tag].passed++;
+                }
+              }
+
+              const diffColors = { easy: "bg-green-500", medium: "bg-yellow-500", hard: "bg-red-500" };
+
               return (
-                <div role="group" aria-label="Progress" className="px-3 py-2 space-y-2">
+                <div role="group" aria-label="Progress" className="px-3 py-2 space-y-2" data-testid="progress-section">
                   <div>
                     <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-1">
                       <span>Tutorials</span>
@@ -673,6 +689,43 @@ export const Toolbar = memo(function Toolbar({
                     </div>
                     <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden">
                       <div className="h-full bg-[var(--success)] transition-all" style={{ width: `${CHALLENGES.length ? (cp / CHALLENGES.length) * 100 : 0}%` }} />
+                    </div>
+                  </div>
+                  <div className="pt-1">
+                    <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">By Difficulty</span>
+                    <div className="flex items-end gap-1 mt-1 h-8" data-testid="difficulty-chart">
+                      {(["easy", "medium", "hard"] as const).map((d) => {
+                        const pct = diffStats[d].total > 0 ? (diffStats[d].passed / diffStats[d].total) * 100 : 0;
+                        return (
+                          <div key={d} className="flex-1 flex flex-col items-center gap-0.5">
+                            <div className="w-full bg-[var(--bg-primary)] rounded-t overflow-hidden relative" style={{ height: "24px" }}>
+                              <div
+                                className={`absolute bottom-0 w-full ${diffColors[d]} transition-all rounded-t`}
+                                style={{ height: `${pct}%` }}
+                                title={`${d}: ${diffStats[d].passed}/${diffStats[d].total} (${Math.round(pct)}%)`}
+                              />
+                            </div>
+                            <span className="text-[8px] text-[var(--text-muted)] tabular-nums">{d[0].toUpperCase()}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="pt-1">
+                    <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">By Topic</span>
+                    <div className="space-y-0.5 mt-1" data-testid="topic-chart">
+                      {ALL_TAGS.filter((t) => tagStats[t].total > 0).slice(0, 6).map((tag) => {
+                        const pct = tagStats[tag].total > 0 ? (tagStats[tag].passed / tagStats[tag].total) * 100 : 0;
+                        return (
+                          <div key={tag} className="flex items-center gap-1">
+                            <span className="text-[8px] text-[var(--text-muted)] w-12 truncate text-right">{tag}</span>
+                            <div className="flex-1 h-1 bg-[var(--bg-primary)] rounded-full overflow-hidden">
+                              <div className="h-full bg-[var(--accent)] transition-all rounded-full" style={{ width: `${pct}%` }} />
+                            </div>
+                            <span className="text-[8px] text-[var(--text-muted)] tabular-nums w-6">{Math.round(pct)}%</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
