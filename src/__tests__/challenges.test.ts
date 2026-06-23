@@ -97,4 +97,26 @@ describe("CHALLENGES", () => {
       expect(tagCounts[tag]).toBeGreaterThan(0);
     }
   });
+
+  it("known challenges get expected tags", () => {
+    const c02 = CHALLENGES.find((c) => c.id === "c02")!;
+    expect(getChallengeTags(c02)).toContain("parallel");
+
+    const c03 = CHALLENGES.find((c) => c.id === "c03")!;
+    expect(getChallengeTags(c03)).toContain("dma");
+
+    const c06 = CHALLENGES.find((c) => c.id === "c06")!;
+    expect(getChallengeTags(c06)).toContain("matrix");
+
+    const c07 = CHALLENGES.find((c) => c.id === "c07")!;
+    expect(getChallengeTags(c07)).toContain("pipeline");
+  });
+
+  it("tag inference is deterministic", () => {
+    for (const c of CHALLENGES) {
+      const tags1 = getChallengeTags(c);
+      const tags2 = getChallengeTags(c);
+      expect(tags1).toEqual(tags2);
+    }
+  });
 });
