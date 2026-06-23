@@ -2,10 +2,13 @@
 
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 
+export type CommandCategory = "execution" | "editor" | "navigation" | "view" | "file";
+
 export type CommandItem = {
   label: string;
   action: () => void;
   shortcut?: string;
+  category?: CommandCategory;
 };
 
 interface Props {
@@ -156,7 +159,14 @@ export function CommandPalette({ commands, onClose }: Props) {
                       : "text-[var(--text-secondary)] hover:bg-[var(--bg-primary)]"
                   }`}
                 >
-                  <span aria-hidden="true">{cmd.label}</span>
+                  <span className="flex items-center gap-2">
+                    <span aria-hidden="true">{cmd.label}</span>
+                    {cmd.category && (
+                      <span className="text-[9px] px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-muted)]" aria-hidden="true">
+                        {cmd.category}
+                      </span>
+                    )}
+                  </span>
                   {cmd.shortcut && (
                     <kbd className="hidden sm:inline ml-2 px-1.5 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-muted)] font-mono text-[10px] shrink-0">
                       {cmd.shortcut}
