@@ -69,7 +69,11 @@ onmessage = async function (e) {
     case 'mockRun': {
       await safeCall(() => {
         const result = Module.mockRun(source);
-        postMessage({ type: 'compile-result', data: { output: result.output, errors: result.errors, success: result.success } });
+        var errors = typeof result.errors === 'string' ? result.errors : '';
+        errors = errors.split('\n').filter(function(line) {
+          return !/warning:\s*mock:\s*unhandled expression type/.test(line);
+        }).join('\n').trim();
+        postMessage({ type: 'compile-result', data: { output: result.output, errors: errors, success: result.success } });
       }, 'Interpreter error');
       break;
     }

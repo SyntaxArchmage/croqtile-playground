@@ -67,7 +67,7 @@ export const CompilerOptionsPanel = memo(function CompilerOptionsPanel({
   return (
     <div
       ref={panelRef}
-      className="absolute right-0 top-full mt-1 w-72 max-w-[calc(100vw-1rem)] rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50"
+      className="toolbar-dropdown absolute right-0 top-full mt-1 w-72 max-w-[calc(100vw-1rem)] rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50"
       role="dialog"
       aria-label="Compiler options"
     >

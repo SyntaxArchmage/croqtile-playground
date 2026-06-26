@@ -20,6 +20,7 @@ import { downloadCoSource } from "@/lib/fileIO";
 import { exportProgress } from "@/lib/progressExport";
 import { CommandPalette, type CommandItem } from "./CommandPalette";
 import { ShortcutsDialog } from "./ShortcutsDialog";
+import { WelcomeOverlay } from "./WelcomeOverlay";
 import { readInitialSource, readInitialPanelMode, getDeepLinkId } from "@/lib/playgroundInit";
 
 const noop = () => () => {};
@@ -63,6 +64,7 @@ export function Playground() {
   const [panelMode, setPanelMode] = useState(initialPanelMode);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(() => !loadSettings().hasSeenWelcome && initialPanelMode === "closed");
   const [cursorPos, setCursorPos] = useState<CursorPosition>({ line: 1, column: 1 });
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [settings, setSettings] = useState(() => loadSettings());
@@ -273,6 +275,11 @@ export function Playground() {
     editorRef.current?.goToLine(line);
   }, []);
 
+  const dismissWelcome = useCallback(() => {
+    setShowWelcome(false);
+    saveSettings({ ...loadSettings(), hasSeenWelcome: true });
+  }, []);
+
   const openCommandPalette = useCallback(() => {
     setShowCommandPalette(true);
   }, []);
@@ -370,6 +377,21 @@ export function Playground() {
     <ShortcutsDialog onClose={() => setShowShortcuts(false)} />
   );
 
+  const welcomeOverlay = showWelcome && (
+    <WelcomeOverlay
+      onStartTutorial={() => handleTogglePanel("tutorial")}
+      onTryExample={() => {
+        const examples = EXAMPLES;
+        if (examples.length > 0) {
+          const randomEx = examples[Math.floor(Math.random() * Math.min(5, examples.length))];
+          handleLoadAndRun(randomEx.code);
+        }
+      }}
+      onWriteCode={() => editorRef.current?.getValue()}
+      onDismiss={dismissWelcome}
+    />
+  );
+
   const skipLink = (
     <a
       href="#main-content"
@@ -392,6 +414,7 @@ export function Playground() {
       </div>
       {commandPaletteOverlay}
       {shortcutsOverlay}
+      {welcomeOverlay}
       {status === "loading" && (
         <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center gap-2 py-2 bg-[var(--bg-secondary)] border-b border-[var(--border)] text-sm text-[var(--text-muted)]" role="status" aria-live="polite">
           <div className="w-4 h-4 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
@@ -440,7 +463,7 @@ export function Playground() {
             <button
               type="button"
               onClick={handleRun}
-              className="absolute bottom-3 right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-green-600 hover:bg-green-700 text-white opacity-70 hover:opacity-100 shadow-lg transition-opacity"
+              className="floating-run-btn absolute bottom-3 right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-green-600 hover:bg-green-700 text-white opacity-70 hover:opacity-100 shadow-lg"
               aria-label="Run code"
               title="Run (Ctrl+Enter)"
             >
@@ -461,6 +484,7 @@ export function Playground() {
         elapsedMs={elapsedMs}
         hasUnsavedChanges={source !== lastSavedSource}
         panelMode={panelMode}
+        onShowShortcuts={() => setShowShortcuts(true)}
       />
     </div>
   );

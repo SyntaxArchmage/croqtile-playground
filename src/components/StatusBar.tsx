@@ -19,6 +19,7 @@ interface Props {
   elapsedMs?: number | null;
   hasUnsavedChanges?: boolean;
   panelMode?: PanelMode;
+  onShowShortcuts?: () => void;
 }
 
 function formatElapsedMs(ms: number): string {
@@ -33,7 +34,7 @@ const statusConfig: Record<WorkerStatus, { label: string; color: string }> = {
   error: { label: "Error", color: "text-[var(--error)]" },
 };
 
-export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount, selection, elapsedMs, hasUnsavedChanges, panelMode = "closed" }: Props) {
+export const StatusBar = memo(function StatusBar({ status, compilerVersion, buildManifest, target, cursorPosition, lineCount, selection, elapsedMs, hasUnsavedChanges, panelMode = "closed", onShowShortcuts }: Props) {
   const { label, color } = statusConfig[status];
   const statusLabel = status === "ready" && elapsedMs != null ? `${label} • ${formatElapsedMs(elapsedMs)}` : label;
   const version = compilerVersion ?? buildManifest?.version ?? null;
@@ -104,7 +105,18 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
           {progressSummary}
         </span>
       )}
-      <span className="hidden sm:inline opacity-50">Ctrl+Enter: Run | Ctrl+Shift+Enter: Compile | Ctrl+S: Share | Ctrl+L: Clear | ?: Help</span>
+      {onShowShortcuts ? (
+        <button
+          type="button"
+          onClick={onShowShortcuts}
+          className="hidden sm:inline text-[var(--text-muted)] opacity-50 hover:opacity-100 transition-opacity"
+          aria-label="Show keyboard shortcuts"
+        >
+          Ctrl+Enter: Run | ?: All Shortcuts
+        </button>
+      ) : (
+        <span className="hidden sm:inline opacity-50">Ctrl+Enter: Run | ?: Help</span>
+      )}
     </div>
   );
 });

@@ -43,7 +43,7 @@ interface Props {
   onClear?: () => void;
 }
 
-const DEFAULT_HEIGHT_PCT = 35;
+const DEFAULT_HEIGHT_PCT = 30;
 const MIN_HEIGHT_PCT = 15;
 const MAX_HEIGHT_PCT = 65;
 
@@ -156,9 +156,9 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
     document.addEventListener("touchcancel", onTouchEnd);
   }, [updateHeight]);
 
-  const tabClass = (tab: Tab) => `px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs rounded ${
+  const tabClass = (tab: Tab) => `px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs rounded transition-colors ${
     activeTab === tab
-      ? "bg-[var(--bg-surface)] text-[var(--text-primary)]"
+      ? "bg-[var(--bg-surface)] text-[var(--text-primary)] output-tab-active"
       : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
   }`;
 
@@ -185,7 +185,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
           if (e.key === "ArrowUp") { e.preventDefault(); setHeightPct((h) => Math.min(MAX_HEIGHT_PCT, h + step)); }
           if (e.key === "ArrowDown") { e.preventDefault(); setHeightPct((h) => Math.max(MIN_HEIGHT_PCT, h - step)); }
         }}
-        className="resize-handle-y h-1 cursor-row-resize bg-[var(--border)] hover:bg-[var(--accent)] focus-visible:bg-[var(--accent)] transition-colors flex-shrink-0"
+        className="resize-handle-y h-1.5 cursor-row-resize bg-[var(--border)] hover:bg-[var(--accent)] focus-visible:bg-[var(--accent)] transition-colors flex-shrink-0"
       />
       <div
         className="flex items-center gap-1 px-3 py-1 border-b border-[var(--border)] bg-[var(--bg-secondary)]"
@@ -302,8 +302,9 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
         ) : (
           <pre className={`text-xs font-mono text-[var(--text-primary)] ${wordWrap ? "whitespace-pre-wrap" : "whitespace-pre"}`}>
             {(content && lineNumbers ? formatWithLineNumbers(content) : content) || (
-              <span className="text-[var(--text-muted)]">
-                Click &ldquo;Run&rdquo; or &ldquo;Compile&rdquo; to see output.
+              <span className="text-[var(--text-muted)] flex flex-col gap-1.5">
+                <span>Click <strong>Run</strong> or press <kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] text-[10px] font-mono">Ctrl+Enter</kbd> to execute your code.</span>
+                <span className="text-[10px] opacity-60">Use <kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] font-mono">Ctrl+Shift+Enter</kbd> to compile, or <kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] font-mono">Ctrl+Alt+D</kbd> to dump AST.</span>
               </span>
             )}
           </pre>

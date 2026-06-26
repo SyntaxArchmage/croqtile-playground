@@ -113,7 +113,7 @@ export function CommandPalette({ commands, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex justify-center pt-[max(10vh,env(safe-area-inset-top,0px))] px-4 pb-4 bg-black/60"
+      className="fixed inset-0 z-[60] flex justify-center pt-[max(10vh,env(safe-area-inset-top,0px))] px-4 pb-4 bg-black/60 overlay-backdrop"
       onClick={onClose}
     >
       <div
@@ -121,7 +121,7 @@ export function CommandPalette({ commands, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
-        className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg max-w-[400px] w-[min(100%,calc(100vw-2rem))] shadow-2xl overflow-hidden self-start max-h-[calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-2rem)] flex flex-col"
+        className="overlay-content bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg max-w-[400px] w-[min(100%,calc(100vw-2rem))] shadow-2xl overflow-hidden self-start max-h-[calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-2rem)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <input

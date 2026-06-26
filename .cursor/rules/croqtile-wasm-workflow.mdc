@@ -1,0 +1,112 @@
+---
+description: MUST-follow workflow for changes involving the external croqtile C++ repo and WASM rebuild
+alwaysApply: true
+---
+
+# Croqtile WASM Development Workflow
+
+This playground depends on a WASM binary (`co-web.wasm` + `co-web.js`) compiled from the C++ source in the **external** repo at `~/workspace/croqtile`. Any change to the mock interpreter, parser, codegen, or other C++ components **must** follow this workflow.
+
+## Repository Layout
+
+```
+~/workspace/croqtile/              # C++ compiler source (EXTERNAL — do NOT commit without explicit user permission)
+  tools/co-mock/                   # Mock interpreter (mock_interp.cpp, mock_memory.hpp/.cpp)
+  tools/co-web/build.sh            # WASM build script (uses em++)
+  build/co-mock                    # Native mock binary
+  build-wasm/co-web.{js,wasm}      # Built WASM artifacts
+
+~/workspace/croqtile-playground/   # This repo (Next.js frontend)
+  public/wasm/co-web.{js,wasm}     # WASM artifacts served to browser
+  public/wasm/choreo-worker.js     # Web Worker that loads WASM
+  public/wasm/build-manifest.json  # Build metadata
+```
+
+## Mandatory Steps When Modifying C++ Code
+
+### 1. Edit C++ Source
+
+Make changes in `~/workspace/croqtile/`. Common targets:
+- `tools/co-mock/mock_interp.cpp` — AST evaluation logic
+- `tools/co-mock/mock_memory.hpp/.cpp` — Value types, memory model
+- `lib/` — Parser, sema, codegen
+
+### 2. Rebuild WASM
+
+```bash
+cd ~/workspace/croqtile && bash tools/co-web/build.sh
+```
+
+**Do NOT use `cmake --build` or `make co-web`** — the CMake config tries to download LLVM from an internal artifact server that is unreachable. The `build.sh` script calls `em++` directly and bypasses this.
+
+### 3. Copy Artifacts to Playground
+
+```bash
+cp ~/workspace/croqtile/build-wasm/co-web.js  ~/workspace/croqtile-playground/public/wasm/
+cp ~/workspace/croqtile/build-wasm/co-web.wasm ~/workspace/croqtile-playground/public/wasm/
+```
+
+### 4. Update build-manifest.json
+
+Update `commit`, `built_at`, and add any new feature tags to `features`.
+
+### 5. Verification — MANDATORY Binary Comparison Test
+
+**Before declaring any C++ change complete, you MUST verify that the native `co-mock` binary and the WASM build produce the same results.** This is the gold standard for correctness.
+
+#### Build native binary
+
+The CMake incremental build fails (LLVM download). Instead, manually compile and link:
+
+```bash
+cd ~/workspace/croqtile
+
+# Compile only changed .cpp files
+g++ -std=c++17 -O2 -c tools/co-mock/mock_memory.cpp \
+  -I lib -I tools/co-mock -I build -I extern/include \
+  -o /tmp/mock_memory.o
+
+g++ -std=c++17 -O2 -c tools/co-mock/mock_interp.cpp \
+  -I lib -I tools/co-mock -I build -I extern/include \
+  -o /tmp/mock_interp.o
+
+# Swap .o files into build dir
+cp /tmp/mock_memory.o build/tools/co-mock/CMakeFiles/co-mock.dir/mock_memory.cpp.o
+cp /tmp/mock_interp.o build/tools/co-mock/CMakeFiles/co-mock.dir/mock_interp.cpp.o
+
+# Re-link (all other .o files are unchanged)
+cd build && g++ -O3 -DNDEBUG \
+  lib/CMakeFiles/parse.dir/__/parser.tab.cc.o \
+  lib/CMakeFiles/parse.dir/__/scanner.yy.cc.o \
+  lib/CMakeFiles/core.dir/*.o \
+  lib/CMakeFiles/codegen.dir/*.o \
+  lib/CMakeFiles/support.dir/*.o \
+  lib/CMakeFiles/pp.dir/*.o \
+  tools/co-mock/CMakeFiles/co-mock.dir/*.o \
+  -Wl,--whole-archive lib/Target/libtargets.a -Wl,--no-whole-archive \
+  -lpthread -o co-mock-fixed
+```
+
+#### Run comparison tests
+
+Write `.co` test files covering the change, then run both binaries:
+
+```bash
+echo '__co__ void test() { println("Hello from Croqtile!"); }' > /tmp/test.co
+
+echo "=== OLD ===" && build/co-mock /tmp/test.co 2>&1
+echo "=== NEW ===" && build/co-mock-fixed /tmp/test.co 2>&1
+```
+
+The new binary output should match expected behavior with no warnings.
+
+## Commit Rules
+
+- **croqtile repo**: Do NOT commit unless the user explicitly asks. It is an external dependency.
+- **croqtile-playground repo**: Commit WASM artifacts + JS changes when user approves.
+
+## Environment Quirks
+
+- **localhost unreachable**: Dev server binds to network IP (`10.0.16.52`), not `127.0.0.1`. Use `-H 0.0.0.0` or the actual IP.
+- **Chromium GPU crash**: Playwright with `chromium_headless_shell` fails (GPU process crash). Use **Firefox** for e2e tests.
+- **`parallel` in WASM**: Threading requires SharedArrayBuffer + COOP/COEP headers. Local dev server may not have them — `parallel` examples may fail with `"thread constructor failed: Not supported"`. This is expected.

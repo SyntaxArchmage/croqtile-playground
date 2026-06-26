@@ -79,7 +79,7 @@ describe("settings", () => {
   describe("persistence and validation edge cases", () => {
     it("saveSettings persists changes that loadSettings reads back from localStorage", () => {
       const defaultFlags = { emitSource: true, dumpAst: false, noPreprocess: false, dropComments: false, noCodegen: false, semanticOnly: false, architecture: "", customFlags: "" };
-      const s = { fontSize: 20, fontFamily: "JetBrains Mono, monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute" as const, theme: "light" as const, outputLineNumbers: false, compilerFlags: defaultFlags };
+      const s = { fontSize: 20, fontFamily: "JetBrains Mono, monospace", wordWrap: false, minimap: false, tabSize: 2, lastTarget: "cute" as const, theme: "light" as const, outputLineNumbers: false, compilerFlags: defaultFlags, hasSeenWelcome: false };
       saveSettings(s);
       const raw = localStorage.getItem(STORAGE_KEY);
       expect(raw).toBe(JSON.stringify(s));

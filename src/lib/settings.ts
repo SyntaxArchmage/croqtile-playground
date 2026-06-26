@@ -72,6 +72,7 @@ export interface EditorSettings {
   theme: Theme;
   outputLineNumbers: boolean;
   compilerFlags: CompilerFlags;
+  hasSeenWelcome?: boolean;
 }
 
 const DEFAULT_SETTINGS: EditorSettings = {
@@ -84,6 +85,7 @@ const DEFAULT_SETTINGS: EditorSettings = {
   theme: "dark",
   outputLineNumbers: false,
   compilerFlags: { ...DEFAULT_COMPILER_FLAGS },
+  hasSeenWelcome: false,
 };
 
 function getDefault(): EditorSettings {
@@ -152,7 +154,8 @@ export function loadSettings(): EditorSettings {
       ? parsed.fontFamily
       : def.fontFamily;
     const compilerFlags = parseCompilerFlags(parsed.compilerFlags, def.compilerFlags);
-    return { fontSize, fontFamily, wordWrap, minimap, tabSize, lastTarget, theme, outputLineNumbers, compilerFlags };
+    const hasSeenWelcome = typeof parsed.hasSeenWelcome === "boolean" ? parsed.hasSeenWelcome : def.hasSeenWelcome;
+    return { fontSize, fontFamily, wordWrap, minimap, tabSize, lastTarget, theme, outputLineNumbers, compilerFlags, hasSeenWelcome };
   } catch {
     return getDefault();
   }

@@ -18,6 +18,7 @@ const mockLoadSettings = jest.fn(() => ({
   theme: "dark" as const,
   outputLineNumbers: false,
   compilerFlags: { ...defaultCompilerFlags },
+  hasSeenWelcome: true,
 }));
 const mockSaveSettings = jest.fn();
 let mockStatus: "ready" | "running" | "loading" | "error" = "ready";

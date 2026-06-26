@@ -25,6 +25,7 @@ describe("settings SSR / no-window guards", () => {
         architecture: "",
         customFlags: "",
       },
+      hasSeenWelcome: false,
     });
   });
 
