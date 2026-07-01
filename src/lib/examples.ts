@@ -1337,4 +1337,69 @@ __co__ void block_thread() {
 }
 `,
   },
+  {
+    id: "incr-decr",
+    name: "Increment / Decrement",
+    description:
+      "Pre-increment and pre-decrement operators with write-back",
+    code: `__co__ void incr_decr_demo() {
+  mutable int x = 5;
+  int a = ++x;
+  println("a=", a, " x=", x);
+
+  int b = --x;
+  println("b=", b, " x=", x);
+
+  s32[4] arr;
+  foreach i in 4
+    arr.at(i) = 0;
+
+  mutable int idx = 0;
+  foreach i in 3 {
+    arr.at(idx) = idx * 10;
+    int next = ++idx;
+  }
+  println("arr:", arr.at(0), arr.at(1), arr.at(2));
+}
+`,
+  },
+  {
+    id: "cute-atomic",
+    name: "[GPU] Atomic Operations",
+    target: "cute",
+    description:
+      "GPU atomic add, max, min, exchange on shared array elements",
+    code: `// Select "cute (CUDA)" target before running
+__co__ void gpu_atomics() {
+  s32[4] buf;
+  foreach i in 4
+    buf.at(i) = 0;
+
+  s32 one = 1;
+  s32 two = 2;
+  s32 three = 3;
+  s32 four = 4;
+  __atomic_add(buf.at(0), one);
+  __atomic_add(buf.at(0), two);
+  __atomic_add(buf.at(0), three);
+  __atomic_add(buf.at(0), four);
+  println("atomic sum 1..4:", buf.at(0));
+
+  foreach i in 4
+    buf.at(i) = i * 10;
+
+  s32 v99 = 99;
+  __atomic_max(buf.at(0), v99);
+  println("after atomic_max(99):", buf.at(0));
+
+  s32 v15 = 15;
+  __atomic_min(buf.at(3), v15);
+  println("after atomic_min(15):", buf.at(3));
+
+  s32 v42 = 42;
+  __atomic_exch(buf.at(1), v42);
+  println("after atomic_exch(42):", buf.at(1));
+}
+`,
+  },
 ];
