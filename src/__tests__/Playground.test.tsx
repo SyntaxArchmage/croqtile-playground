@@ -608,6 +608,7 @@ describe("Playground", () => {
         expect(mockRun).toHaveBeenCalledTimes(1);
         expect(mockRun).toHaveBeenCalledWith(
           expect.stringContaining('println("Hello from Croqtile!")'),
+          expect.any(String),
         );
       });
     });
@@ -632,6 +633,7 @@ describe("Playground", () => {
         expect(mockRun).toHaveBeenCalledTimes(1);
         expect(mockRun).toHaveBeenCalledWith(
           expect.stringContaining('println("Hello,", "world!")'),
+          expect.any(String),
         );
       });
     });
@@ -670,6 +672,7 @@ describe("Playground", () => {
         expect(mockRun).toHaveBeenCalledTimes(1);
         expect(mockRun).toHaveBeenCalledWith(
           expect.stringContaining("__co__"),
+          expect.any(String),
         );
       });
     });
@@ -690,6 +693,7 @@ describe("Playground", () => {
         expect(mockRun).toHaveBeenCalledTimes(1);
         expect(mockRun).toHaveBeenCalledWith(
           expect.stringContaining("printing()"),
+          expect.any(String),
         );
       });
     });
@@ -1677,7 +1681,7 @@ describe("Playground", () => {
         target: { value: "__co__ void fromSourceRef() {}" },
       });
       fireEvent.keyDown(window, { key: "Enter", ctrlKey: true });
-      expect(mockRun).toHaveBeenCalledWith("__co__ void fromSourceRef() {}");
+      expect(mockRun).toHaveBeenCalledWith("__co__ void fromSourceRef() {}", expect.any(String));
     });
 
     it("uses sourceRef in confirmAndLoad when editor ref is unavailable", async () => {

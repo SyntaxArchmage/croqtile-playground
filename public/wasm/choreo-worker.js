@@ -68,7 +68,7 @@ onmessage = async function (e) {
     }
     case 'mockRun': {
       await safeCall(() => {
-        const result = Module.mockRun(source);
+        const result = Module.mockRun(source, target || 'cc');
         var errors = typeof result.errors === 'string' ? result.errors : '';
         errors = errors.split('\n').filter(function(line) {
           return !/warning:\s*mock:\s*unhandled expression type/.test(line);

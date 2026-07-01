@@ -3,6 +3,7 @@ export interface Example {
   name: string;
   description: string;
   code: string;
+  target?: string;
 }
 
 export const EXAMPLES: Example[] = [
@@ -1194,6 +1195,145 @@ export const EXAMPLES: Example[] = [
 
   println("min =", lo);
   println("max =", hi);
+}
+`,
+  },
+  {
+    id: "cute-frag-basics",
+    name: "[GPU] Fragment Basics",
+    target: "cute",
+    description:
+      "Fragment declaration and access under cute target (select cute target first)",
+    code: `// Select "cute (CUDA)" target before running
+__co__ void frag_basics() {
+  parallel t by 1 : thread {
+    frag s32[3, 3] m;
+
+    foreach i in 3
+      foreach j in 3
+        m.at(i, j) = i * 3 + j + 1;
+
+    println("3x3 fragment:");
+    foreach i in 3
+      foreach j in 3
+        println("  m[", i, ",", j, "] =", m.at(i, j));
+  }
+}
+`,
+  },
+  {
+    id: "cute-mma",
+    name: "[GPU] MMA Matrix Multiply",
+    target: "cute",
+    description:
+      "GPU-style matrix multiply-accumulate with frag and mma.row.col",
+    code: `// Select "cute (CUDA)" target before running
+__co__ void gpu_mma() {
+  parallel t by 1 : thread {
+    frag s32[2, 3] A;
+    frag s32[3, 2] B;
+    frag s32[2, 2] C;
+
+    foreach i in 2
+      foreach j in 3
+        A.at(i, j) = i * 3 + j + 1;
+
+    foreach i in 3
+      foreach j in 2
+        B.at(i, j) = i * 2 + j + 1;
+
+    foreach i in 2
+      foreach j in 2
+        C.at(i, j) = 0;
+
+    mma.row.col C, A, B;
+
+    println("C = A[2x3] @ B[3x2]:");
+    foreach i in 2
+      foreach j in 2
+        println("  C[", i, ",", j, "] =", C.at(i, j));
+  }
+}
+`,
+  },
+  {
+    id: "cute-frag-ops",
+    name: "[GPU] Fragment Operations",
+    target: "cute",
+    description:
+      "copy, apply, reduce_sum, reduce_max on GPU fragments",
+    code: `// Select "cute (CUDA)" target before running
+__co__ void frag_ops() {
+  parallel t by 1 : thread {
+    frag s32[2, 4] src;
+    frag s32[2, 4] dst;
+
+    foreach i in 2
+      foreach j in 4 {
+        src.at(i, j) = i * 4 + j + 1;
+        dst.at(i, j) = 0;
+      }
+
+    copy(dst, src);
+    println("after copy:");
+    foreach i in 2
+      foreach j in 4
+        println("  dst[", i, ",", j, "] =", dst.at(i, j));
+
+    apply {x, y} in dst.span {
+      dst.at(x, y) = dst.at(x, y) * 10;
+    }
+    println("after apply *10:");
+    foreach i in 2
+      foreach j in 4
+        println("  dst[", i, ",", j, "] =", dst.at(i, j));
+
+    frag s32[1, 2] rsum;
+    reduce_sum(rsum, dst, 1);
+    println("row sums:");
+    foreach i in 2
+      println("  row[", i, "] =", rsum.at(0, i));
+  }
+}
+`,
+  },
+  {
+    id: "cute-multi-thread",
+    name: "[GPU] Multi-Thread Fragments",
+    target: "cute",
+    description:
+      "Each GPU thread gets its own private fragment",
+    code: `// Select "cute (CUDA)" target before running
+__co__ void multi_thread_frag() {
+  parallel t by 4 : thread {
+    frag s32[2, 2] tile;
+
+    foreach i in 2
+      foreach j in 2
+        tile.at(i, j) = t * 100 + i * 2 + j;
+
+    println("thread", t, ":");
+    foreach i in 2
+      foreach j in 2
+        println("  tile[", i, ",", j, "] =", tile.at(i, j));
+  }
+}
+`,
+  },
+  {
+    id: "cute-block-thread",
+    name: "[GPU] Block + Thread Hierarchy",
+    target: "cute",
+    description:
+      "Nested parallel blocks simulating GPU block/thread hierarchy",
+    code: `// Select "cute (CUDA)" target before running
+__co__ void block_thread() {
+  parallel b by 2 : block {
+    parallel t by 4 : thread {
+      s32 global_id = b * 4 + t;
+      println("block=", b, " thread=", t, " global_id=", global_id);
+    }
+  }
 }
 `,
   },

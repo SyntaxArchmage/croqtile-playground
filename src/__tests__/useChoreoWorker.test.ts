@@ -204,7 +204,7 @@ describe("useChoreoWorker", () => {
       expect(result.current.compilerVersion).toBe("2.2.0");
 
       act(() => { result.current.run("retry"); });
-      expect(mockWorker.postMessage).toHaveBeenCalledWith({ type: "mockRun", source: "retry" });
+      expect(mockWorker.postMessage).toHaveBeenCalledWith({ type: "mockRun", source: "retry", target: "cc" });
     });
 
     it("ignores duplicate error messages while already in error state", () => {
@@ -355,8 +355,8 @@ describe("useChoreoWorker", () => {
       });
 
       expect(mockWorker.postMessage).toHaveBeenCalledTimes(3);
-      expect(mockWorker.postMessage).toHaveBeenNthCalledWith(1, { type: "mockRun", source: "first" });
-      expect(mockWorker.postMessage).toHaveBeenNthCalledWith(2, { type: "mockRun", source: "second" });
+      expect(mockWorker.postMessage).toHaveBeenNthCalledWith(1, { type: "mockRun", source: "first", target: "cc" });
+      expect(mockWorker.postMessage).toHaveBeenNthCalledWith(2, { type: "mockRun", source: "second", target: "cc" });
       expect(mockWorker.postMessage).toHaveBeenNthCalledWith(3, {
         type: "compile",
         source: "third",

@@ -21,11 +21,12 @@ try {
 }
 
 async function runMock(
-  code: string
+  code: string,
+  target: string = "cc"
 ): Promise<{ stdout: string; stderr: string }> {
   const escaped = code.replace(/'/g, "'\\''");
   const { stdout, stderr } = await execAsync(
-    `echo '${escaped}' | ${CO_MOCK} -`,
+    `echo '${escaped}' | ${CO_MOCK} -t ${target} -`,
     { timeout: 30000, maxBuffer: 1024 * 1024 }
   );
   return { stdout, stderr };
@@ -46,7 +47,7 @@ describe("Mock interpreter runs all examples", () => {
     test.concurrent(
       `[${ex.id}] ${ex.name}`,
       async () => {
-        const { stdout, stderr } = await runMock(ex.code);
+        const { stdout, stderr } = await runMock(ex.code, ex.target || "cc");
 
         const filteredStderr = stderr
           .split("\n")

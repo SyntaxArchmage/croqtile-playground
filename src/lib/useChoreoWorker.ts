@@ -147,8 +147,8 @@ export function useChoreoWorker() {
     workerRef.current.postMessage(msg);
   }, []);
 
-  const run = useCallback((source: string) => {
-    postIfReady({ type: "mockRun", source }, "mockRun");
+  const run = useCallback((source: string, target: string = "cc") => {
+    postIfReady({ type: "mockRun", source, target }, "mockRun");
   }, [postIfReady]);
 
   const compile = useCallback((source: string, target: string, flags: string = "") => {

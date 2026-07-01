@@ -176,11 +176,11 @@ export function Playground() {
         if (loadAndRunTimerRef.current) clearTimeout(loadAndRunTimerRef.current);
         loadAndRunTimerRef.current = setTimeout(() => {
           loadAndRunTimerRef.current = null;
-          run(code);
+          run(code, target);
         }, TUTORIAL_AUTO_RUN_DELAY_MS);
       }
     },
-    [confirmAndLoad, run],
+    [confirmAndLoad, run, target],
   );
 
   useEffect(() => {
@@ -188,7 +188,7 @@ export function Playground() {
       status === "running" ? "⏳ Running... | Croqtile Playground" : "Croqtile Playground";
   }, [status]);
 
-  const handleRun = useCallback(() => run(getCode()), [getCode, run]);
+  const handleRun = useCallback(() => run(getCode(), target), [getCode, target, run]);
   const handleCompile = useCallback(() => {
     const flagStr = buildFlagString(settingsRef.current.compilerFlags, target);
     compile(getCode(), target, flagStr);
