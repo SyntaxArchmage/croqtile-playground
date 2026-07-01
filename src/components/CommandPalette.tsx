@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { useFocusTrap } from "@/lib/focusTrap";
 
 export type CommandCategory = "execution" | "editor" | "navigation" | "view" | "file";
 
@@ -16,9 +17,6 @@ interface Props {
   onClose: () => void;
 }
 
-const FOCUSABLE =
-  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-
 const LISTBOX_ID = "command-listbox";
 
 function optionId(index: number): string {
@@ -30,7 +28,6 @@ export function CommandPalette({ commands, onClose }: Props) {
   const [highlight, setHighlight] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -67,33 +64,10 @@ export function CommandPalette({ commands, onClose }: Props) {
     [filtered, clamped, execute, onClose],
   );
 
+  useFocusTrap(dialogRef, { autoFocusFirst: false });
+
   useEffect(() => {
-    previousFocusRef.current = document.activeElement as HTMLElement;
     inputRef.current?.focus();
-
-    const dialog = dialogRef.current;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Tab") return;
-      const focusable = dialog?.querySelectorAll<HTMLElement>(FOCUSABLE);
-      if (!focusable?.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (e.shiftKey) {
-        if (document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        }
-      } else if (document.activeElement === last) {
-        e.preventDefault();
-        first?.focus();
-      }
-    };
-
-    dialog?.addEventListener("keydown", handleKeyDown);
-    return () => {
-      dialog?.removeEventListener("keydown", handleKeyDown);
-      previousFocusRef.current?.focus();
-    };
   }, []);
 
   useEffect(() => {

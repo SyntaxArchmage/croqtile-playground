@@ -46,6 +46,8 @@ interface Props {
 const DEFAULT_HEIGHT_PCT = 30;
 const MIN_HEIGHT_PCT = 15;
 const MAX_HEIGHT_PCT = 65;
+const ACTION_BTN = "px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]";
+const KBD_CLASS = "px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] font-mono";
 
 export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "", onClear }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("output");
@@ -252,7 +254,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="flex items-center gap-1 px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  className={`flex items-center gap-1 ${ACTION_BTN}`}
                   aria-label={copied ? "Copied to clipboard" : "Copy output to clipboard"}
                   title={copied ? "Copied!" : "Copy to clipboard"}
                 >
@@ -279,7 +281,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
                 <button
                   type="button"
                   onClick={() => setWordWrap((w) => !w)}
-                  className="px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  className={ACTION_BTN}
                   aria-label="Toggle word wrap"
                   aria-pressed={wordWrap}
                 >
@@ -288,7 +290,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
                 <button
                   type="button"
                   onClick={toggleLineNumbers}
-                  className="px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  className={ACTION_BTN}
                   aria-label="Toggle line numbers"
                   aria-pressed={lineNumbers}
                 >
@@ -300,7 +302,7 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
               <button
                 type="button"
                 onClick={onClear}
-                className="px-2 py-2 sm:py-0.5 min-h-11 sm:min-h-0 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                className={ACTION_BTN}
                 aria-label="Clear output"
               >
                 Clear
@@ -333,8 +335,8 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
                     <line x1="12" y1="19" x2="20" y2="19" />
                   </svg>
                   <span className="text-center">
-                    <span className="block text-xs">Click <strong>Run</strong> or press <kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] text-[10px] font-mono">Ctrl+Enter</kbd></span>
-                    <span className="block text-[10px] opacity-60 mt-1"><kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] font-mono">Ctrl+Shift+Enter</kbd> compile &middot; <kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] font-mono">Ctrl+Alt+D</kbd> AST</span>
+                    <span className="block text-xs">Click <strong>Run</strong> or press <kbd className={`${KBD_CLASS} text-[10px]`}>Ctrl+Enter</kbd></span>
+                    <span className="block text-[10px] opacity-60 mt-1"><kbd className={KBD_CLASS}>Ctrl+Shift+Enter</kbd> compile &middot; <kbd className={KBD_CLASS}>Ctrl+Alt+D</kbd> AST</span>
                   </span>
                 </span>
               )}

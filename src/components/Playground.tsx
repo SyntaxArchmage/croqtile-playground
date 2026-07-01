@@ -168,10 +168,7 @@ export function Playground() {
     [source],
   );
 
-  const handleLoadCode = useCallback(
-    (code: string) => { confirmAndLoad(code); },
-    [confirmAndLoad],
-  );
+  const handleLoadCode = confirmAndLoad;
 
   const handleLoadAndRun = useCallback(
     (code: string) => {
@@ -251,22 +248,6 @@ export function Playground() {
     setSource(formatChoreoCode(getCode()));
   }, [getCode]);
 
-  const handleUndo = useCallback(() => {
-    editorRef.current?.undo();
-  }, []);
-
-  const handleRedo = useCallback(() => {
-    editorRef.current?.redo();
-  }, []);
-
-  const handleFind = useCallback(() => {
-    editorRef.current?.find();
-  }, []);
-
-  const handleReplace = useCallback(() => {
-    editorRef.current?.replace();
-  }, []);
-
   const handleGoToLine = useCallback(() => {
     const input = window.prompt("Go to line:");
     if (input === null) return;
@@ -280,14 +261,6 @@ export function Playground() {
     saveSettings({ ...loadSettings(), hasSeenWelcome: true });
   }, []);
 
-  const openCommandPalette = useCallback(() => {
-    setShowCommandPalette(true);
-  }, []);
-
-  const closeCommandPalette = useCallback(() => {
-    setShowCommandPalette(false);
-  }, []);
-
   const handleDownload = useCallback(() => {
     downloadCoSource(getCode());
   }, [getCode]);
@@ -299,10 +272,10 @@ export function Playground() {
     { label: "Share Link", action: handleShare, shortcut: "Ctrl+S", category: "navigation" },
     { label: "Clear Output", action: clearOutput, shortcut: "Ctrl+L", category: "view" },
     { label: "Toggle Theme", action: handleToggleTheme, shortcut: "Ctrl+Shift+T", category: "view" },
-    { label: "Undo", action: handleUndo, shortcut: "Ctrl+Z", category: "editor" },
-    { label: "Redo", action: handleRedo, shortcut: "Ctrl+Shift+Z", category: "editor" },
-    { label: "Find", action: handleFind, shortcut: "Ctrl+F", category: "editor" },
-    { label: "Replace", action: handleReplace, shortcut: "Ctrl+H", category: "editor" },
+    { label: "Undo", action: () => editorRef.current?.undo(), shortcut: "Ctrl+Z", category: "editor" },
+    { label: "Redo", action: () => editorRef.current?.redo(), shortcut: "Ctrl+Shift+Z", category: "editor" },
+    { label: "Find", action: () => editorRef.current?.find(), shortcut: "Ctrl+F", category: "editor" },
+    { label: "Replace", action: () => editorRef.current?.replace(), shortcut: "Ctrl+H", category: "editor" },
     { label: "Go to Line", action: handleGoToLine, shortcut: "Ctrl+G", category: "editor" },
     { label: "Open File", action: () => openFileRef.current?.(), category: "file" },
     { label: "Download Code", action: handleDownload, category: "file" },
@@ -311,7 +284,7 @@ export function Playground() {
     { label: "Open Challenges", action: () => handleTogglePanel("challenge"), category: "navigation" },
     { label: "Export Progress", action: exportProgress, category: "file" },
     { label: "Keyboard Shortcuts", action: () => setShowShortcuts(true), shortcut: "?", category: "navigation" },
-  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme, handleUndo, handleRedo, handleFind, handleReplace, handleGoToLine, handleDownload, handleTogglePanel, handleFormatCode]);
+  ], [handleRun, handleCompile, handleDumpAST, handleShare, clearOutput, handleToggleTheme, handleGoToLine, handleDownload, handleTogglePanel, handleFormatCode]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -370,7 +343,7 @@ export function Playground() {
   const deepLinkId = useMemo(() => getDeepLinkId(panelMode), [panelMode]);
 
   const commandPaletteOverlay = showCommandPalette && (
-    <CommandPalette commands={paletteCommands} onClose={closeCommandPalette} />
+    <CommandPalette commands={paletteCommands} onClose={() => setShowCommandPalette(false)} />
   );
 
   const shortcutsOverlay = showShortcuts && (
@@ -442,7 +415,7 @@ export function Playground() {
         settings={settings}
         onSettingsChange={handleSettingsChange}
         onToggleTheme={handleToggleTheme}
-        onOpenCommandPalette={openCommandPalette}
+        onOpenCommandPalette={() => setShowCommandPalette(true)}
         openFileRef={openFileRef}
       />
       <div className="flex-1 min-h-0 flex flex-col">

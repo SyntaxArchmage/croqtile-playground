@@ -95,15 +95,15 @@ function getDefault(): EditorSettings {
 function parseCompilerFlags(raw: unknown, def: CompilerFlags): CompilerFlags {
   if (!raw || typeof raw !== "object") return { ...def };
   const r = raw as Record<string, unknown>;
-  const bool = (k: keyof CompilerFlags) =>
-    typeof r[k] === "boolean" ? (r[k] as boolean) : def[k];
+  const bool = (k: keyof CompilerFlags): boolean =>
+    typeof r[k] === "boolean" ? (r[k] as boolean) : (def[k] as boolean);
   return {
-    emitSource: bool("emitSource") as boolean,
-    dumpAst: bool("dumpAst") as boolean,
-    noPreprocess: bool("noPreprocess") as boolean,
-    dropComments: bool("dropComments") as boolean,
-    noCodegen: bool("noCodegen") as boolean,
-    semanticOnly: bool("semanticOnly") as boolean,
+    emitSource: bool("emitSource"),
+    dumpAst: bool("dumpAst"),
+    noPreprocess: bool("noPreprocess"),
+    dropComments: bool("dropComments"),
+    noCodegen: bool("noCodegen"),
+    semanticOnly: bool("semanticOnly"),
     architecture: typeof r.architecture === "string" ? r.architecture : def.architecture,
     customFlags: typeof r.customFlags === "string" ? r.customFlags : def.customFlags,
   };

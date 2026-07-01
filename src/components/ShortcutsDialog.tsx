@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import { useIsMac, formatShortcut } from "@/lib/platform";
+import { useFocusTrap } from "@/lib/focusTrap";
 
 export type ShortcutGroup = {
   title: string;
@@ -49,41 +50,10 @@ interface Props {
   onClose: () => void;
 }
 
-const FOCUSABLE =
-  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-
 export function ShortcutsDialog({ onClose }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
   const isMac = useIsMac();
-
-  useEffect(() => {
-    previousFocusRef.current = document.activeElement as HTMLElement;
-    const dialog = dialogRef.current;
-    const focusable = dialog?.querySelectorAll<HTMLElement>(FOCUSABLE);
-    const first = focusable?.[0];
-    const last = focusable?.[focusable.length - 1];
-    first?.focus();
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Tab" || !focusable?.length) return;
-      if (e.shiftKey) {
-        if (document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        }
-      } else if (document.activeElement === last) {
-        e.preventDefault();
-        first?.focus();
-      }
-    };
-
-    dialog?.addEventListener("keydown", handleKeyDown);
-    return () => {
-      dialog?.removeEventListener("keydown", handleKeyDown);
-      previousFocusRef.current?.focus();
-    };
-  }, []);
+  useFocusTrap(dialogRef);
 
   return (
     <div

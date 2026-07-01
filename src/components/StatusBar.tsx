@@ -59,14 +59,14 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
       </span>
       {hasUnsavedChanges && (
         <>
-          <span className="text-[var(--border)]">|</span>
+          <span className="text-[var(--border)]" aria-hidden="true">|</span>
           <span className="flex items-center gap-1 text-[var(--warning)]" aria-label="Unsaved changes">
             <span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />
             <span className="hidden sm:inline">Unsaved</span>
           </span>
         </>
       )}
-      <span className="text-[var(--border)]">|</span>
+      <span className="text-[var(--border)]" aria-hidden="true">|</span>
       <span className="hidden sm:inline">
         Croqtile {version ?? "—"}
         {commit && <span className="ml-1 opacity-60">({commit})</span>}
@@ -82,20 +82,20 @@ export const StatusBar = memo(function StatusBar({ status, compilerVersion, buil
       )}
       {cursorPosition && (
         <>
-          <span className="text-[var(--border)]">|</span>
+          <span className="text-[var(--border)]" aria-hidden="true">|</span>
           <span className="hidden md:inline">Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
           <span className="md:hidden tabular-nums">{cursorPosition.line}:{cursorPosition.column}</span>
         </>
       )}
       {lineCount !== undefined && (
         <>
-          <span className="hidden md:inline text-[var(--border)]">|</span>
+          <span className="hidden md:inline text-[var(--border)]" aria-hidden="true">|</span>
           <span className="hidden md:inline">{lineCount} lines</span>
         </>
       )}
       {selection && selection.characters > 0 && (
         <>
-          <span className="hidden md:inline text-[var(--border)]">|</span>
+          <span className="hidden md:inline text-[var(--border)]" aria-hidden="true">|</span>
           <span className="hidden md:inline">
             {selection.lines > 1
               ? `${selection.lines} lines, ${selection.characters} chars selected`

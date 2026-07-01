@@ -8,7 +8,7 @@ import { EXAMPLES } from "@/lib/examples";
 import { TUTORIALS } from "@/lib/tutorials";
 import { CHALLENGES, getChallengeTags, ALL_TAGS, type ChallengeTag } from "@/lib/challenges";
 import { getTutorialProgress, isChallengePassed, resetProgress } from "@/lib/progress";
-import type { EditorSettings, CompilerFlags, CompilerTarget, Theme } from "@/lib/settings";
+import type { EditorSettings, CompilerFlags, CompilerTarget } from "@/lib/settings";
 import { FONT_FAMILY_OPTIONS, VALID_TARGETS } from "@/lib/settings";
 import { CompilerOptionsPanel } from "./CompilerOptionsPanel";
 import {
@@ -38,6 +38,11 @@ interface Props {
   onOpenCommandPalette?: () => void;
   openFileRef?: React.MutableRefObject<(() => void) | null>;
 }
+
+const STEPPER_BTN = "min-h-8 min-w-8 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors";
+const TOOLBAR_SECONDARY_BTN = "min-h-9 px-2.5 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]";
+const SECTION_HEADER = "px-3 pt-2 pb-1";
+const SECTION_LABEL = "text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium";
 
 export const Toolbar = memo(function Toolbar({
   target,
@@ -459,7 +464,7 @@ export const Toolbar = memo(function Toolbar({
           <button
             type="button"
             onClick={() => setShowFileMenu((v) => !v)}
-            className="min-h-9 px-2.5 text-xs font-medium rounded border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
+            className={TOOLBAR_SECONDARY_BTN}
             aria-label="File menu"
             aria-haspopup="menu"
             aria-expanded={showFileMenu}
@@ -648,17 +653,17 @@ export const Toolbar = memo(function Toolbar({
             className="toolbar-dropdown absolute right-0 top-full mt-1 w-52 max-w-[calc(100vw-1rem)] rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1"
             onKeyDown={(e) => handleMenuKeyDown(e, () => setShowMenu(false), settingsMenuRef)}
           >
-            <div className="px-3 pt-2 pb-1">
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium">Editor</span>
+            <div className={SECTION_HEADER}>
+              <span className={SECTION_LABEL}>Editor</span>
             </div>
             <div role="none" className="px-3 py-2 flex items-center justify-between">
               <span className="text-xs text-[var(--text-secondary)]">Font size</span>
               <div className="flex items-center gap-1">
-                <button type="button" role="menuitem" onClick={() => { if (settings.fontSize > 10) onSettingsChange({ ...settings, fontSize: settings.fontSize - 1 }); }} disabled={settings.fontSize <= 10} className="min-h-8 min-w-8 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors" aria-label="Decrease font size">
+                <button type="button" role="menuitem" onClick={() => { if (settings.fontSize > 10) onSettingsChange({ ...settings, fontSize: settings.fontSize - 1 }); }} disabled={settings.fontSize <= 10} className={STEPPER_BTN} aria-label="Decrease font size">
                   −
                 </button>
                 <span className="text-xs text-[var(--text-primary)] w-6 text-center tabular-nums" aria-hidden="true">{settings.fontSize}</span>
-                <button type="button" role="menuitem" onClick={() => { if (settings.fontSize < 24) onSettingsChange({ ...settings, fontSize: settings.fontSize + 1 }); }} disabled={settings.fontSize >= 24} className="min-h-8 min-w-8 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors" aria-label="Increase font size">
+                <button type="button" role="menuitem" onClick={() => { if (settings.fontSize < 24) onSettingsChange({ ...settings, fontSize: settings.fontSize + 1 }); }} disabled={settings.fontSize >= 24} className={STEPPER_BTN} aria-label="Increase font size">
                   +
                 </button>
               </div>
@@ -676,11 +681,11 @@ export const Toolbar = memo(function Toolbar({
             <div role="none" className="px-3 py-2 flex items-center justify-between">
               <span className="text-xs text-[var(--text-secondary)]">Tab size</span>
               <div className="flex items-center gap-1">
-                <button type="button" role="menuitem" onClick={() => { if (settings.tabSize > 2) onSettingsChange({ ...settings, tabSize: settings.tabSize - 1 }); }} disabled={settings.tabSize <= 2} className="min-h-8 min-w-8 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors" aria-label="Decrease tab size">
+                <button type="button" role="menuitem" onClick={() => { if (settings.tabSize > 2) onSettingsChange({ ...settings, tabSize: settings.tabSize - 1 }); }} disabled={settings.tabSize <= 2} className={STEPPER_BTN} aria-label="Decrease tab size">
                   −
                 </button>
                 <span className="text-xs text-[var(--text-primary)] w-6 text-center tabular-nums" aria-hidden="true">{settings.tabSize}</span>
-                <button type="button" role="menuitem" onClick={() => { if (settings.tabSize < 8) onSettingsChange({ ...settings, tabSize: settings.tabSize + 1 }); }} disabled={settings.tabSize >= 8} className="min-h-8 min-w-8 flex items-center justify-center rounded border border-[var(--border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs disabled:opacity-40 hover:bg-[var(--border)] transition-colors" aria-label="Increase tab size">
+                <button type="button" role="menuitem" onClick={() => { if (settings.tabSize < 8) onSettingsChange({ ...settings, tabSize: settings.tabSize + 1 }); }} disabled={settings.tabSize >= 8} className={STEPPER_BTN} aria-label="Increase tab size">
                   +
                 </button>
               </div>
@@ -698,8 +703,8 @@ export const Toolbar = memo(function Toolbar({
               <input type="checkbox" checked={settings.theme === "light"} onChange={(e) => onSettingsChange({ ...settings, theme: e.target.checked ? "light" : "dark" })} className="accent-[var(--accent)]" aria-label="Toggle light theme" tabIndex={-1} />
             </label>
             <div role="separator" className="border-t border-[var(--border)] my-1" />
-            <div className="px-3 pt-2 pb-1">
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium">Progress</span>
+            <div className={SECTION_HEADER}>
+              <span className={SECTION_LABEL}>Progress</span>
             </div>
             {(() => {
               const tc = TUTORIALS.filter((t) => getTutorialProgress(t.id) >= t.steps.length - 1).length;
@@ -771,8 +776,8 @@ export const Toolbar = memo(function Toolbar({
               );
             })()}
             <div role="separator" className="border-t border-[var(--border)] my-1" />
-            <div className="px-3 pt-2 pb-1">
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium">Data</span>
+            <div className={SECTION_HEADER}>
+              <span className={SECTION_LABEL}>Data</span>
             </div>
             <button type="button" role="menuitem" onClick={handleExportProgress} className="toolbar-menu-item">Export progress</button>
             <button type="button" role="menuitem" onClick={handleImportProgressClick} className="toolbar-menu-item">Import progress</button>
