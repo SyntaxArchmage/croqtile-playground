@@ -750,7 +750,9 @@ describe("Playground", () => {
 
     it("opens command palette from mobile toolbar button", () => {
       renderPlayground();
-      fireEvent.click(screen.getByLabelText("Open command palette"));
+      fireEvent.click(screen.getByLabelText("More actions"));
+      const overflowMenu = screen.getByRole("menu", { name: "More actions" });
+      fireEvent.click(within(overflowMenu).getByLabelText("Open command palette"));
       expect(screen.getByLabelText("Search commands")).toBeInTheDocument();
     });
   });

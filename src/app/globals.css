@@ -24,8 +24,8 @@
   --bg-secondary: #e6e9ef;
   --bg-surface: #ccd0da;
   --text-primary: #4c4f69;
-  --text-secondary: #6c6f85;
-  --text-muted: #7c7f93;
+  --text-secondary: #5c5f77;
+  --text-muted: #636579;
   --border: #bcc0cc;
   --accent: #1e66f5;
   --success: #40a02b;
@@ -297,6 +297,50 @@ a:focus-visible {
 @keyframes challengeConfetti {
   0% { opacity: 1; transform: translate(0, 0) scale(1); }
   100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.2); }
+}
+
+/* === Theme transition (Phase 6) === */
+html {
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* === Scroll-to-bottom button entrance (Phase 6) === */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+button[aria-label="Scroll to bottom"] {
+  animation: fadeInUp 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* === Welcome card hover lift (Phase 6) === */
+.welcome-card {
+  transition: border-color 200ms, transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms;
+}
+
+.welcome-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.welcome-card:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* === Command palette entrance (Phase 6) === */
+@keyframes commandPaletteIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+[aria-label="Command palette"] {
+  animation: commandPaletteIn 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* === Output tab indicator slide (Phase 6) === */
+.output-tab-active::after {
+  transition: left 200ms ease, right 200ms ease;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -32,7 +32,7 @@ describe("StatusBar", () => {
 
   it("displays compiler version", () => {
     render(<StatusBar status="ready" compilerVersion="1.2.3" />);
-    expect(screen.getByText(/1\.2\.3/)).toBeInTheDocument();
+    expect(screen.getAllByText(/1\.2\.3/).length).toBeGreaterThanOrEqual(1);
   });
 
   it("displays build manifest commit", () => {
@@ -47,7 +47,7 @@ describe("StatusBar", () => {
 
   it("shows dash when no version available", () => {
     render(<StatusBar status="ready" />);
-    expect(screen.getByText(/—/)).toBeInTheDocument();
+    expect(screen.getAllByText(/—/).length).toBeGreaterThanOrEqual(1);
   });
 
   it("displays line count after cursor position", () => {
@@ -115,7 +115,7 @@ describe("StatusBar", () => {
         buildManifest={{ version: "1.0", commit: "abc123", commit_short: "abc", built_at: null }}
       />
     );
-    expect(screen.getByText(/2\.0\.0/)).toBeInTheDocument();
+    expect(screen.getAllByText(/2\.0\.0/).length).toBeGreaterThanOrEqual(1);
   });
 
   it("does not display elapsed time when null", () => {

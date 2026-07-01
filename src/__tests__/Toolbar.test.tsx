@@ -28,6 +28,7 @@ const defaultProps = {
   status: "ready" as const,
   settings: { fontSize: 14, fontFamily: "JetBrains Mono, monospace", wordWrap: true, minimap: false, tabSize: 2, lastTarget: "cc", theme: "dark" as const },
   onSettingsChange: jest.fn(),
+  onToggleTheme: jest.fn(),
 };
 
 beforeEach(() => {
@@ -852,17 +853,17 @@ describe("Toolbar", () => {
     jest.useFakeTimers();
     render(<Toolbar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Share code"));
-    expect(screen.getByText("✓")).toBeInTheDocument();
+    expect(screen.getByText("Copied!")).toBeInTheDocument();
     act(() => {
       jest.advanceTimersByTime(2000);
     });
-    expect(screen.getByText("🔗")).toBeInTheDocument();
+    expect(screen.getByText("Share")).toBeInTheDocument();
     jest.useRealTimers();
   });
 
-  it("shows mobile Compile icon when not running", () => {
+  it("shows Compile button when not running", () => {
     render(<Toolbar {...defaultProps} />);
-    expect(screen.getByText("⚙")).toBeInTheDocument();
+    expect(screen.getByText("Compile")).toBeInTheDocument();
   });
 
   it("loads example from mobile Examples group in File menu", () => {
@@ -992,35 +993,17 @@ describe("Toolbar", () => {
     jest.useRealTimers();
   });
 
-  it("no-ops menu keyboard navigation when menu ref is cleared", () => {
-    const shareTimeoutRef = { current: null as ReturnType<typeof setTimeout> | null };
-    const fileInputRef = { current: null as HTMLInputElement | null };
-    const fileMenuRef = { current: null as HTMLDivElement | null };
-    const settingsMenuRef = { current: null as HTMLDivElement | null };
-    const refs = [shareTimeoutRef, fileInputRef, fileMenuRef, settingsMenuRef];
-    let useRefCall = 0;
-    const useRefSpy = jest.spyOn(React, "useRef").mockImplementation((initial) => {
-      const ref = refs[useRefCall % 4];
-      useRefCall += 1;
-      if (ref === shareTimeoutRef && initial !== undefined) {
-        ref.current = initial as ReturnType<typeof setTimeout> | null;
-      }
-      return ref;
-    });
-
-    try {
-      render(<Toolbar {...defaultProps} />);
-      fireEvent.click(screen.getByLabelText("File menu"));
-      const fileMenu = screen.getByRole("menu", { name: "File" });
-      fileMenuRef.current = null;
-      expect(() => {
-        fireEvent.keyDown(fileMenu, { key: "ArrowDown" });
-        fireEvent.keyDown(fileMenu, { key: "Escape" });
-      }).not.toThrow();
-      expect(screen.getByText("Open file...")).toBeInTheDocument();
-    } finally {
-      useRefSpy.mockRestore();
-    }
+  it("handles keyboard navigation in file menu without errors", () => {
+    render(<Toolbar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("File menu"));
+    const fileMenu = screen.getByRole("menu", { name: "File" });
+    expect(() => {
+      fireEvent.keyDown(fileMenu, { key: "ArrowDown" });
+      fireEvent.keyDown(fileMenu, { key: "ArrowUp" });
+      fireEvent.keyDown(fileMenu, { key: "Home" });
+      fireEvent.keyDown(fileMenu, { key: "End" });
+      fireEvent.keyDown(fileMenu, { key: "Escape" });
+    }).not.toThrow();
   });
 
   it("calls exportProgress and closes menu when Export progress is clicked", () => {

@@ -1,0 +1,101 @@
+diff --git a/tools/co-mock/mock_interp.cpp b/tools/co-mock/mock_interp.cpp
+index a8f77bfaf..6a25121d2 100644
+--- a/tools/co-mock/mock_interp.cpp
++++ b/tools/co-mock/mock_interp.cpp
+@@ -177,6 +177,11 @@ void MockInterpreter::ExecParallelBy(AST::ParallelBy& n) {
+     }
+   }
+ 
++#ifdef __EMSCRIPTEN__
++  for (int64_t i = 0; i < bound; ++i) {
++    ExecParallelByBody(n, i, bound, pv_name, has_sub, sub_names, sub_bounds);
++  }
++#else
+   // Shared mutex for serializing print output across threads
+   std::mutex pm;
+   bool own_mutex = (print_mutex_ == nullptr);
+@@ -201,6 +206,7 @@ void MockInterpreter::ExecParallelBy(AST::ParallelBy& n) {
+   for (auto& t : threads) t.join();
+ 
+   if (own_mutex) print_mutex_ = nullptr;
++#endif
+ }
+ 
+ // -----------------------------------------------------------------------
+@@ -592,6 +598,9 @@ Value MockInterpreter::ExprEval(const ptr<AST::Node>& e) {
+   if (auto lit = dyn_cast<AST::BoolLiteral>(e))
+     return Value::MakeBool(lit->value);
+ 
++  if (auto lit = dyn_cast<AST::StringLiteral>(e))
++    return Value::MakeString(lit->Val());
++
+   if (auto id = dyn_cast<AST::Identifier>(e)) {
+     if (mem.Exists(id->name)) return mem.Lookup(id->name);
+     return Value::MakeInt(0);
+diff --git a/tools/co-mock/mock_memory.cpp b/tools/co-mock/mock_memory.cpp
+index a7fd646ce..14f7b6859 100644
+--- a/tools/co-mock/mock_memory.cpp
++++ b/tools/co-mock/mock_memory.cpp
+@@ -96,6 +96,13 @@ Value Value::MakeFuture(std::shared_future<void> f, const std::string& src,
+   return val;
+ }
+ 
++Value Value::MakeString(const std::string& s) {
++  Value val;
++  val.kind = String;
++  val.str_val = s;
++  return val;
++}
++
+ int64_t Value::AsInt() const {
+   switch (base_type) {
+   case BaseType::S8: return (int8_t)scalar.i64;
+@@ -163,6 +170,7 @@ bool Value::AsBool() const {
+ }
+ 
+ std::string Value::ToString() const {
++  if (kind == String) return str_val;
+   std::ostringstream oss;
+   if (kind == Future) {
+     if (future_info && future_info->handle.valid()) {
+diff --git a/tools/co-mock/mock_memory.hpp b/tools/co-mock/mock_memory.hpp
+index db41abbcc..c540857fd 100644
+--- a/tools/co-mock/mock_memory.hpp
++++ b/tools/co-mock/mock_memory.hpp
+@@ -43,7 +43,7 @@ struct FutureInfo {
+ };
+ 
+ struct Value {
+-  enum Kind { Scalar, Pointer, Future };
++  enum Kind { Scalar, Pointer, Future, String };
+   Kind kind = Scalar;
+ 
+   BaseType base_type = BaseType::S32;
+@@ -60,6 +60,7 @@ struct Value {
+   std::shared_ptr<Allocation> alloc;
+   size_t offset = 0;
+   std::shared_ptr<FutureInfo> future_info;
++  std::string str_val;
+ 
+   Value() = default;
+ 
+@@ -73,6 +74,7 @@ struct Value {
+   static Value MakeFuture(std::shared_future<void> f,
+                           const std::string& src = "",
+                           const std::string& dst = "", size_t bytes = 0);
++  static Value MakeString(const std::string& s);
+ 
+   int64_t AsInt() const;
+   uint64_t AsUInt() const;
+diff --git a/tools/co-web/build.sh b/tools/co-web/build.sh
+index 5d5f8fb94..7e5252bf6 100755
+--- a/tools/co-web/build.sh
++++ b/tools/co-web/build.sh
+@@ -133,6 +133,7 @@ em++ \
+   "${DEFINES[@]}" \
+   -std=c++17 \
+   -O2 \
++  -DNDEBUG \
+   -s MODULARIZE=1 \
+   -s EXPORT_NAME="ChoreoModule" \
+   -s ALLOW_MEMORY_GROWTH=1 \

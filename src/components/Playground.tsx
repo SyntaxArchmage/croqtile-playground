@@ -387,7 +387,7 @@ export function Playground() {
           handleLoadAndRun(randomEx.code);
         }
       }}
-      onWriteCode={() => editorRef.current?.getValue()}
+      onWriteCode={() => editorRef.current?.focus()}
       onDismiss={dismissWelcome}
     />
   );
@@ -422,7 +422,7 @@ export function Playground() {
         </div>
       )}
       {status === "error" && (
-        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center gap-2 py-2 bg-yellow-900/50 border-b border-yellow-700 text-sm text-yellow-200" role="alert" aria-live="polite">
+        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center gap-2 py-2 bg-[var(--warning)]/15 border-b border-[var(--warning)]/40 text-sm text-[var(--warning)]" role="alert" aria-live="polite">
           <span>⚠ WASM compiler unavailable — you can edit code but Run/Compile won&apos;t work.</span>
         </div>
       )}
@@ -441,6 +441,7 @@ export function Playground() {
         status={status}
         settings={settings}
         onSettingsChange={handleSettingsChange}
+        onToggleTheme={handleToggleTheme}
         onOpenCommandPalette={openCommandPalette}
         openFileRef={openFileRef}
       />

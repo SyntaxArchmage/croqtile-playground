@@ -24,9 +24,19 @@ export function WelcomeOverlay({ onStartTutorial, onTryExample, onWriteCode, onD
       onClick={onDismiss}
     >
       <div
-        className="overlay-content max-w-lg w-full rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] shadow-2xl p-6 sm:p-8"
+        className="overlay-content max-w-lg w-full rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] shadow-2xl p-6 sm:p-8 relative"
         onClick={(e) => e.stopPropagation()}
       >
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
+          aria-label="Close welcome overlay"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+          </svg>
+        </button>
         <div className="text-center mb-6">
           <h1 className="text-xl sm:text-2xl font-bold text-[var(--accent)] mb-2">
             Croqtile Playground

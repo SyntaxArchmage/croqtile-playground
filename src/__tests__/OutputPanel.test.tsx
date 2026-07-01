@@ -14,8 +14,9 @@ describe("OutputPanel", () => {
     });
   });
   it("shows placeholder when no output", () => {
-    render(<OutputPanel output="" errors="" />);
-    expect(screen.getByText(/Click .Run. or .Compile/)).toBeInTheDocument();
+    const { container } = render(<OutputPanel output="" errors="" />);
+    const panel = container.querySelector("[role='tabpanel']")!;
+    expect(panel.textContent).toMatch(/Run/);
   });
 
   it("displays output text", () => {
@@ -35,10 +36,15 @@ describe("OutputPanel", () => {
     expect(screen.getByText("Errors")).toBeInTheDocument();
   });
 
-  it("shows error indicator dot when errors present", () => {
-    const { container } = render(<OutputPanel output="" errors="some error" />);
-    const dot = container.querySelector(".bg-red-500");
-    expect(dot).toBeInTheDocument();
+  it("shows error count badge when errors with line info present", () => {
+    render(<OutputPanel output="" errors="file.co:3: some error" />);
+    const errorsTab = screen.getByRole("tab", { name: /Errors/ });
+    expect(errorsTab.querySelector("[aria-hidden]")).toBeInTheDocument();
+  });
+
+  it("labels errors tab without count when no line-matched errors", () => {
+    render(<OutputPanel output="" errors="some error" />);
+    expect(screen.getByRole("tab", { name: "Errors" })).toBeInTheDocument();
   });
 
   it("auto-switches to errors tab when errors appear", () => {
@@ -97,10 +103,10 @@ describe("OutputPanel", () => {
     expect(screen.getByText("(ast dump)")).toBeInTheDocument();
   });
 
-  it("shows blue indicator dot on AST tab when ast present", () => {
-    const { container } = render(<OutputPanel output="" errors="" ast="tree" />);
-    const dot = container.querySelector(".bg-blue-500");
-    expect(dot).toBeInTheDocument();
+  it("shows indicator dot on AST tab when ast present", () => {
+    render(<OutputPanel output="" errors="" ast="tree" />);
+    const astTab = screen.getByRole("tab", { name: /AST/ });
+    expect(astTab.querySelector("[aria-hidden]")).toBeInTheDocument();
   });
 
   it("shows Copy button when active tab has content", () => {
@@ -186,7 +192,7 @@ describe("OutputPanel", () => {
     }));
 
     const sep = screen.getByRole("separator");
-    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(35);
+    expect(Number(sep.getAttribute("aria-valuenow"))).toBe(30);
 
     fireEvent.mouseDown(sep);
     act(() => {

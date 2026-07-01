@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, memo, type ReactNode } from "react";
+import { useState, useEffect, useRef, useCallback, memo, useMemo, type ReactNode } from "react";
 import { loadSettings, saveSettings } from "@/lib/settings";
 
 function isErrorLine(line: string): boolean {
@@ -24,7 +24,7 @@ function highlightErrorLines(text: string, withLineNumbers: boolean): ReactNode 
         key={i}
         className={
           isErrorLine(line)
-            ? "error-line-highlight border-l-2 border-red-500 bg-red-950/20 pl-2"
+            ? "error-line-highlight border-l-2 border-[var(--error)] bg-[var(--error)]/10 pl-2"
             : undefined
         }
       >
@@ -75,12 +75,33 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
   const panelRef = useRef<HTMLDivElement>(null);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragging = useRef(false);
+  const [isScrolledUp, setIsScrolledUp] = useState(false);
+  const userScrolledRef = useRef(false);
+
+  const errorCount = useMemo(() => {
+    if (!errors) return 0;
+    return errors.split("\n").filter(l => isErrorLine(l)).length;
+  }, [errors]);
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && !userScrolledRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
+    userScrolledRef.current = false;
   }, [content]);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
+    setIsScrolledUp(!atBottom && el.scrollHeight > el.clientHeight);
+    if (!atBottom) userScrolledRef.current = true;
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    setIsScrolledUp(false);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -210,16 +231,18 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
         <button id="output-tab" type="button" role="tab" tabIndex={activeTab === "output" ? 0 : -1} aria-selected={activeTab === "output"} aria-controls="output-tabpanel" onClick={() => setActiveTab("output")} className={tabClass("output")}>
           Output
         </button>
-        <button id="errors-tab" type="button" role="tab" tabIndex={activeTab === "errors" ? 0 : -1} aria-selected={activeTab === "errors"} aria-controls="output-tabpanel" aria-label={errors ? "Errors (has errors)" : "Errors"} onClick={() => setActiveTab("errors")} className={tabClass("errors")}>
+        <button id="errors-tab" type="button" role="tab" tabIndex={activeTab === "errors" ? 0 : -1} aria-selected={activeTab === "errors"} aria-controls="output-tabpanel" aria-label={errorCount ? `Errors (${errorCount})` : "Errors"} onClick={() => setActiveTab("errors")} className={tabClass("errors")}>
           Errors
-          {errors && (
-            <span className="ml-1 w-1.5 h-1.5 rounded-full bg-red-500 inline-block" aria-hidden="true" />
+          {errorCount > 0 && (
+            <span className="ml-1 px-1.5 py-0.5 text-[10px] font-medium leading-none rounded-full bg-[var(--error)]/20 text-[var(--error)] tabular-nums" aria-hidden="true">
+              {errorCount}
+            </span>
           )}
         </button>
         <button id="ast-tab" type="button" role="tab" tabIndex={activeTab === "ast" ? 0 : -1} aria-selected={activeTab === "ast"} aria-controls="output-tabpanel" aria-label={ast ? "AST (available)" : "AST"} onClick={() => setActiveTab("ast")} className={tabClass("ast")}>
           AST
           {ast && (
-            <span className="ml-1 w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" aria-hidden="true" />
+            <span className="ml-1 w-1.5 h-1.5 rounded-full bg-[var(--accent)] inline-block" aria-hidden="true" />
           )}
         </button>
         {(content || ((output || errors || ast) && onClear)) && (
@@ -286,28 +309,50 @@ export const OutputPanel = memo(function OutputPanel({ output, errors, ast = "",
           </div>
         )}
       </div>
-      <div
-        ref={scrollRef}
-        id="output-tabpanel"
-        role="tabpanel"
-        aria-labelledby={`${activeTab}-tab`}
-        aria-live="polite"
-        aria-relevant="additions text"
-        className="flex-1 overflow-auto p-3"
-      >
-        {activeTab === "errors" && errors ? (
-          <div className="text-xs font-mono text-[var(--text-primary)]">
-            {highlightErrorLines(errors, lineNumbers)}
-          </div>
-        ) : (
-          <pre className={`text-xs font-mono text-[var(--text-primary)] ${wordWrap ? "whitespace-pre-wrap" : "whitespace-pre"}`}>
-            {(content && lineNumbers ? formatWithLineNumbers(content) : content) || (
-              <span className="text-[var(--text-muted)] flex flex-col gap-1.5">
-                <span>Click <strong>Run</strong> or press <kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] text-[10px] font-mono">Ctrl+Enter</kbd> to execute your code.</span>
-                <span className="text-[10px] opacity-60">Use <kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] font-mono">Ctrl+Shift+Enter</kbd> to compile, or <kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] font-mono">Ctrl+Alt+D</kbd> to dump AST.</span>
-              </span>
-            )}
-          </pre>
+      <div className="flex-1 relative overflow-hidden">
+        <div
+          ref={scrollRef}
+          id="output-tabpanel"
+          role="tabpanel"
+          aria-labelledby={`${activeTab}-tab`}
+          aria-live="polite"
+          aria-relevant="additions text"
+          className="absolute inset-0 overflow-auto p-3"
+          onScroll={handleScroll}
+        >
+          {activeTab === "errors" && errors ? (
+            <div className="text-xs font-mono text-[var(--text-primary)]">
+              {highlightErrorLines(errors, lineNumbers)}
+            </div>
+          ) : (
+            <pre className={`text-xs font-mono text-[var(--text-primary)] ${wordWrap ? "whitespace-pre-wrap" : "whitespace-pre"}`}>
+              {(content && lineNumbers ? formatWithLineNumbers(content) : content) || (
+                <span className="text-[var(--text-muted)] flex flex-col items-center justify-center gap-2 py-4">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="opacity-30" aria-hidden="true">
+                    <polyline points="4 17 10 11 4 5" />
+                    <line x1="12" y1="19" x2="20" y2="19" />
+                  </svg>
+                  <span className="text-center">
+                    <span className="block text-xs">Click <strong>Run</strong> or press <kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] text-[10px] font-mono">Ctrl+Enter</kbd></span>
+                    <span className="block text-[10px] opacity-60 mt-1"><kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] font-mono">Ctrl+Shift+Enter</kbd> compile &middot; <kbd className="px-1 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border)] font-mono">Ctrl+Alt+D</kbd> AST</span>
+                  </span>
+                </span>
+              )}
+            </pre>
+          )}
+        </div>
+        {isScrolledUp && content && (
+          <button
+            type="button"
+            onClick={scrollToBottom}
+            className="absolute bottom-2 right-4 z-10 flex items-center gap-1 px-2 py-1 text-[10px] rounded-full bg-[var(--bg-surface)] border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] shadow-md transition-colors"
+            aria-label="Scroll to bottom"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+            Bottom
+          </button>
         )}
       </div>
     </div>

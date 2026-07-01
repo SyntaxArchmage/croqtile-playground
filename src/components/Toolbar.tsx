@@ -8,7 +8,7 @@ import { EXAMPLES } from "@/lib/examples";
 import { TUTORIALS } from "@/lib/tutorials";
 import { CHALLENGES, getChallengeTags, ALL_TAGS, type ChallengeTag } from "@/lib/challenges";
 import { getTutorialProgress, isChallengePassed, resetProgress } from "@/lib/progress";
-import type { EditorSettings, CompilerFlags, CompilerTarget } from "@/lib/settings";
+import type { EditorSettings, CompilerFlags, CompilerTarget, Theme } from "@/lib/settings";
 import { FONT_FAMILY_OPTIONS, VALID_TARGETS } from "@/lib/settings";
 import { CompilerOptionsPanel } from "./CompilerOptionsPanel";
 import {
@@ -34,6 +34,7 @@ interface Props {
   status: WorkerStatus;
   settings: EditorSettings;
   onSettingsChange: (settings: EditorSettings) => void;
+  onToggleTheme: () => void;
   onOpenCommandPalette?: () => void;
   openFileRef?: React.MutableRefObject<(() => void) | null>;
 }
@@ -53,6 +54,7 @@ export const Toolbar = memo(function Toolbar({
   status,
   settings,
   onSettingsChange,
+  onToggleTheme,
   onOpenCommandPalette,
   openFileRef,
 }: Props) {
@@ -444,7 +446,7 @@ export const Toolbar = memo(function Toolbar({
           onClick={handleShareClick}
           className={`min-h-9 px-2.5 text-xs font-medium rounded border transition-colors active:scale-95 ${
             copied
-              ? "border-green-600 bg-green-900/30 text-green-300"
+              ? "border-[var(--success)] bg-[var(--success)]/15 text-[var(--success)]"
               : "border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--border)] text-[var(--text-primary)]"
           }`}
           title="Copy shareable link (Ctrl+S)"
@@ -571,7 +573,7 @@ export const Toolbar = memo(function Toolbar({
               </select>
             </div>
             {onOpenCommandPalette && (
-              <button type="button" role="menuitem" onClick={() => { onOpenCommandPalette(); setShowOverflow(false); }} className="toolbar-menu-item">
+              <button type="button" role="menuitem" aria-label="Open command palette" onClick={() => { onOpenCommandPalette(); setShowOverflow(false); }} className="toolbar-menu-item">
                 Command Palette (Ctrl+P)
               </button>
             )}
@@ -581,7 +583,44 @@ export const Toolbar = memo(function Toolbar({
 
       <div className="flex-1 min-w-0" />
 
-      {/* === Settings (always visible) === */}
+      {/* === Command palette (desktop) === */}
+      {onOpenCommandPalette && (
+        <button
+          type="button"
+          onClick={onOpenCommandPalette}
+          className="hidden sm:flex toolbar-icon-btn hover:bg-[var(--bg-surface)] text-[var(--text-muted)] gap-1"
+          title="Command Palette (Ctrl+P)"
+          aria-label="Open command palette"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </button>
+      )}
+
+      {/* === Theme toggle + Settings (always visible) === */}
+      <button
+        type="button"
+        onClick={onToggleTheme}
+        className="toolbar-icon-btn hover:bg-[var(--bg-surface)] text-[var(--text-muted)]"
+        title={settings.theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
+        aria-label={settings.theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
+      >
+        {settings.theme === "light" ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+        )}
+      </button>
       <div className="relative" data-settings-menu>
         <button
           type="button"
@@ -593,8 +632,12 @@ export const Toolbar = memo(function Toolbar({
           aria-expanded={showMenu}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <circle cx="8" cy="6" r="2" fill="currentColor" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <circle cx="16" cy="12" r="2" fill="currentColor" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+            <circle cx="11" cy="18" r="2" fill="currentColor" />
           </svg>
         </button>
         {showMenu && (
@@ -605,6 +648,9 @@ export const Toolbar = memo(function Toolbar({
             className="toolbar-dropdown absolute right-0 top-full mt-1 w-52 max-w-[calc(100vw-1rem)] rounded border border-[var(--border)] bg-[var(--bg-surface)] shadow-lg z-50 py-1"
             onKeyDown={(e) => handleMenuKeyDown(e, () => setShowMenu(false), settingsMenuRef)}
           >
+            <div className="px-3 pt-2 pb-1">
+              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium">Editor</span>
+            </div>
             <div role="none" className="px-3 py-2 flex items-center justify-between">
               <span className="text-xs text-[var(--text-secondary)]">Font size</span>
               <div className="flex items-center gap-1">
@@ -652,6 +698,9 @@ export const Toolbar = memo(function Toolbar({
               <input type="checkbox" checked={settings.theme === "light"} onChange={(e) => onSettingsChange({ ...settings, theme: e.target.checked ? "light" : "dark" })} className="accent-[var(--accent)]" aria-label="Toggle light theme" tabIndex={-1} />
             </label>
             <div role="separator" className="border-t border-[var(--border)] my-1" />
+            <div className="px-3 pt-2 pb-1">
+              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium">Progress</span>
+            </div>
             {(() => {
               const tc = TUTORIALS.filter((t) => getTutorialProgress(t.id) >= t.steps.length - 1).length;
               const cp = CHALLENGES.filter((c) => isChallengePassed(c.id)).length;
@@ -722,6 +771,9 @@ export const Toolbar = memo(function Toolbar({
               );
             })()}
             <div role="separator" className="border-t border-[var(--border)] my-1" />
+            <div className="px-3 pt-2 pb-1">
+              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium">Data</span>
+            </div>
             <button type="button" role="menuitem" onClick={handleExportProgress} className="toolbar-menu-item">Export progress</button>
             <button type="button" role="menuitem" onClick={handleImportProgressClick} className="toolbar-menu-item">Import progress</button>
             <button
@@ -729,7 +781,7 @@ export const Toolbar = memo(function Toolbar({
               role="menuitem"
               onClick={handleResetProgressClick}
               className={`w-full text-left px-3 py-2.5 min-h-9 text-xs transition-colors ${
-                resetConfirmPending ? "text-red-400 hover:bg-red-900/20 font-medium" : "text-[var(--text-secondary)] hover:bg-[var(--bg-primary)]"
+                resetConfirmPending ? "text-[var(--error)] hover:bg-[var(--error)]/10 font-medium" : "text-[var(--text-secondary)] hover:bg-[var(--bg-primary)]"
               }`}
               aria-label={resetConfirmPending ? "Confirm reset of all tutorial and challenge progress" : "Reset all tutorial and challenge progress"}
             >

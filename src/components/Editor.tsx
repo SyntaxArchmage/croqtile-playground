@@ -26,6 +26,7 @@ export interface SelectionInfo {
 
 export interface EditorHandle {
   getValue: () => string;
+  focus: () => void;
   undo: () => void;
   redo: () => void;
   find: () => void;
@@ -474,6 +475,7 @@ export const Editor = forwardRef<EditorHandle, Props>(
   function Editor({ value, onChange, onCursorChange, onSelectionChange, fontSize = 14, fontFamily = "JetBrains Mono, monospace", wordWrap = false, minimap = false, tabSize = 2, theme = "dark" }, ref) {
     const editorRef = useRef<{
       getValue?: () => string;
+      focus?: () => void;
       trigger?: (source: string, handlerId: string, payload: unknown) => void;
       revealLineInCenter?: (lineNumber: number) => void;
       setPosition?: (position: { lineNumber: number; column: number }) => void;
@@ -483,6 +485,7 @@ export const Editor = forwardRef<EditorHandle, Props>(
 
     useImperativeHandle(ref, () => ({
       getValue: () => editorRef.current?.getValue?.() ?? value,
+      focus: () => editorRef.current?.focus?.(),
       undo: () => editorRef.current?.trigger?.("keyboard", "undo", null),
       redo: () => editorRef.current?.trigger?.("keyboard", "redo", null),
       find: () => editorRef.current?.trigger?.("keyboard", "actions.find", null),
