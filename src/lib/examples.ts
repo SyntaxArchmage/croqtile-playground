@@ -1103,4 +1103,98 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "reduce-sum",
+    name: "Row Sum Reduction",
+    description:
+      "Reduce a 2D matrix to per-row sums using reduce_sum",
+    code: `__co__ void reduce_sum_demo() {
+  s32[3, 4] mat;
+  s32[3] row_sum;
+
+  foreach i in 3
+    foreach j in 4
+      mat.at(i, j) = i * 4 + j + 1;
+
+  foreach i in 3
+    row_sum.at(i) = 0;
+
+  reduce_sum(row_sum, mat, 1);
+
+  println("matrix row sums:");
+  foreach i in 3
+    println("  row[", i, "] =", row_sum.at(i));
+}
+`,
+  },
+  {
+    id: "reduce-max",
+    name: "Row Max Reduction",
+    description:
+      "Reduce a 2D matrix to per-row maximums using reduce_max",
+    code: `__co__ void reduce_max_demo() {
+  s32[4, 4] mat;
+  s32[4] row_max;
+
+  parallel {i, j} by [4, 4]
+    mat.at(i, j) = (i * 4 + j) * 3 % 11;
+
+  foreach i in 4
+    row_max.at(i) = 0;
+
+  reduce_max(row_max, mat, 1);
+
+  foreach i in 4
+    println("row_max[", i, "] =", row_max.at(i));
+}
+`,
+  },
+  {
+    id: "frag-copy",
+    name: "Array Copy",
+    description:
+      "Copy array contents using the copy() builtin",
+    code: `__co__ void copy_demo() {
+  s32[8] src;
+  s32[8] dst;
+
+  parallel p by 8
+    src.at(p) = (p + 1) * 10;
+
+  parallel p by 8
+    dst.at(p) = 0;
+
+  copy(dst, src);
+
+  foreach i in 8
+    println("dst[", i, "] =", dst.at(i));
+}
+`,
+  },
+  {
+    id: "math-builtins-ext",
+    name: "Math Builtins (__min/__max)",
+    description:
+      "Built-in __min and __max functions for scalar values",
+    code: `__co__ void math_ext_test() {
+  s32[8] data;
+
+  parallel p by 8
+    data.at(p) = (p * 7 + 3) % 20;
+
+  foreach i in 8
+    println("data[", i, "] =", data.at(i));
+
+  mutable int lo = data.at(0);
+  mutable int hi = data.at(0);
+  foreach i in 7 {
+    lo = __min(lo, data.at(i + 1));
+    hi = __max(hi, data.at(i + 1));
+  }
+
+  println("min =", lo);
+  println("max =", hi);
+}
+`,
+  },
 ];
