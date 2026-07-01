@@ -1064,4 +1064,43 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "mma-apply",
+    name: "MMA + Apply",
+    description:
+      "GEMM then element-wise transform using apply block on fragment",
+    code: `__co__ void mma_apply_demo() {
+  s32[2, 3] A;
+  s32[3, 2] B;
+  s32[2, 2] C;
+
+  // A = [[1,2,3],[4,5,6]]
+  foreach i in 2
+    foreach j in 3
+      A.at(i, j) = i * 3 + j + 1;
+
+  // B (column-major layout for row.col)
+  foreach i in 3
+    foreach j in 2
+      B.at(i, j) = i + j * 3 + 1;
+
+  mc = mma.fill.s32 0;
+  ma = mma.load A;
+  mb = mma.load B;
+  mma.row.col mc, ma, mb;
+
+  // Element-wise: double each value
+  apply {i, j} in mc.span {
+    mc.at(i, j) = mc.at(i, j) * 2;
+  }
+
+  mma.store mc, C;
+
+  println("C = 2 * (A @ B):");
+  foreach i in 2
+    foreach j in 2
+      println("  C[", i, ",", j, "] =", C.at(i, j));
+}
+`,
+  },
 ];
