@@ -495,7 +495,7 @@ export const Toolbar = memo(function Toolbar({
               <div role="separator" className="xs:hidden border-t border-[var(--border)] my-1" />
               <div role="group" aria-label="Examples" className="xs:hidden">
                 {EXAMPLES.map((ex) => (
-                  <button key={ex.id} type="button" role="menuitem" onClick={() => { onLoadCode(ex.code); setShowFileMenu(false); }} className="toolbar-menu-item">
+                  <button key={ex.id} type="button" role="menuitem" onClick={() => { if (ex.target) onTargetChange(ex.target); onLoadCode(ex.code); setShowFileMenu(false); }} className="toolbar-menu-item">
                     {ex.name}
                   </button>
                 ))}
@@ -507,7 +507,10 @@ export const Toolbar = memo(function Toolbar({
         <select
           onChange={(e) => {
             const ex = EXAMPLES.find((x) => x.id === e.target.value);
-            if (ex) onLoadCode(ex.code);
+            if (ex) {
+              if (ex.target) onTargetChange(ex.target);
+              onLoadCode(ex.code);
+            }
             e.target.value = "";
           }}
           value=""

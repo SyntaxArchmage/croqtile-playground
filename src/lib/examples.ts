@@ -1328,7 +1328,7 @@ __co__ void multi_thread_frag() {
       "Nested parallel blocks simulating GPU block/thread hierarchy",
     code: `// Select "cute (CUDA)" target before running
 __co__ void block_thread() {
-  parallel b by 2 : block {
+  parallel b by 1 : block {
     parallel t by 4 : thread {
       s32 global_id = b * 4 + t;
       println("block=", b, " thread=", t, " global_id=", global_id);
