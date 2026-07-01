@@ -1000,4 +1000,68 @@ export const EXAMPLES: Example[] = [
 }
 `,
   },
+  {
+    id: "mma-gemm",
+    name: "MMA Matrix Multiply",
+    description:
+      "Matrix multiply-accumulate using mma.fill / mma.load / mma.exec / mma.store",
+    code: `__co__ void mma_gemm() {
+  s32[2, 3] A;
+  s32[3, 2] B;
+  s32[2, 2] C;
+
+  // A = [[1,2,3],[4,5,6]]
+  foreach i in 2
+    foreach j in 3
+      A.at(i, j) = i * 3 + j + 1;
+
+  // B = [[1,2],[3,4],[5,6]]
+  foreach i in 3
+    foreach j in 2
+      B.at(i, j) = i * 2 + j + 1;
+
+  // C = A @ B using MMA operations
+  mc = mma.fill.s32 0;
+  ma = mma.load A;
+  mb = mma.load B;
+  mma.row.col mc, ma, mb;
+  mma.store mc, C;
+
+  println("C = A[2x3] @ B[3x2]:");
+  foreach i in 2
+    foreach j in 2
+      println("  C[", i, ",", j, "] =", C.at(i, j));
+}
+`,
+  },
+  {
+    id: "mma-accum",
+    name: "MMA with Accumulation",
+    description: "MMA with non-zero initial accumulator value",
+    code: `__co__ void mma_accum() {
+  s32[2, 2] A;
+  s32[2, 2] B;
+  s32[2, 2] C;
+
+  // Identity-like inputs
+  foreach i in 2
+    foreach j in 2 {
+      A.at(i, j) = 1;
+      B.at(i, j) = 1;
+    }
+
+  // acc starts at 10, GEMM adds [[2,2],[2,2]]
+  mc = mma.fill.s32 10;
+  ma = mma.load A;
+  mb = mma.load B;
+  mma.row.col mc, ma, mb;
+  mma.store mc, C;
+
+  println("C = 10 + ones[2x2] @ ones[2x2]:");
+  foreach i in 2
+    foreach j in 2
+      println("  C[", i, ",", j, "] =", C.at(i, j));
+}
+`,
+  },
 ];
