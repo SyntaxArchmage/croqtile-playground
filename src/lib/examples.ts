@@ -1498,4 +1498,80 @@ __co__ void dma_double_buffer() {
 }
 `,
   },
+  {
+    id: "cute-tma-mma-pipeline",
+    name: "[GPU] TMA + MMA Pipeline",
+    target: "cute",
+    description:
+      "Full SM90 workflow: TMA load, MMA compute, TMA store (Hopper-style GEMM)",
+    code: `// Full SM90 Hopper GPU pipeline:
+// 1. TMA async load: global -> shared memory
+// 2. MMA compute: matrix multiply on fragments
+// 3. TMA store: shared -> global memory
+__co__ void tma_mma_pipeline() {
+  parallel t by 1 : thread {
+    s32[2, 3] global_A;
+    s32[3, 2] global_B;
+    s32[2, 2] global_C;
+
+    foreach i in 2
+      foreach j in 3
+        global_A.at(i, j) = i + j + 1;
+    foreach i in 3
+      foreach j in 2
+        global_B.at(i, j) = i * 2 + j + 1;
+
+    // Stage 1: TMA async load global -> shared
+    s32[2, 3] shared_A;
+    s32[3, 2] shared_B;
+    s32[2, 2] shared_C;
+
+    fa = tma.copy.async global_A => shared_A;
+    fb = tma.copy.async global_B => shared_B;
+    wait fa;
+    wait fb;
+
+    // Stage 2: MMA compute C = A @ B
+    ma = mma.load shared_A;
+    mb = mma.load shared_B;
+    mc = mma.fill.s32 0;
+    mma.row.col mc, ma, mb;
+    mma.store mc, shared_C;
+
+    // Stage 3: TMA store shared -> global
+    fc = tma.copy shared_C => global_C;
+
+    println("C = A[2x3] @ B[3x2]:");
+    foreach i in 2
+      println(" ", global_C.at(i, 0), global_C.at(i, 1));
+  }
+}
+`,
+  },
+  {
+    id: "explicit-cast",
+    name: "Explicit Type Cast",
+    description:
+      "Type conversion between integer and floating-point types using __to<>",
+    code: `__co__ void cast_demo() {
+  f32 pi = 3.14;
+  s32 rounded = __to<s32>(pi);
+  println("__to<s32>(3.14) =", rounded);
+
+  s32 big = 1234;
+  f32 fbig = __to<f32>(big);
+  println("__to<f32>(1234) =", fbig);
+
+  // Cast in expressions
+  f32 point5 = 0.5;
+  s32 zero = __to<s32>(point5);
+  println("__to<s32>(0.5) =", zero);
+
+  // Negative cast
+  f32 neg = -2.7;
+  s32 neg_i = __to<s32>(neg);
+  println("__to<s32>(-2.7) =", neg_i);
+}
+`,
+  },
 ];
