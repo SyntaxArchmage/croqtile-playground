@@ -1402,4 +1402,100 @@ __co__ void gpu_atomics() {
 }
 `,
   },
+  {
+    id: "cute-tma-copy",
+    name: "[GPU] TMA Copy",
+    target: "cute",
+    description:
+      "Tensor Memory Accelerator: sync and async copy between global and shared memory",
+    code: `// TMA (Tensor Memory Accelerator) — hardware-accelerated
+// bulk copy for SM90+ (Hopper) GPUs.
+// The mock interprets tma.copy as a memcpy.
+__co__ void tma_demo() {
+  s32[4, 4] global_A;
+  s32[4, 4] shared_buf;
+
+  // Initialize global tensor
+  foreach i in 4
+    foreach j in 4
+      global_A.at(i, j) = i * 10 + j;
+
+  // Synchronous TMA copy: global -> shared
+  f = tma.copy global_A => shared_buf;
+
+  println("shared_buf[0]:", shared_buf.at(0, 0),
+    shared_buf.at(0, 1), shared_buf.at(0, 2), shared_buf.at(0, 3));
+  println("shared_buf[3]:", shared_buf.at(3, 0),
+    shared_buf.at(3, 1), shared_buf.at(3, 2), shared_buf.at(3, 3));
+}
+`,
+  },
+  {
+    id: "cute-tma-async",
+    name: "[GPU] TMA Async Pipeline",
+    target: "cute",
+    description:
+      "Asynchronous TMA copy with wait — models SM90 producer-consumer pattern",
+    code: `// Async TMA: the copy returns a future that must be
+// waited on before reading the destination buffer.
+// This models the producer/consumer pattern on Hopper GPUs.
+__co__ void tma_async_pipeline() {
+  s32[8] src;
+  s32[8] staging;
+  s32[8] result;
+
+  foreach i in 8
+    src.at(i) = (i + 1) * 5;
+
+  // Stage 1: async copy src -> staging
+  f = tma.copy.async src => staging;
+  wait f;
+
+  // Stage 2: process (double each element)
+  foreach i in 8
+    staging.at(i) = staging.at(i) * 2;
+
+  // Stage 3: sync copy staging -> result
+  g = tma.copy staging => result;
+
+  println("pipeline result:");
+  foreach i in 8
+    println("  [", i, "] =", result.at(i));
+}
+`,
+  },
+  {
+    id: "cute-dma-async",
+    name: "[GPU] DMA Async Copy",
+    target: "cute",
+    description:
+      "Asynchronous DMA with future and wait — basic double-buffering pattern",
+    code: `// DMA async copy returns a future. Use 'wait' to
+// synchronize before reading the destination.
+__co__ void dma_double_buffer() {
+  s32[4] bufA;
+  s32[4] bufB;
+  s32[4] output;
+
+  // Fill source
+  foreach i in 4
+    bufA.at(i) = (i + 1) * 100;
+
+  // Async copy A -> B
+  f = dma.copy.async bufA => bufB;
+
+  // ... other work could happen here ...
+
+  // Wait for copy to complete
+  wait f;
+
+  // Process B into output
+  foreach i in 4
+    output.at(i) = bufB.at(i) + 1;
+
+  println("output:", output.at(0), output.at(1),
+    output.at(2), output.at(3));
+}
+`,
+  },
 ];
